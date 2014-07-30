@@ -1,0 +1,24 @@
+.account {
+    max-width: $max_width_content;
+    margin: auto;
+    text-align: center;
+
+    font-size: 100%;
+    margin-bottom: 10px;
+    overflow: hidden;
+    @include box-shadow(0px 1px 5px rgba(black, 0.2) inset);
+}
+
+.account__inner {
+    padding: 3px 0px;
+    @include background-image(linear-gradient(left, rgba(white, 1), rgba(white, 0), rgba(white, 1)));
+}
+
+.account__email {
+    color: $color_gray;
+}
+
+.account__email, .account__logout {
+    display: inline-block;
+}
+

@@ -1,0 +1,19 @@
+@import "apply-prefixes";
+
+@mixin animation-name ($name) {
+    @include apply-prefixes(animation-name, $name);
+}
+@mixin animation-duration ($duration) {
+    @include apply-prefixes(animation-duration, $duration);
+}
+@mixin animation-timing-function ($timing-function) {
+    @include apply-prefixes(animation-timing-function, $timing-function);
+}
+@mixin animation-iteration-count ($iteration-count) {
+    @include apply-prefixes(animation-iteration-count, $iteration-count);
+}
+
+@mixin keyframes ($name) {
+    @keyframes $name { @content; }
+    @-webkit-keyframes $name { @content; }
+}

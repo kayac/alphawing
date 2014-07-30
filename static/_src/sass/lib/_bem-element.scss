@@ -1,0 +1,11 @@
+@mixin bem-element ($element, $list: ()) {
+    $selector: ".#{$element}";
+
+    @each $modifier in $list {
+        $selector: "#{$selector}, .#{$element}--#{$modifier}";
+    }
+
+    #{$selector} {
+        @content;
+    }
+}

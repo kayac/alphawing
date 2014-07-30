@@ -1,0 +1,11 @@
+.form-wrapper {
+    max-width: $max_width_content;
+    margin: auto;
+}
+
+.form-wrapper__footer {
+    text-align: center;
+    border-top: solid 1px $color_light;
+    margin-top: 15px;
+    padding: 15px 0px;
+}

@@ -1,0 +1,61 @@
+{{set . "title" "API Document"}}
+{{template "header.html" .}}
+<section class="api-document">
+<div class="github-markdown">
+<h1>
+<a name="user-content-api-document" class="anchor" href="#api-document" aria-hidden="true"><span class="octicon octicon-link"></span></a>API document</h1>
+
+<h2>
+<a name="user-content-upload-apk" class="anchor" href="#upload-apk" aria-hidden="true"><span class="octicon octicon-link"></span></a>Upload APK</h2>
+
+<h3>
+<a name="user-content-usage" class="anchor" href="#usage" aria-hidden="true"><span class="octicon octicon-link"></span></a>Usage</h3>
+
+<div class="highlight highlight-sh"><pre><span class="nv">$ </span>curl https://alphawing.kayac.com/api/upload_bundle <span class="se">\</span>
+    -F <span class="nv">token</span><span class="o">=</span>your-project-api-token <span class="se">\</span>
+    -F <span class="nv">description</span><span class="o">=</span><span class="s1">'for alpha-test'</span> <span class="se">\</span>
+    -F <span class="nv">file</span><span class="o">=</span>@/path/to/your/apk-file
+</pre></div>
+
+<h3>
+<a name="user-content-parameters" class="anchor" href="#parameters" aria-hidden="true"><span class="octicon octicon-link"></span></a>Parameters</h3>
+
+<table>
+<thead><tr>
+<th align="center">Name</th>
+<th align="center">Description</th>
+</tr></thead>
+<tbody>
+<tr>
+<td align="center">token</td>
+<td align="center">
+<strong>Required.</strong> The API token of your project. You can check it in your project page.</td>
+</tr>
+<tr>
+<td align="center">description</td>
+<td align="center">The description of the APK file.</td>
+</tr>
+<tr>
+<td align="center">file</td>
+<td align="center">
+<strong>Required.</strong> The path to the APK file.</td>
+</tr>
+</tbody>
+</table><h3>
+<a name="user-content-response" class="anchor" href="#response" aria-hidden="true"><span class="octicon octicon-link"></span></a>Response</h3>
+
+<pre><code>{
+  "status": 200,
+  "message": [
+    "Bundle is created!"
+  ],
+  "content": {
+    "file_id": "the ID of APK file on Google Drive",
+    "revision": 1,
+    "version": "1.0"
+    "install_url": "the URL to install the APK file uploaded"
+  }
+}
+</code></pre><!-- /.github-markdown --></div>
+<!-- /.api-document --></section>
+{{template "footer.html" .}}

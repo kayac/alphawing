@@ -1,0 +1,20 @@
+{{set . "title" "Add Bundle"}}
+{{template "header.html" .}}
+<section class="form-wrapper">
+<form action="{{url "AppControllerWithValidation.PostCreateBundle" .app.Id}}" method="POST" enctype="multipart/form-data">{{with $field := field "bundle.AppId" .}}
+<input type="hidden" name="{{$field.Name}}" value="{{$field.Value}}" />{{end}}
+<div class="form-section">{{with $field := field "bundle.BundleFile" .}}
+<h2 class="form-section__header">apkファイル</h2>
+<input class="form-section__file" type="file" name="file" />{{end}}
+<!-- /.form-section --></div>
+<div class="form-section">{{with $field := field "bundle.Description" .}}
+<h2 class="form-section__header">バージョンの説明</h2>
+<textarea class="form-section__textarea" name="{{$field.Name}}" rows="10" cols="30">{{$field.Flash}}</textarea>{{end}}
+<!-- /.form-section --></div>
+<div class="form-wrapper__footer">
+<a class="btn--cancel" href="{{url "AppControllerWithValidation.GetApp" .app.Id}}">キャンセル</a>
+<input class="btn--submit" type="submit" value="追加" />
+<!-- /.form-wrapper__footer --></div>
+</form> 
+<!-- /.form-wrapper --></section>
+{{template "footer.html" .}}

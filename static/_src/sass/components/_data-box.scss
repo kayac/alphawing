@@ -1,0 +1,12 @@
+.data-box {
+    margin: 15px 0px 5px 0px;
+    border: solid 1px $color_light;
+    padding: 15px;
+
+    @include inset-shadow;
+}
+
+.data-box__date {
+    text-align: right;
+    color: $color_gray;
+}

@@ -1,0 +1,20 @@
+{{if .flash.success}}
+<div id="flash" class="flash--success">
+<div class="flash__inner">
+<a class="flash__clear" href="javascript:void()" data-icon="&#xf165;"><span>確認</span></a>
+<ul>
+<li class="flash__item">{{.flash.success}}</li>
+</ul>
+<!-- /.flash__inner --></div>
+<!-- /.flash--success --></div>{{end}}{{if or .errors .flash.error}}
+<div id="flash" class="flash--error">
+<div class="flash__inner">
+<a class="flash__clear" href="javascript:void()" data-icon="&#xf165;"><span>確認</span></a>
+<ul>{{if .flash.error}}
+<li class="flash__item">{{.flash.error}}</li>{{end}}
+</ul>
+<ul>{{range .errors}}
+<li class="flash__item">{{.}}</li>{{end}}
+</ul>
+<!-- /.flash__inner --></div>
+<!-- /.flash--error --></div>{{end}}

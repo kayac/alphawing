@@ -1,0 +1,20 @@
+{{set . "title" .app.Title}}
+{{template "header.html" .}}
+<section class="form-wrapper">
+<form action="{{url "AppControllerWithValidation.PostUpdateApp" .app.Id}}" method="POST">{{with $field := field "app.Id" .}}
+<input type="hidden" name="{{$field.Name}}" value="{{$field.Value}}" />{{end}}
+<div class="form-section">{{with $field := field "app.Title" .}}
+<h2 class="form-section__header--required">プロジェクト名</h2>
+<input class="form-section__text" type="text" name="{{$field.Name}}" value="{{$field.Value}}" />{{end}}
+<!-- /.form-section --></div>
+<div class="form-section">{{with $field := field "app.Description" .}}
+<h2 class="form-section__header">プロジェクトの説明</h2>
+<input class="form-section__textarea" type="text" name="{{$field.Name}}" value="{{$field.Value}}" />{{end}}
+<!-- /.form-section --></div>
+<div class="form-wrapper__footer">
+<a class="btn--cancel" href="{{url "AppControllerWithValidation.GetApp" .app.Id}}">キャンセル</a>
+<input class="btn--submit" type="submit" value="更新" />
+<!-- /.form-wrapper__footer --></div>
+</form> 
+<!-- /.form-wrapper --></section>
+{{template "footer.html" .}}

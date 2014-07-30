@@ -1,0 +1,7 @@
+test-results/
+tmp/
+routes/
+src/
+pkg/
+bin/*
+conf/app.conf

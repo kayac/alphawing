@@ -1,0 +1,32 @@
+{{set . "title" "Home"}}
+{{template "header.html" .}}
+{{if .islogin}}
+<ul>
+{{range .apps}}
+{{/* 
+<!-- アイコンあるときはこっちになる -->
+<li class="app-item">
+<img class="app-item__icon" src="img/icon_himehyaku.png" alt="{{.Title}}"/>
+<a class="app-item__ttl--icon" href="{{url "AppControllerWithValidation.GetApp" .Id}}">{{.Title}}</a>
+<!-- /.app-item --></li>
+*/}}
+<!-- いまは原則ないのでこっち -->
+<li class="app-item">
+<a class="app-item__ttl" href="{{url "AppControllerWithValidation.GetApp" .Id}}">{{.Title}}</a>
+<!-- /.app-item --></li>
+{{end}}
+</ul>
+<div class="top-btn-area">
+<a class="btn--create-app" href="{{url "AppController.GetCreateApp"}}" data-icon="&#xf015;">プロジェクトの登録</a>
+<!-- /.top-btn-area --></div>
+{{else}}
+<section class="splash">
+<div class="splash__text">
+<p>Welcome to alphawing!</p>
+<!-- /.splash__text --></div>
+<div class="splash__btn">
+<a class="btn--login" href="{{url "AlphaWingController.GetLogin"}}" data-icon="&#xf0C2;">login</a>
+<!-- /.splash__btn --></div>
+<!-- /.splash --></section>
+{{end}}
+{{template "footer.html" .}}

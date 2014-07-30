@@ -1,0 +1,18 @@
+.preview {
+    width: $max_width_content;
+    margin: auto;
+}
+
+.preview__ttl {
+    font-weight: bold;
+}
+
+.preview__list {
+    margin: 10px 0px;
+}
+
+.preview__item {
+    &:before {
+        content: '・';
+    }
+}

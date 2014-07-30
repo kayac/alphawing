@@ -1,0 +1,17 @@
+@mixin image-block ($img, $ratio: 1) {
+    $width: image-width($img) / $ratio;
+    $height: image-height($img) / $ratio;
+
+    background-image: image-url($img);
+    background-repeat: no-repeat;
+    width: $width;
+    height: $height;
+
+    @if $ratio != 1 {
+        @include background-size($width $height);
+    }
+}
+
+@mixin retina-image-block ($img) {
+    @include image-block($img, 2);
+}

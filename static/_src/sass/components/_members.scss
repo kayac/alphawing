@@ -1,0 +1,63 @@
+.members {
+    padding-top: 5px;
+    padding-bottom: 15px;
+}
+
+.members__ttl {
+    font-weight: bold;
+    font-size: 12px;
+    color: $color_navy;
+}
+
+.members__list {
+    background-color: $color_light;
+    border: solid 1px $color_light;
+}
+
+@include bem-element(members__item, (add, self)) {
+    min-height: 22px;
+    padding: 5px 10px;
+
+    border-bottom: solid 2px white;
+
+    word-wrap: break-word;
+}
+
+.members__item--add {
+    border-style: none;
+}
+
+.members__item--self {
+    color: gray;
+}
+
+.members__item__delete {
+    float: right;
+    color: $color_navy;
+    text-decoration: none;
+
+    &:hover {
+        color: $color_blue;
+    }
+    &:before {
+        content: attr(data-icon);
+        font-family: Batch;
+    }
+    span {
+        display: none;
+    }
+}
+
+.members__add-btn {
+    color: $color_navy;
+    text-decoration: none;
+
+    &:hover {
+        color: $color_blue;
+    }
+    &:before {
+        content: attr(data-icon);
+        font-family: Batch;
+        padding-right: 0.5em;
+    }
+}

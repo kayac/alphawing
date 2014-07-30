@@ -1,0 +1,16 @@
+<!-- /.content --></div>{{if .islogin}}
+<div class="account">
+<div class="account__inner">
+<div class="account__email">{{.tokeninfo.Email}}</div>
+<div class="account__logout"><a class="btn--logout" href="{{url "AlphaWingController.GetLogout"}}" data-icon="&#xf0C3;">logout</a></div>
+<!-- /.account__inner --></div>
+<!-- /.account --></div>{{end}}
+<footer class="footer">
+<div class="footer__capacity">GoogleDrive：{{.capacityInfo.Used}}GB / {{.capacityInfo.Total}}GB（残り{{.capacityInfo.PercentageRemained}}%）</div>
+<small class="footer__credit">{{.organizationName}}</small>
+<!-- /.footer --></footer>
+<!-- /.wrapper --></section>
+<script src="//ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
+<script src="/static/js/alphawing.js"></script>
+</body>
+</html>

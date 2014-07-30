@@ -1,0 +1,39 @@
+.footer {
+    $tail_height: 50px;
+
+    text-align: center;
+    position: relative;
+
+    margin-bottom: $tail_height + 20px;
+
+    &:after {
+        content: '';
+        display: block;
+
+        width: 100%;
+        height: $tail_height;
+        position: absolute;
+        top: 100%;
+
+        padding: 0px;
+        background-color: white;
+
+        @include border-radius(0% 0% 100% 100%);
+        @include background-image(linear-gradient(white, $color_light));
+    }
+}
+
+.footer__capacity {
+    text-align: center;
+    color: $color_gray;
+    font-size: 80%;
+    margin: 10px 0px;
+    font-weight: bold;
+}
+
+.footer__credit {
+    display: block;
+    color: $color_gray;
+    margin-bottom: -10px;
+    font-weight: bold;
+}

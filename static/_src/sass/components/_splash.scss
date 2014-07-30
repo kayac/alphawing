@@ -1,0 +1,16 @@
+.splash {
+    text-align: center;
+
+    margin: auto;
+    margin-top: 20px;
+    margin-bottom: 10px;
+
+    padding: 20px 0px;
+    max-width: $max_width_content / 2;
+
+    @include inset-shadow;
+}
+
+.splash__text {
+    margin: 0px 20px;
+}

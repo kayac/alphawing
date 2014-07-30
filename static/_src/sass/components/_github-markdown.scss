@@ -1,0 +1,6 @@
+.github-markdown {
+    @include github-markdown;
+
+    max-width: 600px;
+    margin: auto;
+}

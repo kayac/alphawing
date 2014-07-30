@@ -1,0 +1,99 @@
+$bundle_item_modifires: (first);
+
+@include bem-element(bundle-item, $bundle_item_modifires) {
+    display: block;
+    padding: 0px;
+    margin: 10px 0px;
+
+    text-decoration: none;
+    color: inherit;
+
+    position: relative;
+    left: 50%;
+    margin-left: -50px;
+
+    &:before {
+        $size: 14px;
+
+        content: '';
+        display: inline-block;
+        width: $size;
+        height: $size;
+
+        vertical-align: middle;
+
+        background-color: $color_navy;
+
+        @include border-radius($size);
+    }
+}
+
+@include bem-element(bundle-item__version, $bundle_item_modifires) {
+    display: inline-block;
+    background-color: $color_navy;
+    color: white;
+    text-align: center;
+    padding: 10px;
+    line-height: 1;
+
+    width: 60px;
+
+    vertical-align: middle;
+
+    position: absolute;
+    right: 100%;
+    margin-right: 15px;
+    top: 7px;
+
+    text-decoration: none;
+
+    &:before {
+        content: '';
+        display: block;
+        width: 0px;
+        height: 0px;
+        border-style: solid;
+        border-width: 5px 8px;
+        border-color: transparent transparent transparent $color_navy;
+        position: absolute;
+        left: 100%;
+        top: 12px;
+    }
+
+    &:hover {
+        background-color: $color_blue;
+        @include box-shadow(0px 0px 10px $color_blue);
+
+        &:before {
+            border-color: transparent transparent transparent $color_blue;
+        }
+    }
+}
+
+@include bem-element(bundle-item__date, $bundle_item_modifires) { 
+    display: inline-block;
+    line-height: 30px;
+    padding: 10px;
+    color: $color_gray;
+}
+
+.bundle-item--first {
+    &:before {
+        $size: 20px;
+        $border_width: 4px;
+
+        background-color: white;
+        width: $size;
+        height: $size;
+        border: solid $border_width $color_navy;
+
+        margin-left: -7px;
+
+        @include border-radius($size);
+    }
+
+    .btn--download-current-bundle {
+        margin-top: 0px;
+        margin-left: 30px;
+    }
+}

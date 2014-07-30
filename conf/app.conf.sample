@@ -1,0 +1,110 @@
+# ref. http://revel.github.io/manual/appconf.html
+
+app.name=alphawing
+
+# The secret key used for cryptographic operations.
+app.secret=please-replace-with-your-secret-key
+
+# The domain part of the email permitted to access the alphawing. (comma separated list)
+app.permitteddomain="example.com,example.net"
+
+# Your organization name.
+app.organizationname="Your Organization Name"
+
+http.addr=
+http.port=9000
+http.ssl=false
+http.sslcert=
+http.sslkey=
+
+cookie.httponly=true
+cookie.prefix=REVEL
+cookie.secure=false
+
+format.date=01/02/2006
+format.datetime=01/02/2006 15:04
+
+results.chunked=false
+
+log.trace.prefix = "TRACE "
+log.info.prefix  = "INFO  "
+log.warn.prefix  = "WARN  "
+log.error.prefix = "ERROR "
+
+# The default language of this application.
+i18n.default_language=en
+
+module.static=github.com/revel/revel/modules/static
+
+# The path to 'aapt' command.
+aapt.path = /usr/local/bin/aapt
+
+
+[dev]
+mode.dev=true
+results.pretty=true
+watch=true
+
+module.testrunner = github.com/revel/revel/modules/testrunner
+
+log.trace.output = off
+log.info.output  = stderr
+log.warn.output  = stderr
+log.error.output = stderr
+
+# The setting for MySQL.
+#db.import = github.com/go-sql-driver/mysql
+#db.driver = mysql
+#db.spec   = user:password@tcp(localhost:3306)/alphawing?loc=Local&parseTime=true
+
+# The setting for SQLite3.
+db.import = github.com/mattn/go-sqlite3
+db.driver = sqlite3
+db.spec   = :memory:
+
+# The information of your web application registered with Google.
+google.webapplication.clientid     = *****
+google.webapplication.clientsecret = *****
+google.webapplication.callbackurl  = http://example.com/callback
+
+# The path to your service account's JSON key file
+google.serviceaccount.keypath = /path/to/key.json
+
+# The path to 'aapt' command.
+# default: /usr/local/bin/aapt
+#aapt.path = /path/to/aapt
+
+
+[prod]
+mode.dev=false
+results.pretty=false
+watch=false
+
+module.testrunner =
+
+log.trace.output = off
+log.info.output  = off
+log.warn.output  = %(app.name)s.log
+log.error.output = %(app.name)s.log
+
+# The setting for MySQL.
+db.import = github.com/go-sql-driver/mysql
+db.driver = mysql
+db.spec   = user:password@tcp(localhost:3306)/alphawing?loc=Local&parseTime=true
+
+# The setting for SQLite3.
+#db.import = github.com/mattn/go-sqlite3
+#db.driver = sqlite3
+#db.spec   = :memory:
+
+# The information of your web application registered with Google.
+google.webapplication.clientid     = *****
+google.webapplication.clientsecret = *****
+google.webapplication.callbackurl  = http://example.com/callback
+
+# The path to your service account's JSON key file
+google.serviceaccount.keypath = /path/to/key.json
+
+# The path to 'aapt' command.
+# default: /usr/local/bin/aapt
+#aapt.path = /path/to/aapt

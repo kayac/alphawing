@@ -1,0 +1,41 @@
+# Routes
+# This file defines all application routes (Higher priority routes first)
+# ~~~~
+
+module:testrunner
+
+GET     /                                       AlphaWingController.Index
+
+GET     /login                                  AlphaWingController.GetLogin
+GET     /logout                                 AlphaWingController.GetLogout
+GET     /callback                               AlphaWingController.GetCallback
+
+GET     /api/document                           ApiController.GetDocument
+POST    /api/upload_bundle                      ApiController.PostUploadBundle
+
+GET     /app/create                             AppController.GetCreateApp
+POST    /app/create                             AppController.PostCreateApp
+Get     /app/:appId                             AppControllerWithValidation.GetApp
+Get     /app/:appId/update                      AppControllerWithValidation.GetUpdateApp
+POST    /app/:appId/update                      AppControllerWithValidation.PostUpdateApp
+POST    /app/:appId/delete                      AppControllerWithValidation.PostDeleteApp
+POST    /app/:appId/refresh_token               AppControllerWithValidation.PostRefreshToken
+GET     /app/:appId/create_bundle               AppControllerWithValidation.GetCreateBundle
+POST    /app/:appId/create_bundle               AppControllerWithValidation.PostCreateBundle
+POST    /app/:appId/create_authority            AppControllerWithValidation.PostCreateAuthority
+POST    /app/:appId/delete_authority            AppControllerWithValidation.PostDeleteAuthority
+
+GET     /bundle/:bundleId                       BundleControllerWithValidation.GetBundle
+GET     /bundle/:bundleId/update                BundleControllerWithValidation.GetUpdateBundle
+POST    /bundle/:bundleId/update                BundleControllerWithValidation.PostUpdateBundle
+POST    /bundle/:bundleId/delete                BundleControllerWithValidation.PostDeleteBundle
+GET     /bundle/:bundleId/download              BundleControllerWithValidation.GetDownloadBundle
+
+# Ignore favicon requests
+GET     /favicon.ico                            404
+
+# Map static resources from the /app/static folder to the /static path
+GET     /static/*filepath                       Static.Serve("static")
+
+# Catch all
+*       /:controller/:action                    :controller.:action

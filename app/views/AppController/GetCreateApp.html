@@ -1,0 +1,23 @@
+{{set . "title" "Create App"}}
+{{template "header.html" .}}
+<section class="form-wrapper">
+<form action="{{url "AppController.PostCreateApp"}}" method="POST">
+{{with $field := field "app.Title" .}}
+<div class="form-section">
+<h2 class="form-section__header--required">プロジェクト名</h2>
+<input class="form-section__text" type="text" name="{{$field.Name}}" value="{{$field.Flash}}"/>
+<!-- /.form-section --></div>
+{{end}}
+{{with $field := field "app.Description" .}}
+<div class="form-section">
+<h2 class="form-section__header">プロジェクトの説明</h2>
+<input class="form-section__textarea" type="text" name="{{$field.Name}}" value="{{$field.Flash}}" />
+<!-- /.form-section --></div>
+{{end}}
+<div class="form-wrapper__footer">
+<a class="btn--cancel" href="{{url "AlphaWingController.Index"}}">キャンセル</a>
+<input class="btn--submit" type="submit" value="作成"/>
+<!-- /.form-wrapper__footer --></div>
+</form>
+<!-- /.form-wrapper --></section>
+{{template "footer.html" .}}

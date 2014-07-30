@@ -1,0 +1,72 @@
+.app-detail {
+    max-width: $max_width_content;
+    margin: auto;
+
+    position: relative;
+
+    margin-top: -10px;
+    padding-bottom: 20px;
+}
+
+.app-detail__ttl {
+    display: block;
+    color: $color_navy;
+    font-weight: bold;
+
+    text-decoration: none;
+
+    font-size: 25px;
+    text-align: center;
+
+    &:hover {
+        text-decoration: underline;
+    }
+}
+
+.app-detail__description {
+    color: $color_gray;
+    text-align: center;
+    padding-bottom: 10px;
+}
+
+.app-detail__btn-area {
+    text-align: center;
+}
+
+.app-detail__bundle-list {
+    margin-top: 10px;
+    margin-bottom: 15px;
+    padding-top: 0px;
+    padding-bottom: 40px;
+
+    position: relative;
+    overflow: hidden;
+
+    border-top: solid 1px $color_light;
+    border-bottom: solid 1px $color_light;
+
+    &:before {
+        content: '';
+        border-left: solid 4px $color_navy;
+        position: absolute;
+        height: 100%;
+        top: 35px;
+        left: 50%;
+        margin-left: -45px;
+    }
+}
+
+.app-detail__no-bundle {
+    text-align: center;
+    margin: 15px 0px;
+    padding: 15px 0px;
+    color: $color_navy;
+    font-weight: bold;
+
+    border-top: solid 1px $color_light;
+    border-bottom: solid 1px $color_light;
+}
+
+.app-detail__operation {
+    text-align: center;
+}

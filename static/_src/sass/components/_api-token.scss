@@ -1,0 +1,26 @@
+.api-token {
+    margin-bottom: 20px;
+}
+
+.api-token__ttl {
+    font-weight: bold;
+    font-size: 12px;
+    color: $color_navy;
+}
+
+.api-token__token {
+    background-color: $color_light;
+    padding: 10px;
+
+    input[type="text"] {
+        width: 400px;
+    }
+}
+
+.api-token__notice {
+    font-size: 75%;
+
+    li:before {
+        content: "・";
+    }
+}

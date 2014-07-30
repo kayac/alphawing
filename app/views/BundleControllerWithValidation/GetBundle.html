@@ -1,0 +1,19 @@
+{{set . "title" "Bundle Detail"}}
+{{$dateFormat := "2006/01/02 15:04"}}
+{{template "header.html" .}}
+<section class="bundle-detail">
+<h1 class="bundle-detail__header">
+<a class="bundle-detail__bundle-version" href="{{url "BundleControllerWithValidation.GetBundle" .bundle.Id}}">{{with $field := field "bundle.BundleVersion" .}}{{$field.Value}}{{end}} #{{.bundle.Revision}}</a>
+<a class="bundle-detail__app-ttl" href="{{url "AppControllerWithValidation.GetApp" .bundle.AppId}}">{{.app.Title}}</a>
+<!-- /.bundle-detail__header --></h1>
+<div class="data-box">
+<div class="data-box__description">{{with $field := field "bundle.Description" .}}
+{{nl2br $field.Value}}{{end}}
+<!-- /.data-box__description --></div>
+<div class="data-box__date">{{with $field := field "bundle.CreatedAt" .}}{{$field.Value.Format $dateFormat}}{{end}}</div>
+<!-- /.data-box --></div>
+<a class="btn--download-bundle" href="{{url "BundleControllerWithValidation.GetDownloadBundle" .bundle.Id}}" data-icon="&#xf02C;">ダウンロード</a>
+<a class="btn--update-bundle" href="{{url "BundleControllerWithValidation.GetUpdateBundle" .bundle.Id}}" data-icon="&#xf04D;">編集</a>
+<a class="btn--delete-bundle" href="{{url "BundleControllerWithValidation.PostDeleteBundle" .bundle.Id}}" data-icon="&#xf056;">削除</a>
+<!-- /.bundle-detail --></section>
+{{template "footer.html" .}}

@@ -1,0 +1,74 @@
+$btn_types:
+  login,
+  logout,
+  cancel,
+  submit,
+  create-app,
+  create-bundle,
+  update-app,
+  update-bundle,
+  delete-app,
+  delete-bundle,
+  download-bundle,
+  download-current-bundle,
+  add-member;
+
+@include bem-element(btn, $btn_types) {
+    text-align: center;
+    display: inline-block;
+    padding: 5px 10px;
+    margin: 10px 5px;
+
+    color: inherit;
+    position: relative;
+
+    text-decoration: none;
+
+    border-style: none;
+    font-size: 100%;
+    line-height: 1.7;
+    cursor: pointer;
+
+    @include border-radius(10px);
+    @include box-shadow(0px 1px 3px rgba(black, 0.3));
+    @include background-image(linear-gradient(white, white, $color_light));
+
+    &:hover {
+        background: white;
+    }
+}
+
+.btn--login,
+.btn--logout,
+.btn--create-app,
+.btn--update-app,
+.btn--delete-app,
+.btn--create-bundle,
+.btn--update-bundle,
+.btn--delete-bundle,
+.btn--download-bundle {
+    &:before {
+        content: attr(data-icon);
+        font-family: Batch;
+        padding-right: 0.5em;
+    }
+}
+
+@media (max-width: 360px) {
+    .btn--login,
+    .btn--logout,
+    .btn--create-app,
+    .btn--update-app,
+    .btn--delete-app,
+    .btn--create-bundle,
+    .btn--update-bundle,
+    .btn--delete-bundle,
+    .btn--download-bundle {
+        display: block;
+    }
+}
+
+.btn--delete-app {
+    font-weight: bold;
+    color: $color_red;
+}

@@ -1,0 +1,6 @@
+@mixin apply-prefixes ($prop, $value) {
+    #{$prop}: $value;
+    @each $prefix in webkit, moz, o, ms {
+        -#{$prefix}-#{$prop}: $value;
+    }
+}

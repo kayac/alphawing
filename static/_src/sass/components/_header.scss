@@ -1,0 +1,70 @@
+.header {
+    $spacing: 12px;
+    $rad: 80px;
+    $diff: 3px;
+    $deg: 8deg;
+    $deg_cut: 30deg;
+
+    position: relative;
+    overflow: hidden;
+    padding-bottom: 10px;
+
+    &:before, &:after {
+        content: '';
+        display: block;
+        position: absolute;
+        width: 50%;
+        height: 5px;
+        top: 20px;
+
+        border-top: solid 10px $color_navy;
+        border-bottom: solid 4px $color_navy;
+    }
+
+    &:before {
+        right: 50%;
+        margin-right: $rad;
+
+        @include transform-origin(100%, 100%);
+        @include transform(rotate($deg) skewX($deg + $deg_cut));
+    }
+    &:after {
+        left: 50%;
+        margin-left: $rad;
+
+        @include transform-origin(0%, 100%);
+        @include transform(rotate(-$deg) skewX(-$deg - $deg_cut));
+    }
+}
+
+.header__ttl {
+    $size: 150px;
+    
+    width: $size;
+    height: $size / 2;
+    padding-top: $size / 2;
+    background-color: $color_navy;
+    color: white;
+    margin-top: -$size / 2;
+    line-height: $size / 3;
+
+    background-image: image-url('logo_alphawing.png');
+    background-position: 32px 55px;
+    background-repeat: no-repeat;
+    @include background-size(100px);
+
+    @include border-radius($size / 2);
+    @include box-shadow(0px 0px 10px rgba(black, 0.5));
+
+    position: relative;
+    left: 50%;
+    margin-left: -$size / 2;
+
+    &:hover {
+        background-color: $color_blue;
+    }
+
+    span {
+        display: none;
+    }
+}

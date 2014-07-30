@@ -1,0 +1,47 @@
+.app-item {
+    position: relative;
+    margin: 15px auto;
+    max-width: $max_width_content;
+
+    &:before {
+        content: '';
+        display: block;
+        position: absolute;
+        background-color: $color_navy;
+        width: $width_tag_line;
+        height: 45px;
+        left: 10px;
+        @include inset-shadow;
+    }
+}
+
+@include bem-element(app-item__ttl, (icon)) {
+    display: block;
+    color: $color_navy;
+
+    padding: 15px;
+    padding-left: 28px;
+
+    border-bottom: solid 4px $color_light;
+    text-decoration: none;
+
+    @include box-shadow(0px 2px 5px rgba(black, 0.3));
+
+    &:hover {
+        border-bottom: none 0px white;
+        border-top: solid 4px white;
+    }
+}
+
+.app-item__ttl--icon {
+    margin-right: 65px;
+}
+
+.app-item__icon {
+    width: 54px;
+    position: absolute;
+    right: 0px;
+    top: 0px;
+    border-bottom: solid 4px $color_light;
+    @include box-shadow(0px 2px 5px rgba(black, 0.3));
+}

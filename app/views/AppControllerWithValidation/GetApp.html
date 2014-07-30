@@ -1,0 +1,75 @@
+{{set . "title" .app.Title}}
+{{$dateFormat := "2006/01/02 15:04"}}
+{{template "header.html" .}}
+<section class="app-detail">
+<div id="data-app-id" data-app-id="{{.app.Id}}"></div>
+
+<h1><a class="app-detail__ttl" href="{{url "AppControllerWithValidation.GetApp" .app.Id}}">{{with $field := field "app.Title" .}}{{$field.Value}}{{end}}</a></h1>
+
+<div class="app-detail__description">{{with $field := field "app.Description" .}}
+{{nl2br $field.Value}}{{end}}
+<!-- /.app-detail__description --></div>
+
+{{if eq (len .bundles) 0}}
+<div class="app-detail__no-bundle">apkファイルが登録されていません。</div>{{else}}
+<ul class="app-detail__bundle-list">{{range $index, $value := .bundles}}{{if eq $index 0}}
+<li><div class="bundle-item--first">
+<a href="{{url "BundleControllerWithValidation.GetBundle" $value.Id}}" class="bundle-item__version--first">{{$value.BundleVersion}} #{{$value.Revision}}</a>
+<div class="bundle-item__date--first">{{$value.CreatedAt.Format $dateFormat}}</div>
+<br />
+<a class="btn--download-current-bundle" href="{{url "BundleControllerWithValidation.GetDownloadBundle" $value.Id}}">最新版をダウンロード</a>
+<!-- /.bundle-item --></div></li>{{else}}
+<li><div class="bundle-item">
+<a href="{{url "BundleControllerWithValidation.GetBundle" $value.Id}}" class="bundle-item__version">{{$value.BundleVersion}} #{{$value.Revision}}</a>
+<div class="bundle-item__date">{{$value.CreatedAt.Format $dateFormat}}</div>
+<!-- /.bundle-item --></div></li>{{end}}{{end}}
+<!-- /.app-detail__bundle-list --></ul>{{end}}
+
+{{/*
+<div class="data-box">{{with $field := field "app.Description" .}}
+<div class="data-box__description">
+{{nl2br $field.Value}}
+<!-- /.data-box__description --></div>{{end}}{{with $field := field "app.CreatedAt" .}}
+<div class="data-box__date">{{$field.Value.Format $dateFormat}}</div>{{end}}
+<!-- /.data-box --></div>
+*/}}
+
+<div class="app-detail__btn-area">
+<a class="btn--create-bundle" href="{{url "AppControllerWithValidation.GetCreateBundle" .app.Id}}" data-icon="&#xf14C;">apkファイルを追加</a>
+<!-- /.app-detail__btn-area --></div>
+
+<div class="members">
+<h2 class="members__ttl">チームメンバー</h2>{{$email := .tokeninfo.Email}}
+<ul id="member-list" class="members__list">{{range .authorities}}
+<li {{if eq .Email $email}}class="members__item--self"{{else}}class="members__item"{{end}} data-authority-id="{{.Id}}">
+<a class="members__item__delete" href="javascript:void()" data-icon="&#xf14E;"><span>削除</span></a>
+<span class="members__item__email">{{.Email}}</span>
+<!-- /.members__item --></li>{{end}}
+<li class="members__item--add">
+<a id="member-list-add" class="members__add-btn" href="javascript:void()" data-icon="&#xf14C;">メンバーの追加</a>
+<!-- /.members__item--add --></li>
+<!-- /.members__list --></ul>
+<!-- /.members --></div>
+
+<div class="api-token">
+<h2 class="api-token__ttl">APIトークン</h2>
+<div class="api-token__token">
+<form action="{{url "AppControllerWithValidation.PostRefreshToken" .app.Id}}" method="POST">{{with $field := field "app.ApiToken" .}}
+<input type="text" value="{{$field.Value}}" />{{end}}{{with $field := field "app.Id" .}}
+<input type="hidden" name="{{$field.Name}}" value="{{$field.Value}}" />{{end}}
+<input type="submit" class="btn--refresh-token" value="トークン再発行" />
+</form>
+<!-- /.api-token__token --></div>
+<ul class="api-token__notice">
+<li>アプリケーション開発者は上記のAPIトークンを利用してapkファイルをアップロードできます。</li>
+<li>詳しくは<a href="{{url "ApiController.GetDocument"}}">APIドキュメント</a>をご覧ください。</li>
+<!-- /.api-token__notice --></ul>
+<!-- /.api-token --></div>
+
+<div class="app-detail__btn-area">
+<a class="btn--update-app" href="{{url "AppControllerWithValidation.GetUpdateApp" .app.Id}}" data-icon="&#xf04D;">プロジェクトの編集</a>
+<a class="btn--delete-app" href="{{url "AppControllerWithValidation.PostDeleteApp" .app.Id}}" data-icon="&#xf056;">プロジェクトの削除</a>
+<!-- /.app-detail__btn-area --></div>
+
+<!-- /.app-detail --></section>
+{{template "footer.html" .}}
