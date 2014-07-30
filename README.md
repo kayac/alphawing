@@ -17,7 +17,7 @@ $ go get github.com/revel/cmd/revel
 ### Get alphawing
 
 ``` sh
-$ go get github.com/kayac/alphawing
+$ go get github.com/kayac/alphawing/app
 ```
 
 ### Decide domain name for the application
