@@ -183,6 +183,36 @@ $(function () {
             $input.val(value);
         });
     })();
+
+
+    // qr-code
+    (function () {
+        var SIZE = 100;
+
+        var $download = $('.btn--download-bundle');
+
+        if (!$download.length) {
+            return;
+        }
+
+        var href = $download.attr('href');
+        var qrcodeLink = [
+            'https://chart.googleapis.com/chart',
+            '?cht=qr',
+            '&chs=' + SIZE + 'x' + SIZE,
+            '&chl=' + href
+        ].join('');
+
+        var $img = $('<img />');
+        $img.attr({
+            'class': 'bundle-detail__qr',
+            width: SIZE,
+            height: SIZE,
+            src: qrcodeLink
+        });
+
+        $('.data-box').after($img);
+    })();
 });
 
 })();
