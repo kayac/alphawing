@@ -30,8 +30,9 @@ $ curl https://alphawing.kayac.com/api/upload_bundle \
   "content": {
     "file_id": "the ID of APK file on Google Drive",
     "revision": 1,
-    "version": "1.0"
-    "install_url": "the URL to install the APK file uploaded"
+    "version": "1.0",
+    "install_url": "the URL to install the APK file uploaded",
+    "qr_code_url": "the URL of the QR code to install the APK file uploaded"
   }
 }
 ```
