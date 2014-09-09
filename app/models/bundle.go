@@ -28,10 +28,15 @@ type BundleJsonResponse struct {
 	Version    string `json:"version"`
 	Revision   int    `json:"revision"`
 	InstallUrl string `json:"install_url"`
+	QrCodeUrl  string `json:"qr_code_url"`
 }
 
 func (bundle *Bundle) JsonResponse(ub UriBuilder) (*BundleJsonResponse, error) {
 	installUrl, err := ub.UriFor(fmt.Sprintf("bundle/%d/download", bundle.Id))
+	if err != nil {
+		return nil, err
+	}
+	qrCodeUrl, err := ub.UriFor(fmt.Sprintf("bundle/%d", bundle.Id))
 	if err != nil {
 		return nil, err
 	}
@@ -41,6 +46,7 @@ func (bundle *Bundle) JsonResponse(ub UriBuilder) (*BundleJsonResponse, error) {
 		Version:    bundle.BundleVersion,
 		Revision:   bundle.Revision,
 		InstallUrl: installUrl.String(),
+		QrCodeUrl:  qrCodeUrl.String(),
 	}, nil
 }
 
