@@ -2,6 +2,7 @@ package controllers
 
 import (
 	"database/sql"
+	"fmt"
 	"strconv"
 	"time"
 
@@ -36,7 +37,12 @@ func (c BundleControllerWithValidation) GetBundle(bundleId int) revel.Result {
 		panic(err)
 	}
 
-	return c.Render(bundle, app)
+	installUrl, err := c.UriFor(fmt.Sprintf("bundle/%d/download", bundle.Id))
+	if err != nil {
+		panic(err)
+	}
+
+	return c.Render(bundle, app, installUrl)
 }
 
 func (c BundleControllerWithValidation) GetUpdateBundle(bundleId int) revel.Result {
