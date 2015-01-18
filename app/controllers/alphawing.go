@@ -7,6 +7,7 @@ import (
 	"strconv"
 	"strings"
 
+	"code.google.com/p/go-uuid/uuid"
 	"code.google.com/p/goauth2/oauth"
 	"code.google.com/p/google-api-go-client/drive/v2"
 	"code.google.com/p/google-api-go-client/oauth2/v2"
@@ -25,6 +26,7 @@ type AlphaWingController struct {
 }
 
 const LoginSessionKey = "LoginSessionKey"
+const OAuthSessionKey = "OAuthSessionKey"
 
 func (c AlphaWingController) Index() revel.Result {
 	if !c.isLogin() {
@@ -55,11 +57,22 @@ func (c AlphaWingController) Index() revel.Result {
 }
 
 func (c AlphaWingController) GetLogin() revel.Result {
-	if c.isLogin() {
-		return c.Redirect(routes.AlphaWingController.Index())
+	next := c.Params.Query.Get("next")
+	if next == "" {
+		next = routes.AlphaWingController.Index()
 	}
-	url := c.OAuthConfig.AuthCodeURL("")
-	return c.Redirect(url)
+
+	if c.isLogin() {
+		return c.Redirect(next)
+	}
+
+	sessionKey := uuid.NewRandom().String()
+	c.Session[OAuthSessionKey] = sessionKey
+	state := url.Values{}
+	state.Set("session_key", sessionKey)
+	state.Set("next", next)
+	authUrl := c.OAuthConfig.AuthCodeURL(state.Encode())
+	return c.Redirect(authUrl)
 }
 
 func (c AlphaWingController) GetLogout() revel.Result {
@@ -68,9 +81,19 @@ func (c AlphaWingController) GetLogout() revel.Result {
 }
 
 func (c AlphaWingController) GetCallback() revel.Result {
+	state, err := url.ParseQuery(c.Params.Query.Get("state"))
+	if err != nil {
+		panic(err)
+	}
+	if sessionKey := state.Get("session_key"); sessionKey != c.Session[OAuthSessionKey] {
+		panic("invalid session key")
+	}
+	delete(c.Session, OAuthSessionKey)
+	next := state.Get("next")
+
 	code := c.Params.Query.Get("code")
 	t := c.transport()
-	_, err := t.Exchange(code)
+	_, err = t.Exchange(code)
 	if err != nil {
 		panic(err)
 	}
@@ -84,7 +107,7 @@ func (c AlphaWingController) GetCallback() revel.Result {
 	if c.Validation.HasErrors() {
 		c.Validation.Keep()
 		c.FlashParams()
-		return c.Redirect(routes.AlphaWingController.Index())
+		return c.Redirect(next)
 	}
 
 	user, err := models.FindOrCreateUser(c.Txn, tokeninfo.Email)
@@ -94,7 +117,7 @@ func (c AlphaWingController) GetCallback() revel.Result {
 
 	c.login(fmt.Sprint(user.Id))
 
-	return c.Redirect(routes.AlphaWingController.Index())
+	return c.Redirect(next)
 }
 
 func (c *AlphaWingController) UriFor(path string) (*url.URL, error) {
