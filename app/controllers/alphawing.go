@@ -57,10 +57,7 @@ func (c AlphaWingController) Index() revel.Result {
 }
 
 func (c AlphaWingController) GetLogin() revel.Result {
-	next := c.Params.Query.Get("next")
-	if next == "" {
-		next = routes.AlphaWingController.Index()
-	}
+	next := extractPath(c.Params.Query.Get("next"))
 
 	if c.isLogin() {
 		return c.Redirect(next)
@@ -89,7 +86,7 @@ func (c AlphaWingController) GetCallback() revel.Result {
 		panic("invalid session key")
 	}
 	delete(c.Session, OAuthSessionKey)
-	next := state.Get("next")
+	next := extractPath(state.Get("next"))
 
 	code := c.Params.Query.Get("code")
 	t := c.transport()
@@ -290,6 +287,14 @@ func (c *AlphaWingController) userGoogleService() (*models.GoogleService, error)
 	}
 
 	return s, nil
+}
+
+func extractPath(next string) string {
+	n, err := url.Parse(next)
+	if err != nil {
+		return routes.AlphaWingController.Index()
+	}
+	return n.Path
 }
 
 // ----------------------------------------------------------------------
