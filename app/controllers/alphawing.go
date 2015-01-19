@@ -104,7 +104,7 @@ func (c AlphaWingController) GetCallback() revel.Result {
 	if c.Validation.HasErrors() {
 		c.Validation.Keep()
 		c.FlashParams()
-		return c.Redirect(next)
+		return c.Redirect(routes.AlphaWingController.Index())
 	}
 
 	user, err := models.FindOrCreateUser(c.Txn, tokeninfo.Email)
