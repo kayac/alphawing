@@ -7,6 +7,7 @@ import (
 	"strconv"
 	"strings"
 
+	"code.google.com/p/go-uuid/uuid"
 	"code.google.com/p/goauth2/oauth"
 	"code.google.com/p/google-api-go-client/drive/v2"
 	"code.google.com/p/google-api-go-client/oauth2/v2"
@@ -25,6 +26,7 @@ type AlphaWingController struct {
 }
 
 const LoginSessionKey = "LoginSessionKey"
+const OAuthSessionKey = "OAuthSessionKey"
 
 func (c AlphaWingController) Index() revel.Result {
 	if !c.isLogin() {
@@ -55,11 +57,19 @@ func (c AlphaWingController) Index() revel.Result {
 }
 
 func (c AlphaWingController) GetLogin() revel.Result {
+	next := extractPath(c.Params.Query.Get("next"))
+
 	if c.isLogin() {
-		return c.Redirect(routes.AlphaWingController.Index())
+		return c.Redirect(next)
 	}
-	url := c.OAuthConfig.AuthCodeURL("")
-	return c.Redirect(url)
+
+	sessionKey := uuid.NewRandom().String()
+	c.Session[OAuthSessionKey] = sessionKey
+	state := url.Values{}
+	state.Set("session_key", sessionKey)
+	state.Set("next", next)
+	authUrl := c.OAuthConfig.AuthCodeURL(state.Encode())
+	return c.Redirect(authUrl)
 }
 
 func (c AlphaWingController) GetLogout() revel.Result {
@@ -68,9 +78,19 @@ func (c AlphaWingController) GetLogout() revel.Result {
 }
 
 func (c AlphaWingController) GetCallback() revel.Result {
+	state, err := url.ParseQuery(c.Params.Query.Get("state"))
+	if err != nil {
+		panic(err)
+	}
+	if sessionKey := state.Get("session_key"); sessionKey != c.Session[OAuthSessionKey] {
+		panic("invalid session key")
+	}
+	delete(c.Session, OAuthSessionKey)
+	next := extractPath(state.Get("next"))
+
 	code := c.Params.Query.Get("code")
 	t := c.transport()
-	_, err := t.Exchange(code)
+	_, err = t.Exchange(code)
 	if err != nil {
 		panic(err)
 	}
@@ -94,7 +114,7 @@ func (c AlphaWingController) GetCallback() revel.Result {
 
 	c.login(fmt.Sprint(user.Id))
 
-	return c.Redirect(routes.AlphaWingController.Index())
+	return c.Redirect(next)
 }
 
 func (c *AlphaWingController) UriFor(path string) (*url.URL, error) {
@@ -267,6 +287,14 @@ func (c *AlphaWingController) userGoogleService() (*models.GoogleService, error)
 	}
 
 	return s, nil
+}
+
+func extractPath(next string) string {
+	n, err := url.Parse(next)
+	if err != nil {
+		return routes.AlphaWingController.Index()
+	}
+	return n.Path
 }
 
 // ----------------------------------------------------------------------
