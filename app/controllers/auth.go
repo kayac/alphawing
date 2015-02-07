@@ -1,16 +1,17 @@
 package controllers
 
 import (
-	"github.com/kayac/alphawing/app/routes"
-	r "github.com/revel/revel"
 	"net/url"
+
+	"github.com/kayac/alphawing/app/routes"
+	"github.com/revel/revel"
 )
 
 type AuthController struct {
 	AlphaWingController
 }
 
-func (c *AuthController) CheckLogin() r.Result {
+func (c *AuthController) CheckLogin() revel.Result {
 	if c.isLogin() {
 		return nil
 	}
