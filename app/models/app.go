@@ -21,6 +21,7 @@ type App struct {
 	FileId      string    `db:"file_id"`
 	ApiToken    string    `db:"api_token"`
 	Description string    `db:"description"`
+	Platform    int       `db:"platform"`
 	CreatedAt   time.Time `db:"created_at"`
 	UpdatedAt   time.Time `db:"updated_at"`
 }
