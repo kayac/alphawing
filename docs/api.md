@@ -5,7 +5,7 @@
 ### Usage
 
 ``` sh
-$ curl https://alphawing.kayac.com/api/upload_bundle \
+$ curl http://your-domain.com/api/upload_bundle \
     -F token=your-project-api-token \
     -F description='for alpha-test' \
     -F file=@/path/to/your/apk-file
