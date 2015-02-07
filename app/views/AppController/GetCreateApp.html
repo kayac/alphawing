@@ -14,6 +14,15 @@
 <input class="form-section__textarea" type="text" name="{{$field.Name}}" value="{{$field.Flash}}" />
 <!-- /.form-section --></div>
 {{end}}
+{{with $field := field "app.Platform" .}}
+<div class="form-section">
+<h2 class="form-section__header--required">プラットフォーム</h2>
+<select name="{{$field.Name}}" value="{{$field.Flash}}">
+<option value="android">Android (apkファイル)</option>
+<option value="ios">iOS (ipaファイル)</option>
+</select>
+<!-- /.form-section --></div>
+{{end}}
 <div class="form-wrapper__footer">
 <a class="btn--cancel" href="{{url "AlphaWingController.Index"}}">キャンセル</a>
 <input class="btn--submit" type="submit" value="作成"/>
