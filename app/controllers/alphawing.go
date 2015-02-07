@@ -58,6 +58,9 @@ func (c AlphaWingController) Index() revel.Result {
 
 func (c AlphaWingController) GetLogin() revel.Result {
 	next := extractPath(c.Params.Query.Get("next"))
+	if len(next) == 0 {
+		next = routes.AlphaWingController.Index()
+	}
 
 	if c.isLogin() {
 		return c.Redirect(next)
