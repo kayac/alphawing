@@ -15,6 +15,7 @@ type Bundle struct {
 	BundleVersion string    `db:"bundle_version"`
 	Revision      int       `db:"revision"`
 	Description   string    `db:"description"`
+	IsPermanent   bool      `db:"is_permanent"`
 	CreatedAt     time.Time `db:"created_at"`
 	UpdatedAt     time.Time `db:"updated_at"`
 
