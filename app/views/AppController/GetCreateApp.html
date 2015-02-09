@@ -14,7 +14,7 @@
 <input class="form-section__textarea" type="text" name="{{$field.Name}}" value="{{$field.Flash}}" />
 <!-- /.form-section --></div>
 {{end}}
-{{with $field := field "app.Platform" .}}
+{{with $field := field "app.PlatformType" .}}
 <div class="form-section">
 <h2 class="form-section__header--required">プラットフォーム</h2>
 <select name="{{$field.Name}}" value="{{$field.Flash}}">
