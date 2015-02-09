@@ -31,6 +31,8 @@ func (c AppController) GetCreateApp() revel.Result {
 
 func (c AppController) PostCreateApp(app models.App) revel.Result {
 	c.Validation.Required(app.Title).Message("Title is required.")
+	c.Validation.Required(app.PlatformType).Message("PlatformType is required.")
+	c.Validation.Required(app.IsValidPlatformType).Message("PlatformType is invalid.")
 	if c.Validation.HasErrors() {
 		c.Validation.Keep()
 		c.FlashParams()

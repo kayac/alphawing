@@ -44,6 +44,17 @@ func GetAppByApiToken(txn *gorp.Transaction, apiToken string) (*App, error) {
 	return &app, nil
 }
 
+func (app *App) IsValidPlatformType() bool {
+	switch app.PlatformType {
+	case AppPlatformTypeAndroid:
+		return true
+	case AppPlatformTypeIOS:
+		return true
+	default:
+		return false
+	}
+}
+
 func (app *App) Bundles(txn *gorp.Transaction) ([]*Bundle, error) {
 	var bundles []*Bundle
 	_, err := txn.Select(&bundles, "SELECT * FROM bundle WHERE app_id = ? ORDER BY id DESC", app.Id)
