@@ -14,16 +14,23 @@ import (
 	"github.com/coopernurse/gorp"
 )
 
+type AppPlatformType int
+
+const (
+	AppPlatformTypeIOS AppPlatformType = 1 + iota
+	AppPlatformTypeAndroid
+)
+
 // https://github.com/coopernurse/gorp#mapping-structs-to-tables
 type App struct {
-	Id          int       `db:"id"`
-	Title       string    `db:"title"`
-	FileId      string    `db:"file_id"`
-	ApiToken    string    `db:"api_token"`
-	Description string    `db:"description"`
-	Platform    int       `db:"platform"`
-	CreatedAt   time.Time `db:"created_at"`
-	UpdatedAt   time.Time `db:"updated_at"`
+	Id           int             `db:"id"`
+	Title        string          `db:"title"`
+	FileId       string          `db:"file_id"`
+	ApiToken     string          `db:"api_token"`
+	Description  string          `db:"description"`
+	PlatformType AppPlatformType `db:"platform_type"`
+	CreatedAt    time.Time       `db:"created_at"`
+	UpdatedAt    time.Time       `db:"updated_at"`
 }
 
 func GetAppByApiToken(txn *gorp.Transaction, apiToken string) (*App, error) {
