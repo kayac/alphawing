@@ -17,8 +17,8 @@ import (
 type AppPlatformType int
 
 const (
-	AppPlatformTypeIOS AppPlatformType = 1 + iota
-	AppPlatformTypeAndroid
+	AppPlatformTypeAndroid AppPlatformType = 1 + iota
+	AppPlatformTypeIOS
 )
 
 // https://github.com/coopernurse/gorp#mapping-structs-to-tables
