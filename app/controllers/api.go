@@ -41,7 +41,7 @@ func (c ApiController) GetDocument() revel.Result {
 	return c.Render()
 }
 
-func (c ApiController) PostUploadBundle(token string, description string, permanence bool, file *os.File) revel.Result {
+func (c ApiController) PostUploadBundle(token string, description string, file *os.File) revel.Result {
 	app, err := models.GetAppByApiToken(c.Txn, token)
 	if err != nil {
 		c.Response.Status = http.StatusUnauthorized
@@ -60,7 +60,6 @@ func (c ApiController) PostUploadBundle(token string, description string, perman
 
 	bundle := &models.Bundle{
 		Description: description,
-		IsPermanent: permanence,
 		File:        file,
 	}
 
