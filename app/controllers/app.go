@@ -164,8 +164,8 @@ func (c AppControllerWithValidation) PostCreateBundle(appId int, bundle models.B
 
 	bundle.File = file
 
-	if err := c.App.CreateBundle(c.Txn, c.GoogleService, Conf.AaptPath, &bundle); err != nil {
-		if aperr, ok := err.(*models.ApkParseError); ok {
+	if err := c.App.CreateBundle(c.Txn, c.GoogleService, &bundle); err != nil {
+		if aperr, ok := err.(*models.AppParseError); ok {
 			c.Flash.Error(aperr.Error())
 			return c.Redirect(routes.AppControllerWithValidation.GetCreateBundle(appId))
 		}
