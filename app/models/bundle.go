@@ -116,3 +116,12 @@ func GetBundle(txn *gorp.Transaction, id int) (*Bundle, error) {
 	}
 	return bundle.(*Bundle), nil
 }
+
+func GetBundleByFileId(txn *gorp.Transaction, fileId string) (*Bundle, error) {
+	var bundle *Bundle
+	err := txn.SelectOne(&bundle, "SELECT * FROM bundle WHERE file_id = ?", fileId)
+	if err != nil {
+		return nil, err
+	}
+	return bundle, nil
+}

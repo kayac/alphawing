@@ -12,6 +12,7 @@ GET     /callback                               AlphaWingController.GetCallback
 
 GET     /api/document                           ApiController.GetDocument
 POST    /api/upload_bundle                      ApiController.PostUploadBundle
+POST    /api/delete_bundle                      ApiController.PostDeleteBundle
 
 GET     /app/create                             AppController.GetCreateApp
 POST    /app/create                             AppController.PostCreateApp
