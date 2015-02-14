@@ -15,6 +15,23 @@ const (
 	BundlePlatformTypeIOS
 )
 
+type BundleFileExtension string
+
+const (
+	BundleFileExtensionAndroid = ".apk"
+	BundleFileExtensionIOS     = ".ipa"
+)
+
+func (ext BundleFileExtension) IsValid() (ok bool) {
+	ok = false
+	if ext == BundleFileExtensionAndroid {
+		ok = true
+	} else if ext == BundleFileExtensionIOS {
+		ok = true
+	}
+	return
+}
+
 type Bundle struct {
 	Id            int                `db:"id"`
 	AppId         int                `db:"app_id"`
