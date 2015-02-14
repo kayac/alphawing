@@ -36,3 +36,51 @@ $ curl http://your-domain.com/api/upload_bundle \
   }
 }
 ```
+
+## Listing Bundle
+
+### Usage
+
+``` sh
+$ curl http://your-domain.com/api/list_bundle \
+    -F token=your-project-api-token \
+    -F limit=limit_num \
+    -F offset=offset-num
+```
+
+### Parameters
+
+|Name|Description|
+|:---:|:---:|
+|token|**Required.** The API token of your project. You can check it in your project page.|
+|limit|Specific number for limit.|
+|offset|Specific number for offset.|
+
+### Response
+
+```
+{
+  "status": 200,
+  "message": [
+    "Bundle List"
+  ],
+  "content": {
+    "total_count": 2,
+    "limit": 2,
+    "offset": 1,
+    "bundles": [
+      {
+        "file_id": "the ID of APK file on Google Drive",
+        "revision": 1,
+        "version": "1.0",
+        "qr_code_url": "the URL of the QR code to install the APK file uploaded",
+        "install_url": "the URL to install the APK file uploaded"
+      },
+      {
+      .
+      .
+      .
+    ]
+  }
+}
+```
