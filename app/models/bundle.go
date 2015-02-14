@@ -8,15 +8,23 @@ import (
 	"github.com/coopernurse/gorp"
 )
 
+type BundlePlatformType int
+
+const (
+	BundlePlatformTypeAndroid BundlePlatformType = 1 + iota
+	BundlePlatformTypeIOS
+)
+
 type Bundle struct {
-	Id            int       `db:"id"`
-	AppId         int       `db:"app_id"`
-	FileId        string    `db:"file_id"`
-	BundleVersion string    `db:"bundle_version"`
-	Revision      int       `db:"revision"`
-	Description   string    `db:"description"`
-	CreatedAt     time.Time `db:"created_at"`
-	UpdatedAt     time.Time `db:"updated_at"`
+	Id            int                `db:"id"`
+	AppId         int                `db:"app_id"`
+	FileId        string             `db:"file_id"`
+	PlatformType  BundlePlatformType `db:"platform_type"`
+	BundleVersion string             `db:"bundle_version"`
+	Revision      int                `db:"revision"`
+	Description   string             `db:"description"`
+	CreatedAt     time.Time          `db:"created_at"`
+	UpdatedAt     time.Time          `db:"updated_at"`
 
 	Apk      *Apk     `db:"-"`
 	File     *os.File `db:"-"`
