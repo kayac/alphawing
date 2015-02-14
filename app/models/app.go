@@ -193,7 +193,7 @@ func (app *App) ParentReference() *drive.ParentReference {
 func (app *App) CreateBundle(txn *gorp.Transaction, s *GoogleService, bundle *Bundle) error {
 	bundle.AppId = app.Id
 
-	appInfo, err := NewAppInfo(bundle.File, BundlePlatformTypeAndroid)
+	appInfo, err := NewAppInfo(bundle.File, bundle.PlatformType)
 	if err != nil {
 		return err
 	}

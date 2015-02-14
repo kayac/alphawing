@@ -5,9 +5,11 @@ import (
 	"bytes"
 	"encoding/xml"
 	"errors"
+	"github.com/DHowett/go-plist"
 	"github.com/shogo82148/androidbinary"
 	"io/ioutil"
 	"os"
+	"strings"
 )
 
 // an AppInfo is information of an application package(apk file, ipa file, etc.)
@@ -19,6 +21,10 @@ type AppInfo struct {
 type androidManifest struct {
 	XMLName     xml.Name `xml:"manifest"`
 	VersionName string   `xml:"http://schemas.android.com/apk/res/android versionName,attr"`
+}
+
+type iosInfo struct {
+	CFBundleVersion string `plist:"CFBundleVersion"`
 }
 
 type AppParseError struct {
@@ -41,17 +47,26 @@ func NewAppInfo(file *os.File, platformType BundlePlatformType) (*AppInfo, error
 	}
 
 	// search system files
-	var xmlFile *zip.File // apk system file
+	var xmlFile *zip.File   // apk system file
+	var plistFile *zip.File // ipa system file
 	for _, f := range reader.File {
 		switch {
 		case f.Name == "AndroidManifest.xml":
 			xmlFile = f
+		case strings.HasSuffix(f.Name, "/Info.plist"):
+			plistFile = f
 		}
 	}
 
 	// parse an apk file
 	if platformType == BundlePlatformTypeAndroid {
 		appInfo, err := parseApkFile(xmlFile)
+		return appInfo, err
+	}
+
+	// parse an ipa file
+	if platformType == BundlePlatformTypeIOS {
+		appInfo, err := parseIpaFile(plistFile)
 		return appInfo, err
 	}
 
@@ -99,4 +114,33 @@ func parseAndroidManifest(xmlFile *zip.File) (*androidManifest, error) {
 	}
 
 	return manifest, nil
+}
+
+func parseIpaFile(plistFile *zip.File) (*AppInfo, error) {
+	if plistFile == nil {
+		return nil, errors.New("info.plist is not found")
+	}
+
+	rc, err := plistFile.Open()
+	if err != nil {
+		return nil, err
+	}
+	defer rc.Close()
+
+	buf, err := ioutil.ReadAll(rc)
+	if err != nil {
+		return nil, err
+	}
+
+	info := &iosInfo{}
+	_, err = plist.Unmarshal(buf, info)
+	if err != nil {
+		return nil, err
+	}
+
+	appInfo := &AppInfo{}
+	appInfo.Version = info.CFBundleVersion
+	appInfo.PlatformType = BundlePlatformTypeIOS
+
+	return appInfo, nil
 }

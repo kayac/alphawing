@@ -32,6 +32,16 @@ func (ext BundleFileExtension) IsValid() (ok bool) {
 	return
 }
 
+func (ext BundleFileExtension) PlatformType() BundlePlatformType {
+	var platformType BundlePlatformType
+	if ext == BundleFileExtensionAndroid {
+		platformType = BundlePlatformTypeAndroid
+	} else if ext == BundleFileExtensionIOS {
+		platformType = BundlePlatformTypeIOS
+	}
+	return platformType
+}
+
 type Bundle struct {
 	Id            int                `db:"id"`
 	AppId         int                `db:"app_id"`
