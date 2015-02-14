@@ -42,7 +42,7 @@ $ curl http://your-domain.com/api/upload_bundle \
 ### Usage
 
 ``` sh
-$ curl http://your-domain.com/api/list_bundle \
+$ curl -XGET http://your-domain.com/api/list_bundle \
     -F token=your-project-api-token \
     -F limit=limit_num \
     -F offset=offset-num
