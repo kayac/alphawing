@@ -45,6 +45,36 @@ func (app *App) Bundles(txn *gorp.Transaction) ([]*Bundle, error) {
 	return bundles, nil
 }
 
+func (app *App) BundlesWithPager(txn *gorp.Transaction, limit, offset int) (Bundles, int, error) {
+	var (
+		defaultLimit  int = 25
+		maxLimit      int = 100
+		defaultOffset int = 0
+	)
+	if limit < 1 {
+		limit = defaultLimit
+	}
+	if maxLimit < limit {
+		limit = maxLimit
+	}
+	if offset < 0 {
+		offset = defaultOffset
+	}
+
+	var bundles []*Bundle
+	_, err := txn.Select(&bundles, "SELECT * FROM bundle WHERE app_id = ? ORDER BY id DESC LIMIT ? OFFSET ?", app.Id, limit, offset)
+	if err != nil {
+		return nil, 0, err
+	}
+
+	count, err := txn.SelectInt("SELECT COUNT(*) FROM bundle WHERE app_id = ?", app.Id)
+	if err != nil {
+		return nil, 0, err
+	}
+
+	return Bundles(bundles), int(count), nil
+}
+
 func (app *App) Authorities(txn *gorp.Transaction) ([]*Authority, error) {
 	var authorities []*Authority
 	_, err := txn.Select(&authorities, "SELECT * FROM authority WHERE app_id = ? ORDER BY id ASC", app.Id)

@@ -19,6 +19,11 @@ type JsonResponseUploadBundle struct {
 	Content *models.BundleJsonResponse `json:"content"`
 }
 
+type JsonResponseListBundle struct {
+	*JsonResponse
+	Content *models.BundlesJsonResponse `json:"content"`
+}
+
 type ApiController struct {
 	AlphaWingController
 }
@@ -32,6 +37,13 @@ func (c ApiController) NewJsonResponse(stat int, mes []string) *JsonResponse {
 
 func (c ApiController) NewJsonResponseUploadBundle(stat int, mes []string, content *models.BundleJsonResponse) *JsonResponseUploadBundle {
 	return &JsonResponseUploadBundle{
+		c.NewJsonResponse(stat, mes),
+		content,
+	}
+}
+
+func (c ApiController) NewJsonResponseListBundle(stat int, mes []string, content *models.BundlesJsonResponse) *JsonResponseListBundle {
+	return &JsonResponseListBundle{
 		c.NewJsonResponse(stat, mes),
 		content,
 	}
@@ -80,4 +92,35 @@ func (c ApiController) PostUploadBundle(token string, description string, file *
 
 	c.Response.Status = http.StatusOK
 	return c.RenderJson(c.NewJsonResponseUploadBundle(c.Response.Status, []string{"Bundle is created!"}, content))
+}
+
+func (c ApiController) GetListBundle(token string, limit, offset int) revel.Result {
+	app, err := models.GetAppByApiToken(c.Txn, token)
+	if err != nil {
+		c.Response.Status = http.StatusUnauthorized
+		return c.RenderJson(c.NewJsonResponseListBundle(c.Response.Status, []string{"Token is invalid."}, nil))
+	}
+
+	bundles, totalCount, err := app.BundlesWithPager(c.Txn, limit, offset)
+	if err != nil {
+		c.Response.Status = http.StatusInternalServerError
+		return c.RenderJson(c.NewJsonResponseListBundle(c.Response.Status, []string{err.Error()}, nil))
+	}
+
+	bundlesJsonResponse, err := bundles.JsonResponse(&c)
+	if err != nil {
+		c.Response.Status = http.StatusInternalServerError
+		return c.RenderJson(c.NewJsonResponseListBundle(c.Response.Status, []string{err.Error()}, nil))
+	}
+
+	content := &models.BundlesJsonResponse{
+		totalCount,
+		limit,
+		offset,
+		bundlesJsonResponse,
+	}
+
+	c.Response.Status = http.StatusOK
+
+	return c.RenderJson(c.NewJsonResponseListBundle(c.Response.Status, []string{"Bundle List"}, content))
 }
