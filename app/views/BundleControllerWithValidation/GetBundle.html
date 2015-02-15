@@ -13,7 +13,7 @@
 <div class="data-box__date">{{with $field := field "bundle.CreatedAt" .}}{{$field.Value.Format $dateFormat}}{{end}}</div>
 <!-- /.data-box --></div>
 <img class="bundle-detail__qr" width="100" height="100" src="https://chart.googleapis.com/chart?cht=qr&chs=100x100&chl={{ .installUrl }}">
-<a class="btn--download-bundle" href="{{url "BundleControllerWithValidation.GetDownloadBundle" .bundle.Id}}" data-icon="&#xf02C;">ダウンロード</a>
+<a class="btn--download-bundle" href="{{url "BundleControllerWithValidation.GetDownloadApkBundle" .bundle.Id}}" data-icon="&#xf02C;">ダウンロード</a>
 <a class="btn--update-bundle" href="{{url "BundleControllerWithValidation.GetUpdateBundle" .bundle.Id}}" data-icon="&#xf04D;">編集</a>
 <a class="btn--delete-bundle" href="{{url "BundleControllerWithValidation.PostDeleteBundle" .bundle.Id}}" data-icon="&#xf056;">削除</a>
 <!-- /.bundle-detail --></section>

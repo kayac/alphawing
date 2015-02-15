@@ -75,7 +75,7 @@ func (c BundleControllerWithValidation) PostDeleteBundle(bundleId int) revel.Res
 	return c.Redirect(routes.AppControllerWithValidation.GetApp(bundle.AppId))
 }
 
-func (c BundleControllerWithValidation) GetDownloadBundle(bundleId int) revel.Result {
+func (c BundleControllerWithValidation) GetDownloadApkBundle(bundleId int) revel.Result {
 	resp, file, err := c.GoogleService.DownloadFile(c.Bundle.FileId)
 	if err != nil {
 		panic(err)

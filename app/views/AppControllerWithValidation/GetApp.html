@@ -17,7 +17,7 @@
 <a href="{{url "BundleControllerWithValidation.GetBundle" $value.Id}}" class="bundle-item__version--first">{{$value.BundleVersion}} #{{$value.Revision}}</a>
 <div class="bundle-item__date--first">{{$value.CreatedAt.Format $dateFormat}}</div>
 <br />
-<a class="btn--download-current-bundle" href="{{url "BundleControllerWithValidation.GetDownloadBundle" $value.Id}}">最新版をダウンロード</a>
+<a class="btn--download-current-bundle" href="{{url "BundleControllerWithValidation.GetDownloadApkBundle" $value.Id}}">最新版をダウンロード</a>
 <!-- /.bundle-item --></div></li>{{else}}
 <li><div class="bundle-item">
 <a href="{{url "BundleControllerWithValidation.GetBundle" $value.Id}}" class="bundle-item__version">{{$value.BundleVersion}} #{{$value.Revision}}</a>
