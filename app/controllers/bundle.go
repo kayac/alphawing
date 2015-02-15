@@ -95,6 +95,10 @@ func (c BundleControllerWithValidation) GetDownloadApkBundle(bundleId int) revel
 	return c.RenderBinary(resp.Body, file.OriginalFilename, revel.Attachment, modtime)
 }
 
+func (c BundleControllerWithValidation) GetDownloadIpaBundle(bundleId int, token string) revel.Result {
+	return c.Render()
+}
+
 func (c *BundleControllerWithValidation) CheckNotFound() revel.Result {
 	param := c.Params.Route["bundleId"]
 	if 0 < len(param) {
