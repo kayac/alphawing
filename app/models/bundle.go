@@ -18,8 +18,8 @@ const (
 type BundleFileExtension string
 
 const (
-	BundleFileExtensionAndroid = ".apk"
-	BundleFileExtensionIOS     = ".ipa"
+	BundleFileExtensionAndroid BundleFileExtension = ".apk"
+	BundleFileExtensionIOS     BundleFileExtension = ".ipa"
 )
 
 func (ext BundleFileExtension) IsValid() (ok bool) {
