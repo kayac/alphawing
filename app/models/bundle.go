@@ -22,14 +22,14 @@ const (
 	BundleFileExtensionIOS     BundleFileExtension = ".ipa"
 )
 
-func (ext BundleFileExtension) IsValid() (ok bool) {
-	ok = false
+func (ext BundleFileExtension) IsValid() bool {
+	var ok bool
 	if ext == BundleFileExtensionAndroid {
 		ok = true
 	} else if ext == BundleFileExtensionIOS {
 		ok = true
 	}
-	return
+	return ok
 }
 
 type Bundle struct {
