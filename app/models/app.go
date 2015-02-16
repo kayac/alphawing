@@ -198,7 +198,7 @@ func (app *App) CreateBundle(txn *gorp.Transaction, s *GoogleService, bundle *Bu
 		return err
 	}
 	if len(bundleInfo.Version) == 0 {
-		return &AppParseError{}
+		return &BundleParseError{}
 	}
 	bundle.BundleInfo = bundleInfo
 

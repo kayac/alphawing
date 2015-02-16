@@ -27,11 +27,11 @@ type iosInfo struct {
 	CFBundleVersion string `plist:"CFBundleVersion"`
 }
 
-type AppParseError struct {
+type BundleParseError struct {
 	Offset int64
 }
 
-func (e *AppParseError) Error() string {
+func (e *BundleParseError) Error() string {
 	return "cannot parse application package file"
 }
 
