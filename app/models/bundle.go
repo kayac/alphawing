@@ -8,15 +8,40 @@ import (
 	"github.com/coopernurse/gorp"
 )
 
+type BundlePlatformType int
+
+const (
+	BundlePlatformTypeAndroid BundlePlatformType = 1 + iota
+	BundlePlatformTypeIOS
+)
+
+type BundleFileExtension string
+
+const (
+	BundleFileExtensionAndroid BundleFileExtension = ".apk"
+	BundleFileExtensionIOS     BundleFileExtension = ".ipa"
+)
+
+func (ext BundleFileExtension) IsValid() bool {
+	var ok bool
+	if ext == BundleFileExtensionAndroid {
+		ok = true
+	} else if ext == BundleFileExtensionIOS {
+		ok = true
+	}
+	return ok
+}
+
 type Bundle struct {
-	Id            int       `db:"id"`
-	AppId         int       `db:"app_id"`
-	FileId        string    `db:"file_id"`
-	BundleVersion string    `db:"bundle_version"`
-	Revision      int       `db:"revision"`
-	Description   string    `db:"description"`
-	CreatedAt     time.Time `db:"created_at"`
-	UpdatedAt     time.Time `db:"updated_at"`
+	Id            int                `db:"id"`
+	AppId         int                `db:"app_id"`
+	FileId        string             `db:"file_id"`
+	PlatformType  BundlePlatformType `db:"platform_type"`
+	BundleVersion string             `db:"bundle_version"`
+	Revision      int                `db:"revision"`
+	Description   string             `db:"description"`
+	CreatedAt     time.Time          `db:"created_at"`
+	UpdatedAt     time.Time          `db:"updated_at"`
 
 	Apk      *Apk     `db:"-"`
 	File     *os.File `db:"-"`
