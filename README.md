@@ -62,12 +62,6 @@ ref. https://developers.google.com/drive/web/service-accounts
 3. Enter the **AUTHORIZED REDIRECT URI** (ex. `http://example.com/callback`)
 4. Select **Create Client ID**.
 
-### Get the aapt command from Android SDK
-
-alphawing uses the aapt command in order to parse APK file.
-The aapt binary is included in the ADT(Android Developer Tools).
-So, you have to download the ADT from [here](http://developer.android.com/sdk/index.html).
-
 ### Create database
 
 You have to create database if you want to use the MySQL database or the SQLite single-file database.
@@ -100,7 +94,6 @@ ref. http://revel.github.io/manual/appconf.html
 |google.webapplication.clientsecret|**CLIENT SECRET** for your web application created in Google Developers Console.|
 |google.webapplication.callbackurl|**REDIRECT URIS** for your web application created in Google Developers Console.|
 |google.serviceaccount.keypath|The path to your service account's JSON key file.|
-|aapt.path|The path to the aapt command.|
 
 ### Run the application
 

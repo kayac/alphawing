@@ -4,6 +4,7 @@ import (
 	"database/sql"
 	"errors"
 	"os"
+	"path/filepath"
 	"strconv"
 
 	"github.com/kayac/alphawing/app/models"
@@ -147,7 +148,14 @@ func (c AppControllerWithValidation) PostCreateBundle(appId int, bundle models.B
 		c.Redirect(routes.AppControllerWithValidation.GetApp(appId))
 	}
 
+	var filename string
+	if _, ok := c.Params.Files["file"]; ok {
+		filename = c.Params.Files["file"][0].Filename
+	}
+	ext := filepath.Ext(filename)
+
 	c.Validation.Required(file != nil).Message("File is required.")
+	c.Validation.Required(models.BundleFileExtension(ext).IsValid()).Message("File extension is not valid.")
 	if c.Validation.HasErrors() {
 		c.Validation.Keep()
 		c.FlashParams()
@@ -155,12 +163,10 @@ func (c AppControllerWithValidation) PostCreateBundle(appId int, bundle models.B
 	}
 
 	bundle.File = file
-	if _, ok := c.Params.Files["file"]; ok {
-		bundle.FileName = c.Params.Files["file"][0].Filename
-	}
+	bundle.PlatformType = models.BundleFileExtension(ext).PlatformType()
 
-	if err := c.App.CreateBundle(c.Txn, c.GoogleService, Conf.AaptPath, &bundle); err != nil {
-		if aperr, ok := err.(*models.ApkParseError); ok {
+	if err := c.App.CreateBundle(c.Txn, c.GoogleService, &bundle); err != nil {
+		if aperr, ok := err.(*models.BundleParseError); ok {
 			c.Flash.Error(aperr.Error())
 			return c.Redirect(routes.AppControllerWithValidation.GetCreateBundle(appId))
 		}
