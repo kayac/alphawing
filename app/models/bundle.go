@@ -53,9 +53,9 @@ type Bundle struct {
 	CreatedAt     time.Time          `db:"created_at"`
 	UpdatedAt     time.Time          `db:"updated_at"`
 
-	AppInfo  *AppInfo `db:"-"`
-	File     *os.File `db:"-"`
-	FileName string   `db:"-"`
+	BundleInfo *BundleInfo `db:"-"`
+	File       *os.File    `db:"-"`
+	FileName   string      `db:"-"`
 }
 
 type BundleJsonResponse struct {
@@ -94,7 +94,7 @@ func (bundle *Bundle) App(txn *gorp.Transaction) (*App, error) {
 }
 
 func (bundle *Bundle) PreInsert(s gorp.SqlExecutor) error {
-	bundle.BundleVersion = bundle.AppInfo.Version
+	bundle.BundleVersion = bundle.BundleInfo.Version
 	bundle.CreatedAt = time.Now()
 	bundle.UpdatedAt = bundle.CreatedAt
 	return nil

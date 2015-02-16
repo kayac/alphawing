@@ -193,21 +193,21 @@ func (app *App) ParentReference() *drive.ParentReference {
 func (app *App) CreateBundle(txn *gorp.Transaction, s *GoogleService, bundle *Bundle) error {
 	bundle.AppId = app.Id
 
-	appInfo, err := NewAppInfo(bundle.File, bundle.PlatformType)
+	bundleInfo, err := NewBundleInfo(bundle.File, bundle.PlatformType)
 	if err != nil {
 		return err
 	}
-	if len(appInfo.Version) == 0 {
+	if len(bundleInfo.Version) == 0 {
 		return &AppParseError{}
 	}
-	bundle.AppInfo = appInfo
+	bundle.BundleInfo = bundleInfo
 
-	maxRevision, err := app.GetMaxRevisionByBundleVersion(txn, appInfo.Version)
+	maxRevision, err := app.GetMaxRevisionByBundleVersion(txn, bundleInfo.Version)
 	if err != nil {
 		return err
 	}
 	bundle.Revision = maxRevision + 1
-	bundle.FileName = fmt.Sprintf("app_%d_ver_%s_rev_%d.apk", app.Id, appInfo.Version, bundle.Revision)
+	bundle.FileName = fmt.Sprintf("app_%d_ver_%s_rev_%d.apk", app.Id, bundleInfo.Version, bundle.Revision)
 
 	parent := app.ParentReference()
 	driveFile, err := s.InsertFile(bundle.File, bundle.FileName, parent)

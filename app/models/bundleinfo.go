@@ -12,8 +12,8 @@ import (
 	"strings"
 )
 
-// an AppInfo is information of an application package(apk file, ipa file, etc.)
-type AppInfo struct {
+// a BundleInfo is information of an application package(apk file, ipa file, etc.)
+type BundleInfo struct {
 	Version      string
 	PlatformType BundlePlatformType
 }
@@ -35,7 +35,7 @@ func (e *AppParseError) Error() string {
 	return "cannot parse application package file"
 }
 
-func NewAppInfo(file *os.File, platformType BundlePlatformType) (*AppInfo, error) {
+func NewBundleInfo(file *os.File, platformType BundlePlatformType) (*BundleInfo, error) {
 	stat, err := file.Stat()
 	if err != nil {
 		return nil, err
@@ -60,20 +60,20 @@ func NewAppInfo(file *os.File, platformType BundlePlatformType) (*AppInfo, error
 
 	// parse an apk file
 	if platformType == BundlePlatformTypeAndroid {
-		appInfo, err := parseApkFile(xmlFile)
-		return appInfo, err
+		bundleInfo, err := parseApkFile(xmlFile)
+		return bundleInfo, err
 	}
 
 	// parse an ipa file
 	if platformType == BundlePlatformTypeIOS {
-		appInfo, err := parseIpaFile(plistFile)
-		return appInfo, err
+		bundleInfo, err := parseIpaFile(plistFile)
+		return bundleInfo, err
 	}
 
 	return nil, errors.New("unknown platform")
 }
 
-func parseApkFile(xmlFile *zip.File) (*AppInfo, error) {
+func parseApkFile(xmlFile *zip.File) (*BundleInfo, error) {
 	if xmlFile == nil {
 		return nil, errors.New("AndroidManifest.xml is not found")
 	}
@@ -83,11 +83,11 @@ func parseApkFile(xmlFile *zip.File) (*AppInfo, error) {
 		return nil, err
 	}
 
-	appInfo := &AppInfo{}
-	appInfo.Version = manifest.VersionName
-	appInfo.PlatformType = BundlePlatformTypeAndroid
+	bundleInfo := &BundleInfo{}
+	bundleInfo.Version = manifest.VersionName
+	bundleInfo.PlatformType = BundlePlatformTypeAndroid
 
-	return appInfo, nil
+	return bundleInfo, nil
 }
 
 func parseAndroidManifest(xmlFile *zip.File) (*androidManifest, error) {
@@ -116,7 +116,7 @@ func parseAndroidManifest(xmlFile *zip.File) (*androidManifest, error) {
 	return manifest, nil
 }
 
-func parseIpaFile(plistFile *zip.File) (*AppInfo, error) {
+func parseIpaFile(plistFile *zip.File) (*BundleInfo, error) {
 	if plistFile == nil {
 		return nil, errors.New("info.plist is not found")
 	}
@@ -138,9 +138,9 @@ func parseIpaFile(plistFile *zip.File) (*AppInfo, error) {
 		return nil, err
 	}
 
-	appInfo := &AppInfo{}
-	appInfo.Version = info.CFBundleVersion
-	appInfo.PlatformType = BundlePlatformTypeIOS
+	bundleInfo := &BundleInfo{}
+	bundleInfo.Version = info.CFBundleVersion
+	bundleInfo.PlatformType = BundlePlatformTypeIOS
 
-	return appInfo, nil
+	return bundleInfo, nil
 }
