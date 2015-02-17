@@ -5,11 +5,12 @@ import (
 	"bytes"
 	"encoding/xml"
 	"errors"
-	"github.com/DHowett/go-plist"
-	"github.com/shogo82148/androidbinary"
 	"io/ioutil"
 	"os"
 	"strings"
+
+	"github.com/DHowett/go-plist"
+	"github.com/shogo82148/androidbinary"
 )
 
 // a BundleInfo is information of an application package(apk file, ipa file, etc.)
