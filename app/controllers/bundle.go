@@ -95,7 +95,7 @@ func (c BundleControllerWithValidation) GetDownloadApkBundle(bundleId int) revel
 	return c.RenderBinary(resp.Body, file.OriginalFilename, revel.Attachment, modtime)
 }
 
-func (c BundleControllerWithValidation) GetDownloadIpaBundle(bundleId int, token string) revel.Result {
+func (c BundleControllerWithValidation) GetDownloadIpaBundle(bundleId int) revel.Result {
 	return c.Render()
 }
 
