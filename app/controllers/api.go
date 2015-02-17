@@ -63,8 +63,8 @@ func (c ApiController) PostUploadBundle(token string, description string, file *
 		File:        file,
 	}
 
-	if err := app.CreateBundle(c.Txn, c.GoogleService, Conf.AaptPath, bundle); err != nil {
-		if aperr, ok := err.(*models.ApkParseError); ok {
+	if err := app.CreateBundle(c.Txn, c.GoogleService, bundle); err != nil {
+		if aperr, ok := err.(*models.BundleParseError); ok {
 			c.Response.Status = http.StatusInternalServerError
 			return c.RenderJson(c.NewJsonResponseUploadBundle(c.Response.Status, []string{aperr.Error()}, nil))
 		}
