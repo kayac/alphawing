@@ -11,7 +11,7 @@
 <!-- /.app-detail__description --></div>
 
 {{if eq (len .bundles) 0}}
-<div class="app-detail__no-bundle">apkファイルが登録されていません。</div>{{else}}
+<div class="app-detail__no-bundle">ヴァージョンがありません。</div>{{else}}
 <ul class="app-detail__bundle-list">{{range $index, $value := .bundles}}{{if eq $index 0}}
 <li><div class="bundle-item--first">
 <a href="{{url "BundleControllerWithValidation.GetBundle" $value.Id}}" class="bundle-item__version--first">{{$value.BundleVersion}} #{{$value.Revision}}</a>
@@ -35,7 +35,7 @@
 */}}
 
 <div class="app-detail__btn-area">
-<a class="btn--create-bundle" href="{{url "AppControllerWithValidation.GetCreateBundle" .app.Id}}" data-icon="&#xf14C;">apkファイルを追加</a>
+<a class="btn--create-bundle" href="{{url "AppControllerWithValidation.GetCreateBundle" .app.Id}}" data-icon="&#xf14C;">ヴァージョンを追加</a>
 <!-- /.app-detail__btn-area --></div>
 
 <div class="members">
@@ -61,7 +61,7 @@
 </form>
 <!-- /.api-token__token --></div>
 <ul class="api-token__notice">
-<li>アプリケーション開発者は上記のAPIトークンを利用してapkファイルをアップロードできます。</li>
+<li>アプリケーション開発者は上記のAPIトークンを利用してファイルをアップロードできます。</li>
 <li>詳しくは<a href="{{url "ApiController.GetDocument"}}">APIドキュメント</a>をご覧ください。</li>
 <!-- /.api-token__notice --></ul>
 <!-- /.api-token --></div>
