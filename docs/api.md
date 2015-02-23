@@ -52,8 +52,7 @@ $ curl -XGET http://your-domain.com/api/list_bundle \
 |Name|Description|
 |:---:|:---:|
 |token|**Required.** The API token of your project. You can check it in your project page.|
-|limit|Specific number for limit.|
-|offset|Specific number for offset.|
+|page|Specific number for page.|
 
 ### Response
 
