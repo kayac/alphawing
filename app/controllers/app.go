@@ -81,9 +81,7 @@ func (c AppControllerWithValidation) GetApp(appId int) revel.Result {
 		panic(err)
 	}
 
-	bundles := ipaBundles
-
-	return c.Render(app, authorities, apkBundles, ipaBundles, bundles)
+	return c.Render(app, authorities, apkBundles, ipaBundles)
 }
 
 func (c AppControllerWithValidation) GetUpdateApp(appId int) revel.Result {
