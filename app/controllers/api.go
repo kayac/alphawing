@@ -107,7 +107,7 @@ func (c ApiController) PostDeleteBundle(token string, file_id string) revel.Resu
 	bundle, err := models.GetBundleByFileId(c.Txn, file_id)
 	if err != nil {
 		if err == sql.ErrNoRows {
-			c.Response.Status = http.StatusInternalServerError
+			c.Response.Status = http.StatusNotFound
 			return c.RenderJson(c.NewJsonResponseDeleteBundle(c.Response.Status, []string{"Bundle not found."}))
 		}
 		c.Response.Status = http.StatusInternalServerError
