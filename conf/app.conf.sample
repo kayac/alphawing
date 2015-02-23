@@ -39,6 +39,9 @@ module.static=github.com/revel/revel/modules/static
 # The path to 'aapt' command.
 aapt.path = /usr/local/bin/aapt
 
+# limit per page. default 25
+app.pager.default.limit =
+
 
 [dev]
 mode.dev=true

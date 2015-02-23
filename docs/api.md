@@ -44,8 +44,7 @@ $ curl http://your-domain.com/api/upload_bundle \
 ``` sh
 $ curl -XGET http://your-domain.com/api/list_bundle \
     -F token=your-project-api-token \
-    -F limit=limit_num \
-    -F offset=offset-num
+    -F paget=page_num
 ```
 
 ### Parameters
@@ -66,8 +65,8 @@ $ curl -XGET http://your-domain.com/api/list_bundle \
   ],
   "content": {
     "total_count": 2,
-    "limit": 2,
-    "offset": 1,
+    "page": 1,
+    "limit": 25,
     "bundles": [
       {
         "file_id": "the ID of APK file on Google Drive",

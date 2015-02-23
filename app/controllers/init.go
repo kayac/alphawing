@@ -23,6 +23,7 @@ type Config struct {
 	ServiceAccountClientEmail  string
 	ServiceAccountPrivateKey   string
 	AaptPath                   string
+	PagerDefaultLimit          int
 }
 
 func init() {
@@ -91,6 +92,8 @@ func LoadConfig() {
 
 	aaptPath := revel.Config.StringDefault("aapt.path", "/usr/local/bin/aapt")
 
+	pagerDefaultLimit := revel.Config.IntDefault("app.pager.default.limit", 25)
+
 	Conf = &Config{
 		PermittedDomains:           strings.Split(permittedDomain, ","),
 		OrganizationName:           organizationName,
@@ -100,6 +103,7 @@ func LoadConfig() {
 		ServiceAccountClientEmail:  serviceAccountClientEmail,
 		ServiceAccountPrivateKey:   serviceAccountPrivateKey,
 		AaptPath:                   aaptPath,
+		PagerDefaultLimit:          pagerDefaultLimit,
 	}
 }
 

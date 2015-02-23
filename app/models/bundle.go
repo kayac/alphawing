@@ -50,8 +50,8 @@ func (bundles Bundles) JsonResponse(ub UriBuilder) ([]*BundleJsonResponse, error
 
 type BundlesJsonResponse struct {
 	TotalCount int                   `json:"total_count"`
+	Page       int                   `json:"page"`
 	Limit      int                   `json:"limit"`
-	Offset     int                   `json:"offset"`
 	Bundles    []*BundleJsonResponse `json:"bundles"`
 }
 

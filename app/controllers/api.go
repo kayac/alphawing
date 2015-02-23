@@ -94,14 +94,14 @@ func (c ApiController) PostUploadBundle(token string, description string, file *
 	return c.RenderJson(c.NewJsonResponseUploadBundle(c.Response.Status, []string{"Bundle is created!"}, content))
 }
 
-func (c ApiController) GetListBundle(token string, limit, offset int) revel.Result {
+func (c ApiController) GetListBundle(token string, page int) revel.Result {
 	app, err := models.GetAppByApiToken(c.Txn, token)
 	if err != nil {
 		c.Response.Status = http.StatusUnauthorized
 		return c.RenderJson(c.NewJsonResponseListBundle(c.Response.Status, []string{"Token is invalid."}, nil))
 	}
 
-	bundles, totalCount, err := app.BundlesWithPager(c.Txn, limit, offset)
+	bundles, totalCount, err := app.BundlesWithPager(c.Txn, page, Conf.PagerDefaultLimit)
 	if err != nil {
 		c.Response.Status = http.StatusInternalServerError
 		return c.RenderJson(c.NewJsonResponseListBundle(c.Response.Status, []string{err.Error()}, nil))
@@ -115,8 +115,8 @@ func (c ApiController) GetListBundle(token string, limit, offset int) revel.Resu
 
 	content := &models.BundlesJsonResponse{
 		totalCount,
-		limit,
-		offset,
+		page,
+		Conf.PagerDefaultLimit,
 		bundlesJsonResponse,
 	}
 
