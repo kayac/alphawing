@@ -152,10 +152,12 @@ func (c AppControllerWithValidation) PostCreateBundle(appId int, bundle models.B
 	if _, ok := c.Params.Files["file"]; ok {
 		filename = c.Params.Files["file"][0].Filename
 	}
-	ext := filepath.Ext(filename)
+	extStr := filepath.Ext(filename)
+	ext := models.BundleFileExtension(extStr)
+	isValidExt := ext.IsValid()
 
 	c.Validation.Required(file != nil).Message("File is required.")
-	c.Validation.Required(models.BundleFileExtension(ext).IsValid()).Message("File extension is not valid.")
+	c.Validation.Required(isValidExt).Message("File extension is not valid.")
 	if c.Validation.HasErrors() {
 		c.Validation.Keep()
 		c.FlashParams()
