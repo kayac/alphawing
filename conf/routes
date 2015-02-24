@@ -29,8 +29,11 @@ GET     /bundle/:bundleId                       BundleControllerWithValidation.G
 GET     /bundle/:bundleId/update                BundleControllerWithValidation.GetUpdateBundle
 POST    /bundle/:bundleId/update                BundleControllerWithValidation.PostUpdateBundle
 POST    /bundle/:bundleId/delete                BundleControllerWithValidation.PostDeleteBundle
+GET     /bundle/:bundleId/download              BundleControllerWithValidation.GetDownloadBundle
 GET     /bundle/:bundleId/download_apk          BundleControllerWithValidation.GetDownloadApkBundle
-GET     /bundle/:bundleId/download_ipa          BundleControllerWithValidation.GetDownloadIpaBundle
+
+GET     /bundle/:bundleId/download_plist        LimitedTimeController.GetDownloadPlist
+GET     /bundle/:bundleId/download_ipa          LimitedTimeController.GetDownloadIpaBundle
 
 # Ignore favicon requests
 GET     /favicon.ico                            404
