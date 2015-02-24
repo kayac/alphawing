@@ -11,7 +11,7 @@
 <!-- /.app-detail__description --></div>
 
 {{if eq (len .bundles) 0}}
-<div class="app-detail__no-bundle">ヴァージョンがありません。</div>{{else}}
+<div class="app-detail__no-bundle">ファイルが登録されていません。</div>{{else}}
 <ul class="app-detail__bundle-list">{{range $index, $value := .bundles}}{{if eq $index 0}}
 <li><div class="bundle-item--first">
 <a href="{{url "BundleControllerWithValidation.GetBundle" $value.Id}}" class="bundle-item__version--first">{{$value.BundleVersion}} #{{$value.Revision}}</a>
