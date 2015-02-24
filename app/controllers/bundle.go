@@ -9,6 +9,7 @@ import (
 	"github.com/kayac/alphawing/app/models"
 	"github.com/kayac/alphawing/app/routes"
 
+	"github.com/coopernurse/gorp"
 	"github.com/revel/revel"
 )
 
@@ -32,7 +33,7 @@ type BundleControllerWithValidation struct {
 func (c BundleControllerWithValidation) GetBundle(bundleId int) revel.Result {
 	bundle := c.Bundle
 
-	app, err := bundle.App(c.Txn)
+	app, err := bundle.App(Dbm)
 	if err != nil {
 		panic(err)
 	}
@@ -52,8 +53,11 @@ func (c BundleControllerWithValidation) GetUpdateBundle(bundleId int) revel.Resu
 
 func (c BundleControllerWithValidation) PostUpdateBundle(bundleId int, bundle models.Bundle) revel.Result {
 	bundle_for_update := c.Bundle
-	bundle_for_update.Description = bundle.Description
-	if err := bundle_for_update.Update(c.Txn); err != nil {
+	err := Transact(func(txn gorp.SqlExecutor) error {
+		bundle_for_update.Description = bundle.Description
+		return bundle_for_update.Update(txn)
+	})
+	if err != nil {
 		panic(err)
 	}
 
@@ -63,7 +67,10 @@ func (c BundleControllerWithValidation) PostUpdateBundle(bundleId int, bundle mo
 
 func (c BundleControllerWithValidation) PostDeleteBundle(bundleId int) revel.Result {
 	bundle := c.Bundle
-	if err := bundle.Delete(c.Txn, c.GoogleService); err != nil {
+	err := Transact(func(txn gorp.SqlExecutor) error {
+		return bundle.Delete(txn, c.GoogleService)
+	})
+	if err != nil {
 		panic(err)
 	}
 
@@ -105,7 +112,7 @@ func (c *BundleControllerWithValidation) CheckNotFound() revel.Result {
 			}
 			panic(err)
 		}
-		bundle, err := models.GetBundle(c.Txn, bundleId)
+		bundle, err := models.GetBundle(Dbm, bundleId)
 		if err != nil {
 			panic(err)
 		}
