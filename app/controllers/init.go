@@ -50,7 +50,6 @@ func init() {
 	revel.InterceptMethod((*BundleControllerWithValidation).CheckNotFound, revel.BEFORE)
 	revel.InterceptMethod((*BundleControllerWithValidation).CheckForbidden, revel.BEFORE)
 	revel.InterceptMethod((*LimitedTimeController).CheckNotFound, revel.BEFORE)
-	revel.InterceptMethod((*LimitedTimeController).CheckForbidden, revel.BEFORE)
 
 	// document
 	revel.OnAppStart(GenerateApiDocument)

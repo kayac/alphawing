@@ -77,18 +77,3 @@ func (c *LimitedTimeController) CheckNotFound() revel.Result {
 	}
 	return nil
 }
-
-func (c *LimitedTimeController) CheckForbidden() revel.Result {
-	if c.Bundle != nil {
-		bundle := c.Bundle
-		s, err := c.userGoogleService()
-		if err != nil {
-			panic(err)
-		}
-		_, err = s.GetFile(bundle.FileId)
-		if err != nil {
-			return c.Forbidden("Forbidden")
-		}
-	}
-	return nil
-}
