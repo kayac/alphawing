@@ -85,6 +85,22 @@ func (bundle *Bundle) JsonResponse(ub UriBuilder) (*BundleJsonResponse, error) {
 	}, nil
 }
 
+func (bundle *Bundle) IsApk() bool {
+	var ok bool
+	if bundle.PlatformType == BundlePlatformTypeAndroid {
+		ok = true
+	}
+	return ok
+}
+
+func (bundle *Bundle) IsIpa() bool {
+	var ok bool
+	if bundle.PlatformType == BundlePlatformTypeIOS {
+		ok = true
+	}
+	return ok
+}
+
 func (bundle *Bundle) App(txn *gorp.Transaction) (*App, error) {
 	app, err := txn.Get(App{}, bundle.AppId)
 	if err != nil {
