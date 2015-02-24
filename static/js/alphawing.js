@@ -6,7 +6,7 @@ $(function () {
         PROMPT_EMAIL: '追加するメンバーのアドレスを入力してください。',
         CONFIRM_DELETE_APP: [
             'プロジェクトを削除します。',
-            'このプロジェクトのすべてのapkファイルに、アクセスできなくなります。',
+            'このプロジェクトのすべてのファイルに、アクセスできなくなります。',
             '本当によろしいですか?'
         ].join('\n'),
         CONFIRM_DELETE_BUNDLE: 'このバージョンを削除します。よろしいですか?',
@@ -182,6 +182,36 @@ $(function () {
             e.preventDefault();
             $input.val(value);
         });
+    })();
+
+
+    // qr-code
+    (function () {
+        var SIZE = 100;
+
+        var $download = $('.btn--download-bundle');
+
+        if (!$download.length) {
+            return;
+        }
+
+        var href = $download.attr('href');
+        var qrcodeLink = [
+            'https://chart.googleapis.com/chart',
+            '?cht=qr',
+            '&chs=' + SIZE + 'x' + SIZE,
+            '&chl=' + href
+        ].join('');
+
+        var $img = $('<img />');
+        $img.attr({
+            'class': 'bundle-detail__qr',
+            width: SIZE,
+            height: SIZE,
+            src: qrcodeLink
+        });
+
+        $('.data-box').after($img);
     })();
 });
 
