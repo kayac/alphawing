@@ -75,6 +75,17 @@ func (c BundleControllerWithValidation) PostDeleteBundle(bundleId int) revel.Res
 	return c.Redirect(routes.AppControllerWithValidation.GetApp(bundle.AppId))
 }
 
+func (c BundleControllerWithValidation) GetDownloadBundle(bundleId int) revel.Result {
+	bundle := c.Bundle
+
+	plistUrl, err := c.UriFor(fmt.Sprintf("bundle/%d/download_plist", bundle.Id))
+	if err != nil {
+		panic(err)
+	}
+
+	return c.Render(plistUrl)
+}
+
 func (c BundleControllerWithValidation) GetDownloadApk(bundleId int) revel.Result {
 	resp, file, err := c.GoogleService.DownloadFile(c.Bundle.FileId)
 	if err != nil {
