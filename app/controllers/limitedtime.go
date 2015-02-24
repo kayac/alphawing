@@ -4,6 +4,7 @@ import (
 	"database/sql"
 	"fmt"
 	"strconv"
+	"strings"
 	"time"
 
 	"github.com/kayac/alphawing/app/models"
@@ -34,9 +35,10 @@ func (c *LimitedTimeController) GetDownloadPlist(bundleId int) revel.Result {
 	if err != nil {
 		panic(err)
 	}
+	memfile := strings.NewReader(string(data))
 
 	c.Response.ContentType = "application/x-plist"
-	return c.RenderText(string(data))
+	return c.RenderBinary(memfile, "test.plist", revel.Attachment, time.Now())
 }
 
 func (c *LimitedTimeController) GetDownloadIpa(bundleId int) revel.Result {
