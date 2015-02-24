@@ -174,10 +174,7 @@ func (c AppControllerWithValidation) PostCreateBundle(appId int, bundle models.B
 		bundle.FileName = c.Params.Files["file"][0].Filename
 	}
 
-	err := Transact(func(txn gorp.SqlExecutor) error {
-		return c.App.CreateBundle(txn, c.GoogleService, Conf.AaptPath, &bundle)
-	})
-	if err != nil {
+	if err := c.App.CreateBundle(Dbm, c.GoogleService, Conf.AaptPath, &bundle); err != nil {
 		if aperr, ok := err.(*models.ApkParseError); ok {
 			c.Flash.Error(aperr.Error())
 			return c.Redirect(routes.AppControllerWithValidation.GetCreateBundle(appId))

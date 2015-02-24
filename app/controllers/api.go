@@ -6,7 +6,6 @@ import (
 
 	"github.com/kayac/alphawing/app/models"
 
-	"github.com/coopernurse/gorp"
 	"github.com/revel/revel"
 )
 
@@ -64,10 +63,7 @@ func (c ApiController) PostUploadBundle(token string, description string, file *
 		File:        file,
 	}
 
-	err = Transact(func(txn gorp.SqlExecutor) error {
-		return app.CreateBundle(txn, c.GoogleService, Conf.AaptPath, bundle)
-	})
-	if err != nil {
+	if err := app.CreateBundle(Dbm, c.GoogleService, Conf.AaptPath, bundle); err != nil {
 		if aperr, ok := err.(*models.ApkParseError); ok {
 			c.Response.Status = http.StatusInternalServerError
 			return c.RenderJson(c.NewJsonResponseUploadBundle(c.Response.Status, []string{aperr.Error()}, nil))

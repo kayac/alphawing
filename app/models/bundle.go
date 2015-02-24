@@ -81,6 +81,9 @@ func (bundle *Bundle) Update(txn gorp.SqlExecutor) error {
 	}
 
 	current.Description = bundle.Description
+	if bundle.FileId != "" {
+		current.FileId = bundle.FileId
+	}
 
 	_, err = txn.Update(current)
 	return err

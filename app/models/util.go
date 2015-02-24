@@ -1,8 +1,10 @@
 package models
 
 import (
+	"database/sql"
 	"io/ioutil"
 
+	"github.com/coopernurse/gorp"
 	"github.com/google/go-github/github"
 )
 
@@ -34,4 +36,31 @@ func GenerateApiDocumentHtml(srcPath string) (string, error) {
 	html = "{{set . \"title\" \"API Document\"}}\n" + html
 
 	return html, nil
+}
+
+func Transact(dbm *gorp.DbMap, f func(gorp.SqlExecutor) error) error {
+	txn, err := dbm.Begin()
+	if err != nil {
+		return err
+	}
+	defer func() {
+		if txn == nil {
+			return
+		}
+		if err := txn.Rollback(); err != nil && err != sql.ErrTxDone {
+			panic(err)
+		}
+	}()
+
+	err = f(txn)
+	if err != nil {
+		return err
+	}
+
+	err = txn.Commit()
+	if err != nil && err != sql.ErrTxDone {
+		return err
+	}
+	txn = nil
+	return nil
 }

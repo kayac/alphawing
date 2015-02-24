@@ -190,9 +190,9 @@ func (app *App) ParentReference() *drive.ParentReference {
 	}
 }
 
-func (app *App) CreateBundle(txn gorp.SqlExecutor, s *GoogleService, aaptPath string, bundle *Bundle) error {
+func (app *App) CreateBundle(dbm *gorp.DbMap, s *GoogleService, aaptPath string, bundle *Bundle) error {
+	// parse application file
 	bundle.AppId = app.Id
-
 	apk, err := NewApk(bundle.File, aaptPath)
 	if err != nil {
 		return err
@@ -202,25 +202,32 @@ func (app *App) CreateBundle(txn gorp.SqlExecutor, s *GoogleService, aaptPath st
 	}
 	bundle.Apk = apk
 
-	maxRevision, err := app.GetMaxRevisionByBundleVersion(txn, apk.Version)
+	// increment revision number & save application information
+	err = Transact(dbm, func(txn gorp.SqlExecutor) error {
+		maxRevision, err := app.GetMaxRevisionByBundleVersion(txn, apk.Version)
+		if err != nil {
+			return err
+		}
+		bundle.Revision = maxRevision + 1
+		bundle.FileName = fmt.Sprintf("app_%d_ver_%s_rev_%d.apk", app.Id, apk.Version, bundle.Revision)
+		return bundle.Save(txn)
+	})
 	if err != nil {
-		return err
+		panic(err)
 	}
-	bundle.Revision = maxRevision + 1
-	bundle.FileName = fmt.Sprintf("app_%d_ver_%s_rev_%d.apk", app.Id, apk.Version, bundle.Revision)
 
+	// upload file
 	parent := app.ParentReference()
 	driveFile, err := s.InsertFile(bundle.File, bundle.FileName, parent)
 	if err != nil {
 		return err
 	}
 
+	// update FileId
 	bundle.FileId = driveFile.Id
-	if err := bundle.Save(txn); err != nil {
-		return err
-	}
-
-	return nil
+	return Transact(dbm, func(txn gorp.SqlExecutor) error {
+		return bundle.Update(txn)
+	})
 }
 
 func (app *App) CreateAuthority(txn gorp.SqlExecutor, s *GoogleService, authority *Authority) error {
