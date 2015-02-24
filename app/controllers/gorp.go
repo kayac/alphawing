@@ -67,7 +67,7 @@ func Transact(f func(gorp.SqlExecutor) error) error {
 	if err != nil {
 		return err
 	}
-	go func() {
+	defer func() {
 		if txn == nil {
 			return
 		}
