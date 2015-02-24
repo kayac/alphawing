@@ -41,10 +41,16 @@ func init() {
 	revel.InterceptMethod((*AlphaWingController).InitOAuthConfig, revel.BEFORE)
 	revel.InterceptMethod((*AlphaWingController).SetLoginInfo, revel.BEFORE)
 	revel.InterceptMethod((*AuthController).CheckLogin, revel.BEFORE)
+
+	// validate app
 	revel.InterceptMethod((*AppControllerWithValidation).CheckNotFound, revel.BEFORE)
 	revel.InterceptMethod((*AppControllerWithValidation).CheckForbidden, revel.BEFORE)
+
+	// validate bundle
 	revel.InterceptMethod((*BundleControllerWithValidation).CheckNotFound, revel.BEFORE)
 	revel.InterceptMethod((*BundleControllerWithValidation).CheckForbidden, revel.BEFORE)
+	revel.InterceptMethod((*LimitedTimeController).CheckNotFound, revel.BEFORE)
+	revel.InterceptMethod((*LimitedTimeController).CheckForbidden, revel.BEFORE)
 
 	// document
 	revel.OnAppStart(GenerateApiDocument)
