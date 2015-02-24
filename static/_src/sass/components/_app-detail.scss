@@ -29,42 +29,59 @@
     padding-bottom: 10px;
 }
 
-.app-detail__btn-area {
-    text-align: center;
-}
-
-.app-detail__bundle-list {
-    margin-top: 10px;
-    margin-bottom: 15px;
-    padding-top: 0px;
-    padding-bottom: 40px;
-
+.app-detail__bundle {
     position: relative;
-    overflow: hidden;
-
     border-top: solid 1px $color_light;
     border-bottom: solid 1px $color_light;
+}
 
-    &:before {
-        content: '';
-        border-left: solid 4px $color_navy;
-        position: absolute;
-        height: 100%;
-        top: 35px;
-        left: 50%;
-        margin-left: -45px;
+.app-detail__bundle__tab {
+    top: 0px;
+    width: 100%;
+    margin-bottom: 30px;
+    background-color: white;
+}
+
+.app-detail__bundle-nav {
+    position: relative;
+    top: -1px;
+    overflow: hidden;
+    margin-bottom: 30px;
+    text-align: right;
+
+    a {
+        position: relative;
+        display: block;
+        float: right;
+        min-width: 50px;
+        padding: 5px;
+        margin: 0px 5px;
+
+        background-color: $color_light;
+        color: $color_gray;
+        text-align: center;
+
+        border-style: solid;
+        border-color: $color_light;
+        border-width: 1px;
+
+        &:hover {
+            color: $color_navy;
+        }
+
+        &.active {
+            background-color: white;
+            border-color: white $color_light $color_light $color_light;
+            text-decoration: none;
+            color: $color_navy;
+            font-weight: bold;
+            cursor: default;
+        }
     }
 }
 
-.app-detail__no-bundle {
+.app-detail__btn-area {
     text-align: center;
-    margin: 15px 0px;
-    padding: 15px 0px;
-    color: $color_navy;
-    font-weight: bold;
-
-    border-top: solid 1px $color_light;
-    border-bottom: solid 1px $color_light;
 }
 
 .app-detail__operation {

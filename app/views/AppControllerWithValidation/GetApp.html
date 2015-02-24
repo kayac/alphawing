@@ -10,13 +10,18 @@
 {{nl2br $field.Value}}{{end}}
 <!-- /.app-detail__description --></div>
 
+<div id="app-bundle" class="app-detail__bundle">
+<div class="app-detail__bundle__tab">
 {{set . "bundles" .apkBundles}}
 {{set . "bundleLabel" "apk"}}
 {{template "partialBundleList.html" .}}
-
+<!-- /.app-detail__bundle__tab --></div>
+<div class="app-detail__bundle__tab">
 {{set . "bundles" .ipaBundles}}
 {{set . "bundleLabel" "ipa"}}
 {{template "partialBundleList.html" .}}
+<!-- /.app-detail__bundle__tab --></div>
+<!-- /.app-detail__bundle --></div>
 
 {{/*
 <div class="data-box">{{with $field := field "app.Description" .}}

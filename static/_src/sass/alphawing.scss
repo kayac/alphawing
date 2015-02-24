@@ -31,6 +31,8 @@ $width_tag_line: 8px;
 
 $max_width_content: 600px;
 
+$bundle_list_height: 300px;
+
 body {
     background-color: $color_navy;
     color: $color_text;
@@ -43,6 +45,7 @@ body {
 @import "components/flash";
 @import "components/app-item";
 @import "components/app-detail";
+@import "components/bundle-list";
 @import "components/bundle-item";
 @import "components/bundle-detail";
 @import "components/data-box";
