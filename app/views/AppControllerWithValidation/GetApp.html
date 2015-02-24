@@ -10,20 +10,13 @@
 {{nl2br $field.Value}}{{end}}
 <!-- /.app-detail__description --></div>
 
-{{if eq (len .bundles) 0}}
-<div class="app-detail__no-bundle">apkファイルが登録されていません。</div>{{else}}
-<ul class="app-detail__bundle-list">{{range $index, $value := .bundles}}{{if eq $index 0}}
-<li><div class="bundle-item--first">
-<a href="{{url "BundleControllerWithValidation.GetBundle" $value.Id}}" class="bundle-item__version--first">{{$value.BundleVersion}} #{{$value.Revision}}</a>
-<div class="bundle-item__date--first">{{$value.CreatedAt.Format $dateFormat}}</div>
-<br />
-<a class="btn--download-current-bundle" href="{{url "BundleControllerWithValidation.GetDownloadBundle" $value.Id}}">最新版をダウンロード</a>
-<!-- /.bundle-item --></div></li>{{else}}
-<li><div class="bundle-item">
-<a href="{{url "BundleControllerWithValidation.GetBundle" $value.Id}}" class="bundle-item__version">{{$value.BundleVersion}} #{{$value.Revision}}</a>
-<div class="bundle-item__date">{{$value.CreatedAt.Format $dateFormat}}</div>
-<!-- /.bundle-item --></div></li>{{end}}{{end}}
-<!-- /.app-detail__bundle-list --></ul>{{end}}
+{{set . "bundles" .apkBundles}}
+{{set . "bundleLabel" "apk"}}
+{{template "partialBundleList.html" .}}
+
+{{set . "bundles" .ipaBundles}}
+{{set . "bundleLabel" "ipa"}}
+{{template "partialBundleList.html" .}}
 
 {{/*
 <div class="data-box">{{with $field := field "app.Description" .}}
