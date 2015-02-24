@@ -25,7 +25,7 @@ type App struct {
 	UpdatedAt   time.Time `db:"updated_at"`
 }
 
-func GetAppByApiToken(txn *gorp.Transaction, apiToken string) (*App, error) {
+func GetAppByApiToken(txn gorp.SqlExecutor, apiToken string) (*App, error) {
 	var app App
 	err := txn.SelectOne(&app, "SELECT * FROM app where api_token = ?", apiToken)
 
@@ -36,7 +36,7 @@ func GetAppByApiToken(txn *gorp.Transaction, apiToken string) (*App, error) {
 	return &app, nil
 }
 
-func (app *App) Bundles(txn *gorp.Transaction) ([]*Bundle, error) {
+func (app *App) Bundles(txn gorp.SqlExecutor) ([]*Bundle, error) {
 	var bundles []*Bundle
 	_, err := txn.Select(&bundles, "SELECT * FROM bundle WHERE app_id = ? ORDER BY id DESC", app.Id)
 	if err != nil {
@@ -45,7 +45,7 @@ func (app *App) Bundles(txn *gorp.Transaction) ([]*Bundle, error) {
 	return bundles, nil
 }
 
-func (app *App) Authorities(txn *gorp.Transaction) ([]*Authority, error) {
+func (app *App) Authorities(txn gorp.SqlExecutor) ([]*Authority, error) {
 	var authorities []*Authority
 	_, err := txn.Select(&authorities, "SELECT * FROM authority WHERE app_id = ? ORDER BY id ASC", app.Id)
 	if err != nil {
@@ -54,7 +54,7 @@ func (app *App) Authorities(txn *gorp.Transaction) ([]*Authority, error) {
 	return authorities, nil
 }
 
-func (app *App) GetMaxRevisionByBundleVersion(txn *gorp.Transaction, bundleVersion string) (int, error) {
+func (app *App) GetMaxRevisionByBundleVersion(txn gorp.SqlExecutor, bundleVersion string) (int, error) {
 	revision, err := txn.SelectInt(
 		"SELECT IFNULL(MAX(revision), 0) FROM bundle WHERE app_id = ? AND bundle_version = ?",
 		app.Id,
@@ -84,11 +84,11 @@ func (app *App) PreUpdate(s gorp.SqlExecutor) error {
 	return nil
 }
 
-func (app *App) Save(txn *gorp.Transaction) error {
+func (app *App) Save(txn gorp.SqlExecutor) error {
 	return txn.Insert(app)
 }
 
-func (app *App) RefreshToken(txn *gorp.Transaction) error {
+func (app *App) RefreshToken(txn gorp.SqlExecutor) error {
 	current, err := GetApp(txn, app.Id)
 	if err != nil {
 		return err
@@ -100,7 +100,7 @@ func (app *App) RefreshToken(txn *gorp.Transaction) error {
 	return err
 }
 
-func (app *App) Update(txn *gorp.Transaction) error {
+func (app *App) Update(txn gorp.SqlExecutor) error {
 	current, err := GetApp(txn, app.Id)
 	if err != nil {
 		return err
@@ -113,7 +113,7 @@ func (app *App) Update(txn *gorp.Transaction) error {
 	return err
 }
 
-func (app *App) DeleteFromDB(txn *gorp.Transaction) error {
+func (app *App) DeleteFromDB(txn gorp.SqlExecutor) error {
 	_, err := txn.Delete(app)
 	return err
 }
@@ -122,7 +122,7 @@ func (app *App) DeleteFromGoogleDrive(s *GoogleService) error {
 	return s.DeleteFile(app.FileId)
 }
 
-func (app *App) Delete(txn *gorp.Transaction, s *GoogleService) error {
+func (app *App) Delete(txn gorp.SqlExecutor, s *GoogleService) error {
 	if err := app.DeleteBundles(txn); err != nil {
 		return err
 	}
@@ -135,7 +135,7 @@ func (app *App) Delete(txn *gorp.Transaction, s *GoogleService) error {
 	return app.DeleteFromGoogleDrive(s)
 }
 
-func (app *App) DeleteBundles(txn *gorp.Transaction) error {
+func (app *App) DeleteBundles(txn gorp.SqlExecutor) error {
 	bundles, err := app.Bundles(txn)
 	if err != nil {
 		return err
@@ -150,7 +150,7 @@ func (app *App) DeleteBundles(txn *gorp.Transaction) error {
 	return err
 }
 
-func (app *App) DeleteAuthority(txn *gorp.Transaction, s *GoogleService, authority *Authority) error {
+func (app *App) DeleteAuthority(txn gorp.SqlExecutor, s *GoogleService, authority *Authority) error {
 	if err := authority.DeleteFromDB(txn); err != nil {
 		return err
 	}
@@ -158,7 +158,7 @@ func (app *App) DeleteAuthority(txn *gorp.Transaction, s *GoogleService, authori
 	return s.DeletePermission(app.FileId, authority.PermissionId)
 }
 
-func (app *App) DeleteAuthorities(txn *gorp.Transaction) error {
+func (app *App) DeleteAuthorities(txn gorp.SqlExecutor) error {
 	authorities, err := app.Authorities(txn)
 	if err != nil {
 		return err
@@ -173,7 +173,7 @@ func (app *App) DeleteAuthorities(txn *gorp.Transaction) error {
 	return err
 }
 
-func (app *App) HasAuthorityForEmail(txn *gorp.Transaction, email string) (bool, error) {
+func (app *App) HasAuthorityForEmail(txn gorp.SqlExecutor, email string) (bool, error) {
 	count, err := txn.SelectInt("SELECT COUNT(id) FROM authority WHERE app_id = ? AND email = ?", app.Id, email)
 	if err != nil {
 		return false, err
@@ -190,7 +190,7 @@ func (app *App) ParentReference() *drive.ParentReference {
 	}
 }
 
-func (app *App) CreateBundle(txn *gorp.Transaction, s *GoogleService, aaptPath string, bundle *Bundle) error {
+func (app *App) CreateBundle(txn gorp.SqlExecutor, s *GoogleService, aaptPath string, bundle *Bundle) error {
 	bundle.AppId = app.Id
 
 	apk, err := NewApk(bundle.File, aaptPath)
@@ -223,7 +223,7 @@ func (app *App) CreateBundle(txn *gorp.Transaction, s *GoogleService, aaptPath s
 	return nil
 }
 
-func (app *App) CreateAuthority(txn *gorp.Transaction, s *GoogleService, authority *Authority) error {
+func (app *App) CreateAuthority(txn gorp.SqlExecutor, s *GoogleService, authority *Authority) error {
 	authority.AppId = app.Id
 
 	permission := s.CreateUserPermission(authority.Email, "reader")
@@ -236,7 +236,7 @@ func (app *App) CreateAuthority(txn *gorp.Transaction, s *GoogleService, authori
 	return authority.Save(txn)
 }
 
-func CreateApp(txn *gorp.Transaction, s *GoogleService, app *App) error {
+func CreateApp(txn gorp.SqlExecutor, s *GoogleService, app *App) error {
 	driveFolder, err := s.CreateFolder(app.Title)
 	if err != nil {
 		return err
@@ -246,7 +246,7 @@ func CreateApp(txn *gorp.Transaction, s *GoogleService, app *App) error {
 	return app.Save(txn)
 }
 
-func GetApp(txn *gorp.Transaction, id int) (*App, error) {
+func GetApp(txn gorp.SqlExecutor, id int) (*App, error) {
 	app, err := txn.Get(App{}, id)
 	if err != nil {
 		return nil, err
@@ -254,7 +254,7 @@ func GetApp(txn *gorp.Transaction, id int) (*App, error) {
 	return app.(*App), nil
 }
 
-func GetApps(txn *gorp.Transaction, fileIds []string) ([]*App, error) {
+func GetApps(txn gorp.SqlExecutor, fileIds []string) ([]*App, error) {
 	if len(fileIds) <= 0 {
 		return []*App{}, nil
 	}

@@ -50,7 +50,7 @@ func (bundle *Bundle) JsonResponse(ub UriBuilder) (*BundleJsonResponse, error) {
 	}, nil
 }
 
-func (bundle *Bundle) App(txn *gorp.Transaction) (*App, error) {
+func (bundle *Bundle) App(txn gorp.SqlExecutor) (*App, error) {
 	app, err := txn.Get(App{}, bundle.AppId)
 	if err != nil {
 		return nil, err
@@ -70,11 +70,11 @@ func (bundle *Bundle) PreUpdate(s gorp.SqlExecutor) error {
 	return nil
 }
 
-func (bundle *Bundle) Save(txn *gorp.Transaction) error {
+func (bundle *Bundle) Save(txn gorp.SqlExecutor) error {
 	return txn.Insert(bundle)
 }
 
-func (bundle *Bundle) Update(txn *gorp.Transaction) error {
+func (bundle *Bundle) Update(txn gorp.SqlExecutor) error {
 	current, err := GetBundle(txn, bundle.Id)
 	if err != nil {
 		return err
@@ -86,7 +86,7 @@ func (bundle *Bundle) Update(txn *gorp.Transaction) error {
 	return err
 }
 
-func (bundle *Bundle) DeleteFromDB(txn *gorp.Transaction) error {
+func (bundle *Bundle) DeleteFromDB(txn gorp.SqlExecutor) error {
 	_, err := txn.Delete(bundle)
 	return err
 }
@@ -95,7 +95,7 @@ func (bundle *Bundle) DeleteFromGoogleDrive(s *GoogleService) error {
 	return s.DeleteFile(bundle.FileId)
 }
 
-func (bundle *Bundle) Delete(txn *gorp.Transaction, s *GoogleService) error {
+func (bundle *Bundle) Delete(txn gorp.SqlExecutor, s *GoogleService) error {
 	if err := bundle.DeleteFromDB(txn); err != nil {
 		return err
 	}
@@ -105,11 +105,11 @@ func (bundle *Bundle) Delete(txn *gorp.Transaction, s *GoogleService) error {
 	return nil
 }
 
-func CreateBundle(txn *gorp.Transaction, bundle *Bundle) error {
+func CreateBundle(txn gorp.SqlExecutor, bundle *Bundle) error {
 	return txn.Insert(bundle)
 }
 
-func GetBundle(txn *gorp.Transaction, id int) (*Bundle, error) {
+func GetBundle(txn gorp.SqlExecutor, id int) (*Bundle, error) {
 	bundle, err := txn.Get(Bundle{}, id)
 	if err != nil {
 		return nil, err

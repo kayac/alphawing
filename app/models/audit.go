@@ -47,25 +47,25 @@ func (audit *Audit) Validate(v *revel.Validation) {
 	v.Required(audit.Action)
 }
 
-func (audit *Audit) Save(txn *gorp.Transaction) error {
+func (audit *Audit) Save(txn gorp.SqlExecutor) error {
 	return txn.Insert(audit)
 }
 
-func (audit *Audit) Update(txn *gorp.Transaction) error {
+func (audit *Audit) Update(txn gorp.SqlExecutor) error {
 	_, err := txn.Update(audit)
 	return err
 }
 
-func (audit *Audit) Delete(txn *gorp.Transaction) error {
+func (audit *Audit) Delete(txn gorp.SqlExecutor) error {
 	_, err := txn.Delete(audit)
 	return err
 }
 
-func CreateAudit(txn *gorp.Transaction, audit *Audit) error {
+func CreateAudit(txn gorp.SqlExecutor, audit *Audit) error {
 	return txn.Insert(audit)
 }
 
-func GetAudit(txn *gorp.Transaction, id int) (*Audit, error) {
+func GetAudit(txn gorp.SqlExecutor, id int) (*Audit, error) {
 	audit, err := txn.Get(Audit{}, id)
 	if err != nil {
 		return nil, err
