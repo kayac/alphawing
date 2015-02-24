@@ -207,7 +207,7 @@ func (app *App) CreateBundle(txn *gorp.Transaction, s *GoogleService, bundle *Bu
 		return err
 	}
 	bundle.Revision = maxRevision + 1
-	bundle.FileName = fmt.Sprintf("app_%d_ver_%s_rev_%d.apk", app.Id, bundleInfo.Version, bundle.Revision)
+	bundle.FileName = bundle.BuildFileName()
 
 	parent := app.ParentReference()
 	driveFile, err := s.InsertFile(bundle.File, bundle.FileName, parent)

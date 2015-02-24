@@ -15,6 +15,16 @@ const (
 	BundlePlatformTypeIOS
 )
 
+func (platformType BundlePlatformType) Extention() BundleFileExtension {
+	var ext BundleFileExtension
+	if platformType == BundlePlatformTypeAndroid {
+		ext = BundleFileExtensionAndroid
+	} else if platformType == BundlePlatformTypeIOS {
+		ext = BundleFileExtensionIOS
+	}
+	return ext
+}
+
 type BundleFileExtension string
 
 const (
@@ -83,6 +93,16 @@ func (bundle *Bundle) JsonResponse(ub UriBuilder) (*BundleJsonResponse, error) {
 		InstallUrl: installUrl.String(),
 		QrCodeUrl:  qrCodeUrl.String(),
 	}, nil
+}
+
+func (bundle *Bundle) BuildFileName() string {
+	return fmt.Sprintf(
+		"app_%d_ver_%s_rev_%d%s",
+		bundle.AppId,
+		bundle.BundleInfo.Version,
+		bundle.Revision,
+		bundle.PlatformType.Extention(),
+	)
 }
 
 func (bundle *Bundle) App(txn *gorp.Transaction) (*App, error) {
