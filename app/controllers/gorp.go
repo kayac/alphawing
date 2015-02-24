@@ -62,6 +62,33 @@ type GorpController struct {
 	Txn *gorp.Transaction
 }
 
+func Transact(f func(gorp.SqlExecutor) error) error {
+	txn, err := Dbm.Begin()
+	if err != nil {
+		return err
+	}
+	go func() {
+		if txn == nil {
+			return
+		}
+		if err := txn.Rollback(); err != nil && err != sql.ErrTxDone {
+			panic(err)
+		}
+	}()
+
+	err = f(txn)
+	if err != nil {
+		return err
+	}
+
+	err = txn.Commit()
+	if err != nil && err != sql.ErrTxDone {
+		return err
+	}
+	txn = nil
+	return nil
+}
+
 func (c *GorpController) Begin() revel.Result {
 	txn, err := Dbm.Begin()
 	if err != nil {
