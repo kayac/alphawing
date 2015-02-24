@@ -2,6 +2,6 @@
 {{template "header.html" .}}
 <div class="install-ipa">
 <p class="install-ipa__message">iOSアプリをインストールします。</p>
-<a class="btn" href="{{.plistUrl}}">OK</a>
+<a class="btn" href="itms-services://?action=download-manifest&url={{.plistUrl}}">OK</a>
 <!-- /.install-ipa --></div>
 {{template "footer.html" .}}
