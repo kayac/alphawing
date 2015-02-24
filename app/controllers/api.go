@@ -6,6 +6,7 @@ import (
 
 	"github.com/kayac/alphawing/app/models"
 
+	"github.com/coopernurse/gorp"
 	"github.com/revel/revel"
 )
 
@@ -42,7 +43,7 @@ func (c ApiController) GetDocument() revel.Result {
 }
 
 func (c ApiController) PostUploadBundle(token string, description string, file *os.File) revel.Result {
-	app, err := models.GetAppByApiToken(c.Txn, token)
+	app, err := models.GetAppByApiToken(Dbm, token)
 	if err != nil {
 		c.Response.Status = http.StatusUnauthorized
 		return c.RenderJson(c.NewJsonResponseUploadBundle(c.Response.Status, []string{"Token is invalid."}, nil))
@@ -63,7 +64,10 @@ func (c ApiController) PostUploadBundle(token string, description string, file *
 		File:        file,
 	}
 
-	if err := app.CreateBundle(c.Txn, c.GoogleService, Conf.AaptPath, bundle); err != nil {
+	err = Transact(func(txn gorp.SqlExecutor) error {
+		return app.CreateBundle(txn, c.GoogleService, Conf.AaptPath, bundle)
+	})
+	if err != nil {
 		if aperr, ok := err.(*models.ApkParseError); ok {
 			c.Response.Status = http.StatusInternalServerError
 			return c.RenderJson(c.NewJsonResponseUploadBundle(c.Response.Status, []string{aperr.Error()}, nil))
