@@ -255,7 +255,7 @@ func (c *AppControllerWithValidation) CheckNotFound() revel.Result {
 	app, err := models.GetApp(c.Txn, appId)
 	if err != nil {
 		if err == sql.ErrNoRows {
-			c.NotFound("NotFound")
+			return c.NotFound("NotFound")
 		}
 		panic(err)
 	}

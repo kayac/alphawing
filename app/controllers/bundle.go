@@ -101,7 +101,7 @@ func (c *BundleControllerWithValidation) CheckNotFound() revel.Result {
 		bundleId, err := strconv.Atoi(param[0])
 		if err != nil {
 			if err == sql.ErrNoRows {
-				c.NotFound("NotFound")
+				return c.NotFound("NotFound")
 			}
 			panic(err)
 		}
