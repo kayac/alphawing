@@ -3,7 +3,7 @@ package models
 import "github.com/DHowett/go-plist"
 
 const (
-	AssetKind                = "software-packege"
+	AssetKind                = "software-package"
 	MetadataBundleIdentifier = "com.example.test"
 	MetadataKind             = "software"
 )
@@ -25,8 +25,8 @@ type Asset struct {
 type Metadata struct {
 	BundleIdentifier string `plist:"bundle-identifier"`
 	BundleVersion    string `plist:"bundle-version"`
-	Kind             string `plist:kind`
-	Title            string `plist:title`
+	Kind             string `plist:"kind"`
+	Title            string `plist:"title"`
 }
 
 func NewPlist(title, version, ipaUrl string) *Plist {
