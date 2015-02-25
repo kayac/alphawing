@@ -158,6 +158,7 @@ $(function () {
         }
 
         $([
+            '.api-token',
             '.btn--create-app',
             '.btn--update-app',
             '.btn--delete-app',
