@@ -4,7 +4,6 @@ import (
 	"database/sql"
 	"fmt"
 	"strconv"
-	"strings"
 	"time"
 
 	"github.com/kayac/alphawing/app/models"
@@ -19,26 +18,18 @@ type LimitedTimeController struct {
 func (c *LimitedTimeController) GetDownloadPlist(bundleId int) revel.Result {
 	bundle := c.Bundle
 
-	app, err := bundle.App(c.Txn)
-	if err != nil {
-		panic(err)
-	}
-
 	ipaUrl, err := c.UriFor(fmt.Sprintf("bundle/%d/download_ipa", bundle.Id))
 	if err != nil {
 		panic(err)
 	}
 
-	p := models.NewPlist(app.Title, bundle.BundleVersion, ipaUrl.String())
-
-	data, err := p.Marshall()
+	r, err := bundle.PlistReader(c.Txn, ipaUrl)
 	if err != nil {
 		panic(err)
 	}
-	memfile := strings.NewReader(string(data))
 
 	c.Response.ContentType = "application/x-plist"
-	return c.RenderBinary(memfile, "test.plist", revel.Attachment, time.Now())
+	return c.RenderBinary(r, models.PlistFileName, revel.Attachment, time.Now())
 }
 
 func (c *LimitedTimeController) GetDownloadIpa(bundleId int) revel.Result {

@@ -1,8 +1,14 @@
 package models
 
-import "github.com/DHowett/go-plist"
+import (
+	"io"
+	"strings"
+
+	"github.com/DHowett/go-plist"
+)
 
 const (
+	PlistFileName            = "test.plist"
 	AssetKind                = "software-package"
 	MetadataBundleIdentifier = "com.example.test"
 	MetadataKind             = "software"
@@ -52,4 +58,13 @@ func NewPlist(title, version, ipaUrl string) *Plist {
 
 func (p *Plist) Marshall() ([]byte, error) {
 	return plist.MarshalIndent(p, plist.XMLFormat, "\t")
+}
+
+func (p *Plist) Reader() (io.Reader, error) {
+	data, err := p.Marshall()
+	if err != nil {
+		return nil, err
+	}
+
+	return strings.NewReader(string(data)), nil
 }
