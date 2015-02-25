@@ -45,6 +45,15 @@ func (app *App) Bundles(txn *gorp.Transaction) ([]*Bundle, error) {
 	return bundles, nil
 }
 
+func (app *App) BundlesByPlatformType(txn *gorp.Transaction, platformType BundlePlatformType) ([]*Bundle, error) {
+	var bundles []*Bundle
+	_, err := txn.Select(&bundles, "SELECT * FROM bundle WHERE app_id = ? AND platform_type = ? ORDER BY id DESC", app.Id, platformType)
+	if err != nil {
+		return nil, err
+	}
+	return bundles, nil
+}
+
 func (app *App) Authorities(txn *gorp.Transaction) ([]*Authority, error) {
 	var authorities []*Authority
 	_, err := txn.Select(&authorities, "SELECT * FROM authority WHERE app_id = ? ORDER BY id ASC", app.Id)
