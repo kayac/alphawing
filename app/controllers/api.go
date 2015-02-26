@@ -3,6 +3,7 @@ package controllers
 import (
 	"net/http"
 	"os"
+	"path/filepath"
 
 	"github.com/kayac/alphawing/app/models"
 
@@ -42,13 +43,22 @@ func (c ApiController) GetDocument() revel.Result {
 }
 
 func (c ApiController) PostUploadBundle(token string, description string, file *os.File) revel.Result {
-	app, err := models.GetAppByApiToken(c.Txn, token)
+	app, err := models.GetAppByApiToken(Dbm, token)
 	if err != nil {
 		c.Response.Status = http.StatusUnauthorized
 		return c.RenderJson(c.NewJsonResponseUploadBundle(c.Response.Status, []string{"Token is invalid."}, nil))
 	}
 
+	var filename string
+	if _, ok := c.Params.Files["file"]; ok {
+		filename = c.Params.Files["file"][0].Filename
+	}
+	extStr := filepath.Ext(filename)
+	ext := models.BundleFileExtension(extStr)
+	isValidExt := ext.IsValid()
+
 	c.Validation.Required(file != nil).Message("File is required.")
+	c.Validation.Required(isValidExt).Message("File extension is not valid.")
 	if c.Validation.HasErrors() {
 		var errors []string
 		for _, err := range c.Validation.Errors {
@@ -59,14 +69,15 @@ func (c ApiController) PostUploadBundle(token string, description string, file *
 	}
 
 	bundle := &models.Bundle{
-		Description: description,
-		File:        file,
+		PlatformType: ext.PlatformType(),
+		Description:  description,
+		File:         file,
 	}
 
-	if err := app.CreateBundle(c.Txn, c.GoogleService, Conf.AaptPath, bundle); err != nil {
-		if aperr, ok := err.(*models.ApkParseError); ok {
+	if err := app.CreateBundle(Dbm, c.GoogleService, bundle); err != nil {
+		if bperr, ok := err.(*models.BundleParseError); ok {
 			c.Response.Status = http.StatusInternalServerError
-			return c.RenderJson(c.NewJsonResponseUploadBundle(c.Response.Status, []string{aperr.Error()}, nil))
+			return c.RenderJson(c.NewJsonResponseUploadBundle(c.Response.Status, []string{bperr.Error()}, nil))
 		}
 		c.Response.Status = http.StatusInternalServerError
 		return c.RenderJson(c.NewJsonResponseUploadBundle(c.Response.Status, []string{err.Error()}, nil))

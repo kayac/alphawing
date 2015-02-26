@@ -4,7 +4,7 @@
 <form action="{{url "AppControllerWithValidation.PostCreateBundle" .app.Id}}" method="POST" enctype="multipart/form-data">{{with $field := field "bundle.AppId" .}}
 <input type="hidden" name="{{$field.Name}}" value="{{$field.Value}}" />{{end}}
 <div class="form-section">{{with $field := field "bundle.BundleFile" .}}
-<h2 class="form-section__header">apkファイル</h2>
+<h2 class="form-section__header">ファイル</h2>
 <input class="form-section__file" type="file" name="file" />{{end}}
 <!-- /.form-section --></div>
 <div class="form-section">{{with $field := field "bundle.Description" .}}

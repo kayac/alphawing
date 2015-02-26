@@ -22,7 +22,6 @@ type Config struct {
 	WebApplicationCallbackUrl  string
 	ServiceAccountClientEmail  string
 	ServiceAccountPrivateKey   string
-	AaptPath                   string
 }
 
 func init() {
@@ -31,9 +30,6 @@ func init() {
 
 	// gorp
 	revel.OnAppStart(InitDB)
-	revel.InterceptMethod((*GorpController).Begin, revel.BEFORE)
-	revel.InterceptMethod((*GorpController).Commit, revel.AFTER)
-	revel.InterceptMethod((*GorpController).Rollback, revel.FINALLY)
 
 	// service account
 	revel.InterceptMethod((*AlphaWingController).InitGoogleService, revel.BEFORE)
@@ -42,10 +38,15 @@ func init() {
 	revel.InterceptMethod((*AlphaWingController).InitOAuthConfig, revel.BEFORE)
 	revel.InterceptMethod((*AlphaWingController).SetLoginInfo, revel.BEFORE)
 	revel.InterceptMethod((*AuthController).CheckLogin, revel.BEFORE)
+
+	// validate app
 	revel.InterceptMethod((*AppControllerWithValidation).CheckNotFound, revel.BEFORE)
 	revel.InterceptMethod((*AppControllerWithValidation).CheckForbidden, revel.BEFORE)
+
+	// validate bundle
 	revel.InterceptMethod((*BundleControllerWithValidation).CheckNotFound, revel.BEFORE)
 	revel.InterceptMethod((*BundleControllerWithValidation).CheckForbidden, revel.BEFORE)
+	revel.InterceptMethod((*LimitedTimeController).CheckNotFound, revel.BEFORE)
 
 	// document
 	revel.OnAppStart(GenerateApiDocument)
@@ -89,8 +90,6 @@ func LoadConfig() {
 	serviceAccountClientEmail := keyMap["client_email"]
 	serviceAccountPrivateKey := keyMap["private_key"]
 
-	aaptPath := revel.Config.StringDefault("aapt.path", "/usr/local/bin/aapt")
-
 	Conf = &Config{
 		PermittedDomains:           strings.Split(permittedDomain, ","),
 		OrganizationName:           organizationName,
@@ -99,7 +98,6 @@ func LoadConfig() {
 		WebApplicationCallbackUrl:  webApplicationCallbackUrl,
 		ServiceAccountClientEmail:  serviceAccountClientEmail,
 		ServiceAccountPrivateKey:   serviceAccountPrivateKey,
-		AaptPath:                   aaptPath,
 	}
 }
 

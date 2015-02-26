@@ -59,36 +59,31 @@ func getDbm() *gorp.DbMap {
 
 type GorpController struct {
 	*revel.Controller
-	Txn *gorp.Transaction
 }
 
-func (c *GorpController) Begin() revel.Result {
+func Transact(f func(gorp.SqlExecutor) error) error {
 	txn, err := Dbm.Begin()
 	if err != nil {
-		panic(err)
+		return err
 	}
-	c.Txn = txn
-	return nil
-}
+	defer func() {
+		if txn == nil {
+			return
+		}
+		if err := txn.Rollback(); err != nil && err != sql.ErrTxDone {
+			panic(err)
+		}
+	}()
 
-func (c *GorpController) Commit() revel.Result {
-	if c.Txn == nil {
-		return nil
+	err = f(txn)
+	if err != nil {
+		return err
 	}
-	if err := c.Txn.Commit(); err != nil && err != sql.ErrTxDone {
-		panic(err)
-	}
-	c.Txn = nil
-	return nil
-}
 
-func (c *GorpController) Rollback() revel.Result {
-	if c.Txn == nil {
-		return nil
+	err = txn.Commit()
+	if err != nil && err != sql.ErrTxDone {
+		return err
 	}
-	if err := c.Txn.Rollback(); err != nil && err != sql.ErrTxDone {
-		panic(err)
-	}
-	c.Txn = nil
+	txn = nil
 	return nil
 }

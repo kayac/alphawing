@@ -15,6 +15,7 @@ import (
 	"github.com/kayac/alphawing/app/models"
 	"github.com/kayac/alphawing/app/routes"
 
+	"github.com/coopernurse/gorp"
 	"github.com/revel/revel"
 )
 
@@ -48,7 +49,7 @@ func (c AlphaWingController) Index() revel.Result {
 		fileIds = append(fileIds, file.Id)
 	}
 
-	apps, err := models.GetApps(c.Txn, fileIds)
+	apps, err := models.GetApps(Dbm, fileIds)
 	if err != nil {
 		panic(err)
 	}
@@ -110,12 +111,17 @@ func (c AlphaWingController) GetCallback() revel.Result {
 		return c.Redirect(routes.AlphaWingController.Index())
 	}
 
-	user, err := models.FindOrCreateUser(c.Txn, tokeninfo.Email)
+	err = Transact(func(txn gorp.SqlExecutor) error {
+		user, err := models.FindOrCreateUser(txn, tokeninfo.Email)
+		if err != nil {
+			return err
+		}
+		c.login(fmt.Sprint(user.Id))
+		return nil
+	})
 	if err != nil {
 		panic(err)
 	}
-
-	c.login(fmt.Sprint(user.Id))
 
 	return c.Redirect(next)
 }
@@ -171,7 +177,7 @@ func (c *AlphaWingController) transport() *oauth.Transport {
 }
 
 func (c *AlphaWingController) isPermittedEmail(email string) bool {
-	permitted, err := models.IsExistAuthorityForEmail(c.Txn, email)
+	permitted, err := models.IsExistAuthorityForEmail(Dbm, email)
 	if err != nil {
 		panic(err)
 	}
@@ -192,13 +198,15 @@ func (c *AlphaWingController) isPermittedEmail(email string) bool {
 }
 
 func (c *AlphaWingController) createAudit(resource int, resourceId int, action int) error {
-	audit := &models.Audit{
-		UserId:     c.LoginUserId,
-		Resource:   resource,
-		ResourceId: resourceId,
-		Action:     action,
-	}
-	err := audit.Save(c.Txn)
+	err := Transact(func(txn gorp.SqlExecutor) error {
+		audit := &models.Audit{
+			UserId:     c.LoginUserId,
+			Resource:   resource,
+			ResourceId: resourceId,
+			Action:     action,
+		}
+		return audit.Save(txn)
+	})
 	if err != nil {
 		return err
 	}

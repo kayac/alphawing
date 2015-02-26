@@ -5,7 +5,7 @@ $(function () {
         PROMPT_EMAIL: '追加するメンバーのアドレスを入力してください。',
         CONFIRM_DELETE_APP: [
             'プロジェクトを削除します。',
-            'このプロジェクトのすべてのapkファイルに、アクセスできなくなります。',
+            'このプロジェクトのすべてのファイルに、アクセスできなくなります。',
             '本当によろしいですか?'
         ].join('\n'),
         CONFIRM_DELETE_BUNDLE: 'このバージョンを削除します。よろしいですか?',
@@ -185,32 +185,53 @@ $(function () {
     })();
 
 
-    // qr-code
+    // bundle list tab
     (function () {
-        var SIZE = 100;
+        var BUNDLE_LIST_HEIGHT = 300;
+        var LABELS = ['Android', 'iOS'];
+        var NAV_CLASS_NAME = 'app-detail__bundle-nav';
+        var ACTIVE_CLASS_NAME = 'active';
 
-        var $download = $('.btn--download-bundle');
+        var $appBundle = $('#app-bundle');
 
-        if (!$download.length) {
+        if (!$appBundle.length) {
             return;
         }
 
-        var href = $download.attr('href');
-        var qrcodeLink = [
-            'https://chart.googleapis.com/chart',
-            '?cht=qr',
-            '&chs=' + SIZE + 'x' + SIZE,
-            '&chl=' + href
-        ].join('');
+        var $nav = $('<div />');
+        $nav.addClass(NAV_CLASS_NAME);
+        $appBundle.after($nav);
 
-        var $img = $('<img />');
-        $img.attr({
-            'class': 'bundle-detail__qr',
-            width: SIZE,
-            height: SIZE,
-            src: qrcodeLink
+        var selectTab = function (pos) {
+            $appBundle.children().hide();
+            $appBundle.children().eq(pos).show();
+
+            $nav.children().removeClass(ACTIVE_CLASS_NAME);
+            $nav.children().eq(pos).addClass(ACTIVE_CLASS_NAME);
+        };
+
+        $appBundle.css('height', BUNDLE_LIST_HEIGHT + 'px');
+        $appBundle.children().css({
+            position:'absolute',
+            top: '0px'
         });
 
-        $('.data-box').after($img);
+        $.each(LABELS, function (index, label) {
+            var $btn = $('<a href="#" />');
+            $btn.text(label);
+            $btn.on('click', function (e) {
+                e.preventDefault();
+                selectTab(index);
+            });
+            $nav.append($btn);
+        });
+
+        selectTab(0);
     })();
 });
+
+
+
+
+
+

@@ -30,25 +30,25 @@ func (user *User) Validate(v *revel.Validation) {
 	v.Required(user.Email)
 }
 
-func (user *User) Save(txn *gorp.Transaction) error {
+func (user *User) Save(txn gorp.SqlExecutor) error {
 	return txn.Insert(user)
 }
 
-func (user *User) Update(txn *gorp.Transaction) error {
+func (user *User) Update(txn gorp.SqlExecutor) error {
 	_, err := txn.Update(user)
 	return err
 }
 
-func (user *User) Delete(txn *gorp.Transaction) error {
+func (user *User) Delete(txn gorp.SqlExecutor) error {
 	_, err := txn.Delete(user)
 	return err
 }
 
-func CreateUser(txn *gorp.Transaction, user *User) error {
+func CreateUser(txn gorp.SqlExecutor, user *User) error {
 	return txn.Insert(user)
 }
 
-func FindOrCreateUser(txn *gorp.Transaction, email string) (*User, error) {
+func FindOrCreateUser(txn gorp.SqlExecutor, email string) (*User, error) {
 	user, err := GetUserFromEmail(txn, email)
 	if err == sql.ErrNoRows {
 		user = &User{
@@ -64,7 +64,7 @@ func FindOrCreateUser(txn *gorp.Transaction, email string) (*User, error) {
 	return user, nil
 }
 
-func GetUser(txn *gorp.Transaction, id int) (*User, error) {
+func GetUser(txn gorp.SqlExecutor, id int) (*User, error) {
 	user, err := txn.Get(User{}, id)
 	if err != nil {
 		return nil, err
@@ -72,7 +72,7 @@ func GetUser(txn *gorp.Transaction, id int) (*User, error) {
 	return user.(*User), nil
 }
 
-func GetUserFromEmail(txn *gorp.Transaction, email string) (*User, error) {
+func GetUserFromEmail(txn gorp.SqlExecutor, email string) (*User, error) {
 	var user User
 	err := txn.SelectOne(&user, "SELECT * FROM user WHERE email = ?", email)
 	if err != nil {
