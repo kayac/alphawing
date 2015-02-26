@@ -38,7 +38,7 @@ func (c BundleControllerWithValidation) GetBundle(bundleId int) revel.Result {
 		panic(err)
 	}
 
-	installUrl, err := c.UriFor(fmt.Sprintf("bundle/%d/download", bundle.Id))
+	installUrl, err := c.UriFor(fmt.Sprintf("bundle/%d", bundle.Id))
 	if err != nil {
 		panic(err)
 	}
