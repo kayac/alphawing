@@ -10,6 +10,7 @@ import (
 	"github.com/kayac/alphawing/app/models"
 	"github.com/kayac/alphawing/app/routes"
 
+	"github.com/coopernurse/gorp"
 	"github.com/revel/revel"
 )
 
@@ -38,18 +39,21 @@ func (c AppController) PostCreateApp(app models.App) revel.Result {
 		return c.Redirect(routes.AppController.GetCreateApp())
 	}
 
-	if err := models.CreateApp(c.Txn, c.GoogleService, &app); err != nil {
-		panic(err)
-	}
+	err := Transact(func(txn gorp.SqlExecutor) error {
+		if err := models.CreateApp(txn, c.GoogleService, &app); err != nil {
+			return err
+		}
 
-	tokeninfo, err := c.tokenInfo()
+		tokeninfo, err := c.tokenInfo()
+		if err != nil {
+			return err
+		}
+		authority := &models.Authority{
+			Email: tokeninfo.Email,
+		}
+		return app.CreateAuthority(txn, c.GoogleService, authority)
+	})
 	if err != nil {
-		panic(err)
-	}
-	authority := &models.Authority{
-		Email: tokeninfo.Email,
-	}
-	if err := app.CreateAuthority(c.Txn, c.GoogleService, authority); err != nil {
 		panic(err)
 	}
 
@@ -66,7 +70,7 @@ func (c AppController) PostCreateApp(app models.App) revel.Result {
 func (c AppControllerWithValidation) GetApp(appId int) revel.Result {
 	app := c.App
 
-	authorities, err := app.Authorities(c.Txn)
+	authorities, err := app.Authorities(Dbm)
 	if err != nil {
 		panic(err)
 	}
@@ -102,7 +106,10 @@ func (c AppControllerWithValidation) PostUpdateApp(appId int, app models.App) re
 		return c.Redirect(routes.AppControllerWithValidation.GetUpdateApp(app.Id))
 	}
 
-	if err := app.Update(c.Txn); err != nil {
+	err := Transact(func(txn gorp.SqlExecutor) error {
+		return app.Update(txn)
+	})
+	if err != nil {
 		panic(err)
 	}
 
@@ -120,7 +127,10 @@ func (c AppControllerWithValidation) PostRefreshToken(appId int, app models.App)
 		c.Redirect(routes.AppControllerWithValidation.GetApp(app.Id))
 	}
 
-	if err := app.RefreshToken(c.Txn); err != nil {
+	err := Transact(func(txn gorp.SqlExecutor) error {
+		return app.RefreshToken(txn)
+	})
+	if err != nil {
 		panic(err)
 	}
 
@@ -131,7 +141,12 @@ func (c AppControllerWithValidation) PostRefreshToken(appId int, app models.App)
 func (c AppControllerWithValidation) PostDeleteApp(appId int) revel.Result {
 	app := c.App
 
-	app.Delete(c.Txn, c.GoogleService)
+	err := Transact(func(txn gorp.SqlExecutor) error {
+		return app.Delete(txn, c.GoogleService)
+	})
+	if err != nil {
+		panic(err)
+	}
 
 	if err := c.createAudit(models.ResourceApp, appId, models.ActionDelete); err != nil {
 		panic(err)
@@ -171,10 +186,9 @@ func (c AppControllerWithValidation) PostCreateBundle(appId int, bundle models.B
 
 	bundle.File = file
 	bundle.PlatformType = models.BundleFileExtension(ext).PlatformType()
-
-	if err := c.App.CreateBundle(c.Txn, c.GoogleService, &bundle); err != nil {
-		if aperr, ok := err.(*models.BundleParseError); ok {
-			c.Flash.Error(aperr.Error())
+	if err := c.App.CreateBundle(Dbm, c.GoogleService, &bundle); err != nil {
+		if bperr, ok := err.(*models.BundleParseError); ok {
+			c.Flash.Error(bperr.Error())
 			return c.Redirect(routes.AppControllerWithValidation.GetCreateBundle(appId))
 		}
 		panic(err)
@@ -199,7 +213,7 @@ func (c AppControllerWithValidation) PostCreateAuthority(appId int, email string
 		return c.Redirect(routes.AppControllerWithValidation.GetApp(appId))
 	}
 
-	found, err := app.HasAuthorityForEmail(c.Txn, email)
+	found, err := app.HasAuthorityForEmail(Dbm, email)
 	if err != nil {
 		panic(err)
 	}
@@ -213,7 +227,13 @@ func (c AppControllerWithValidation) PostCreateAuthority(appId int, email string
 	authority := &models.Authority{
 		Email: email,
 	}
-	app.CreateAuthority(c.Txn, c.GoogleService, authority)
+
+	err = Transact(func(txn gorp.SqlExecutor) error {
+		return app.CreateAuthority(txn, c.GoogleService, authority)
+	})
+	if err != nil {
+		panic(err)
+	}
 
 	if err := c.createAudit(models.ResourceAuthority, authority.Id, models.ActionCreate); err != nil {
 		panic(err)
@@ -226,7 +246,7 @@ func (c AppControllerWithValidation) PostCreateAuthority(appId int, email string
 func (c AppControllerWithValidation) PostDeleteAuthority(appId, authorityId int) revel.Result {
 	app := c.App
 
-	authority, err := models.GetAuthority(c.Txn, authorityId)
+	authority, err := models.GetAuthority(Dbm, authorityId)
 	if err != nil {
 		panic(err)
 	}
@@ -236,7 +256,10 @@ func (c AppControllerWithValidation) PostDeleteAuthority(appId, authorityId int)
 		return c.Redirect(routes.AppControllerWithValidation.GetApp(appId))
 	}
 
-	if err := app.DeleteAuthority(c.Txn, c.GoogleService, authority); err != nil {
+	err = Transact(func(txn gorp.SqlExecutor) error {
+		return app.DeleteAuthority(txn, c.GoogleService, authority)
+	})
+	if err != nil {
 		panic(err)
 	}
 
@@ -257,7 +280,7 @@ func (c *AppControllerWithValidation) CheckNotFound() revel.Result {
 	if err != nil {
 		panic(err)
 	}
-	app, err := models.GetApp(c.Txn, appId)
+	app, err := models.GetApp(Dbm, appId)
 	if err != nil {
 		if err == sql.ErrNoRows {
 			return c.NotFound("NotFound")

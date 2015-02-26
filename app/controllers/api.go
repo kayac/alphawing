@@ -42,7 +42,7 @@ func (c ApiController) GetDocument() revel.Result {
 }
 
 func (c ApiController) PostUploadBundle(token string, description string, file *os.File) revel.Result {
-	app, err := models.GetAppByApiToken(c.Txn, token)
+	app, err := models.GetAppByApiToken(Dbm, token)
 	if err != nil {
 		c.Response.Status = http.StatusUnauthorized
 		return c.RenderJson(c.NewJsonResponseUploadBundle(c.Response.Status, []string{"Token is invalid."}, nil))
@@ -63,10 +63,10 @@ func (c ApiController) PostUploadBundle(token string, description string, file *
 		File:        file,
 	}
 
-	if err := app.CreateBundle(c.Txn, c.GoogleService, bundle); err != nil {
-		if aperr, ok := err.(*models.BundleParseError); ok {
+	if err := app.CreateBundle(Dbm, c.GoogleService, bundle); err != nil {
+		if bperr, ok := err.(*models.BundleParseError); ok {
 			c.Response.Status = http.StatusInternalServerError
-			return c.RenderJson(c.NewJsonResponseUploadBundle(c.Response.Status, []string{aperr.Error()}, nil))
+			return c.RenderJson(c.NewJsonResponseUploadBundle(c.Response.Status, []string{bperr.Error()}, nil))
 		}
 		c.Response.Status = http.StatusInternalServerError
 		return c.RenderJson(c.NewJsonResponseUploadBundle(c.Response.Status, []string{err.Error()}, nil))
