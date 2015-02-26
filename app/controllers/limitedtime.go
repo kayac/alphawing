@@ -23,7 +23,7 @@ func (c *LimitedTimeController) GetDownloadPlist(bundleId int) revel.Result {
 		panic(err)
 	}
 
-	r, err := bundle.PlistReader(c.Txn, ipaUrl)
+	r, err := bundle.PlistReader(Dbm, ipaUrl)
 	if err != nil {
 		panic(err)
 	}
@@ -62,7 +62,7 @@ func (c *LimitedTimeController) CheckNotFound() revel.Result {
 			}
 			panic(err)
 		}
-		bundle, err := models.GetBundle(c.Txn, bundleId)
+		bundle, err := models.GetBundle(Dbm, bundleId)
 		if err != nil {
 			panic(err)
 		}
