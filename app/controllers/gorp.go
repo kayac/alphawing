@@ -59,7 +59,6 @@ func getDbm() *gorp.DbMap {
 
 type GorpController struct {
 	*revel.Controller
-	Txn *gorp.Transaction
 }
 
 func Transact(f func(gorp.SqlExecutor) error) error {
