@@ -36,3 +36,32 @@ $ curl http://your-domain.com/api/upload_bundle \
   }
 }
 ```
+
+## Delete Bundle
+
+### Usage
+
+``` sh
+$ curl http://your-domain.com/api/delete_bundle \
+    -F token=your-project-api-token \
+    -F file_id='bundle file_id' \
+```
+
+### Parameters
+
+|Name|Description|
+|:---:|:---:|
+|token|**Required.** The API token of your project. You can check it in your project page.|
+|file_id|**Required.** Bundle FileID.|
+
+### Response
+
+```
+
+{
+  "status": 200,
+  "message": [
+    "Bundle is deleted!"
+  ],
+}
+```

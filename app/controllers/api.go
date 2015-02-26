@@ -1,6 +1,7 @@
 package controllers
 
 import (
+	"database/sql"
 	"net/http"
 	"os"
 	"path/filepath"
@@ -36,6 +37,10 @@ func (c ApiController) NewJsonResponseUploadBundle(stat int, mes []string, conte
 		c.NewJsonResponse(stat, mes),
 		content,
 	}
+}
+
+func (c ApiController) NewJsonResponseDeleteBundle(stat int, mes []string) *JsonResponse {
+	return c.NewJsonResponse(stat, mes)
 }
 
 func (c ApiController) GetDocument() revel.Result {
@@ -91,4 +96,41 @@ func (c ApiController) PostUploadBundle(token string, description string, file *
 
 	c.Response.Status = http.StatusOK
 	return c.RenderJson(c.NewJsonResponseUploadBundle(c.Response.Status, []string{"Bundle is created!"}, content))
+}
+
+func (c ApiController) PostDeleteBundle(token string, file_id string) revel.Result {
+	_, err := models.GetAppByApiToken(c.Txn, token)
+	if err != nil {
+		c.Response.Status = http.StatusUnauthorized
+		return c.RenderJson(c.NewJsonResponseDeleteBundle(c.Response.Status, []string{"Token is invalid."}))
+	}
+
+	c.Validation.Required(file_id).Message("file_id is required.")
+	if c.Validation.HasErrors() {
+		var errors []string
+		for _, err := range c.Validation.Errors {
+			errors = append(errors, err.String())
+		}
+		c.Response.Status = http.StatusBadRequest
+		return c.RenderJson(c.NewJsonResponseDeleteBundle(c.Response.Status, errors))
+	}
+
+	bundle, err := models.GetBundleByFileId(c.Txn, file_id)
+	if err != nil {
+		if err == sql.ErrNoRows {
+			c.Response.Status = http.StatusNotFound
+			return c.RenderJson(c.NewJsonResponseDeleteBundle(c.Response.Status, []string{"Bundle not found."}))
+		}
+		c.Response.Status = http.StatusInternalServerError
+		return c.RenderJson(c.NewJsonResponseDeleteBundle(c.Response.Status, []string{err.Error()}))
+	}
+
+	err = bundle.Delete(c.Txn, c.GoogleService)
+	if err != nil {
+		c.Response.Status = http.StatusInternalServerError
+		return c.RenderJson(c.NewJsonResponseDeleteBundle(c.Response.Status, []string{err.Error()}))
+	}
+
+	c.Response.Status = http.StatusOK
+	return c.RenderJson(c.NewJsonResponseDeleteBundle(c.Response.Status, []string{"Bundle is deleted!"}))
 }
