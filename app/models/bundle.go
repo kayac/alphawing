@@ -2,6 +2,8 @@ package models
 
 import (
 	"fmt"
+	"io"
+	"net/url"
 	"os"
 	"time"
 
@@ -93,6 +95,24 @@ func (bundle *Bundle) JsonResponse(ub UriBuilder) (*BundleJsonResponse, error) {
 		InstallUrl: installUrl.String(),
 		QrCodeUrl:  qrCodeUrl.String(),
 	}, nil
+}
+
+func (bundle *Bundle) Plist(txn *gorp.Transaction, ipaUrl *url.URL) (*Plist, error) {
+	app, err := bundle.App(txn)
+	if err != nil {
+		return nil, err
+	}
+
+	return NewPlist(app.Title, bundle.BundleVersion, ipaUrl.String()), nil
+}
+
+func (bundle *Bundle) PlistReader(txn *gorp.Transaction, ipaUrl *url.URL) (io.Reader, error) {
+	p, err := bundle.Plist(txn, ipaUrl)
+	if err != nil {
+		return nil, err
+	}
+
+	return p.Reader()
 }
 
 func (bundle *Bundle) BuildFileName() string {

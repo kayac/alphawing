@@ -7,7 +7,7 @@
 <div class="bundle-item__date--first">{{$value.CreatedAt.Format $dateFormat}}</div>
 <br />{{if $value.IsApk}}
 <a class="btn--download-current-bundle" href="{{url "BundleControllerWithValidation.GetDownloadApk" $value.Id}}">最新版をダウンロード</a>{{end}}{{if $value.IsIpa}}
-<a class="btn--download-current-bundle" href="{{url "BundleControllerWithValidation.GetDownloadPlist" $value.Id}}">最新版をダウンロード</a>{{end}}
+<a class="btn--download-current-bundle" href="{{url "BundleControllerWithValidation.GetDownloadBundle" $value.Id}}">最新版をダウンロード</a>{{end}}
 <!-- /.bundle-item --></div></li>{{else}}
 <li><div class="bundle-item">
 <a href="{{url "BundleControllerWithValidation.GetBundle" $value.Id}}" class="bundle-item__version">{{$value.BundleVersion}} #{{$value.Revision}}</a>
