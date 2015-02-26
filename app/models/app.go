@@ -199,7 +199,7 @@ func (app *App) ParentReference() *drive.ParentReference {
 	}
 }
 
-func (app *App) CreateBundle(txn *gorp.DbMap, s *GoogleService, bundle *Bundle) error {
+func (app *App) CreateBundle(dbm *gorp.DbMap, s *GoogleService, bundle *Bundle) error {
 	bundle.AppId = app.Id
 
 	bundleInfo, err := NewBundleInfo(bundle.File, bundle.PlatformType)
