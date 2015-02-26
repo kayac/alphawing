@@ -213,7 +213,7 @@ func (app *App) CreateBundle(dbm *gorp.DbMap, s *GoogleService, bundle *Bundle) 
 
 	// increment revision number & save application information
 	err = Transact(dbm, func(txn gorp.SqlExecutor) error {
-		maxRevision, err := app.GetMaxRevisionByBundleVersion(txn, bundle.BundleVersion)
+		maxRevision, err := app.GetMaxRevisionByBundleVersion(txn, bundleInfo.Version)
 		if err != nil {
 			return err
 		}
