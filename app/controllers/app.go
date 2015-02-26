@@ -185,7 +185,7 @@ func (c AppControllerWithValidation) PostCreateBundle(appId int, bundle models.B
 	}
 
 	bundle.File = file
-	bundle.PlatformType = models.BundleFileExtension(ext).PlatformType()
+	bundle.PlatformType = ext.PlatformType()
 	if err := c.App.CreateBundle(Dbm, c.GoogleService, &bundle); err != nil {
 		if bperr, ok := err.(*models.BundleParseError); ok {
 			c.Flash.Error(bperr.Error())
