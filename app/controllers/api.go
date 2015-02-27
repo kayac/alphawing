@@ -6,6 +6,7 @@ import (
 	"os"
 	"path/filepath"
 
+	"github.com/coopernurse/gorp"
 	"github.com/kayac/alphawing/app/models"
 
 	"github.com/revel/revel"
@@ -99,7 +100,7 @@ func (c ApiController) PostUploadBundle(token string, description string, file *
 }
 
 func (c ApiController) PostDeleteBundle(token string, file_id string) revel.Result {
-	_, err := models.GetAppByApiToken(c.Txn, token)
+	_, err := models.GetAppByApiToken(Dbm, token)
 	if err != nil {
 		c.Response.Status = http.StatusUnauthorized
 		return c.RenderJson(c.NewJsonResponseDeleteBundle(c.Response.Status, []string{"Token is invalid."}))
@@ -115,7 +116,7 @@ func (c ApiController) PostDeleteBundle(token string, file_id string) revel.Resu
 		return c.RenderJson(c.NewJsonResponseDeleteBundle(c.Response.Status, errors))
 	}
 
-	bundle, err := models.GetBundleByFileId(c.Txn, file_id)
+	bundle, err := models.GetBundleByFileId(Dbm, file_id)
 	if err != nil {
 		if err == sql.ErrNoRows {
 			c.Response.Status = http.StatusNotFound
@@ -125,7 +126,9 @@ func (c ApiController) PostDeleteBundle(token string, file_id string) revel.Resu
 		return c.RenderJson(c.NewJsonResponseDeleteBundle(c.Response.Status, []string{err.Error()}))
 	}
 
-	err = bundle.Delete(c.Txn, c.GoogleService)
+	err = Transact(func(txn gorp.SqlExecutor) error {
+		return bundle.Delete(txn, c.GoogleService)
+	})
 	if err != nil {
 		c.Response.Status = http.StatusInternalServerError
 		return c.RenderJson(c.NewJsonResponseDeleteBundle(c.Response.Status, []string{err.Error()}))
