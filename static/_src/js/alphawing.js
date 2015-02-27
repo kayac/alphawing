@@ -232,7 +232,13 @@ $(function () {
             $nav.append($btn);
         });
 
-        selectTab(0);
+        // iOSの場合のみ、デフォルトでタブ1表示
+        selectTab(isIOS ? 1 : 0);
+
+        // SPの場合、タブは切り替えさせない
+        if (isTouch) {
+            $nav.remove();
+        }
     })();
 });
 
