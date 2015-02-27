@@ -57,11 +57,54 @@ $ curl http://your-domain.com/api/delete_bundle \
 ### Response
 
 ```
-
 {
   "status": 200,
   "message": [
     "Bundle is deleted!"
   ],
+}
+```
+
+## Listing Bundle
+
+``` sh
+$ curl -XGET http://your-domain.com/api/list_bundle \
+    -F token=your-project-api-token \
+    -F paget=page_num
+```
+
+### Parameters
+
+|Name|Description|
+|:---:|:---:|
+|token|**Required.** The API token of your project. You can check it in your project page.|
+|page|Specific number for page.|
+
+### Response
+
+```
+{
+  "status": 200,
+  "message": [
+    "Bundle List"
+  ],
+  "content": {
+    "total_count": 2,
+    "page": 1,
+    "limit": 25,
+    "bundles": [
+      {
+        "file_id": "the ID of APK file on Google Drive",
+        "revision": 1,
+        "version": "1.0",
+        "qr_code_url": "the URL of the QR code to install the APK file uploaded",
+        "install_url": "the URL to install the APK file uploaded"
+      },
+      {
+      .
+      .
+      .
+    ]
+  }
 }
 ```

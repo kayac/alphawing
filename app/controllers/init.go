@@ -22,6 +22,7 @@ type Config struct {
 	WebApplicationCallbackUrl  string
 	ServiceAccountClientEmail  string
 	ServiceAccountPrivateKey   string
+	PagerDefaultLimit          int
 }
 
 func init() {
@@ -90,6 +91,8 @@ func LoadConfig() {
 	serviceAccountClientEmail := keyMap["client_email"]
 	serviceAccountPrivateKey := keyMap["private_key"]
 
+	pagerDefaultLimit := revel.Config.IntDefault("app.pager.default.limit", 25)
+
 	Conf = &Config{
 		PermittedDomains:           strings.Split(permittedDomain, ","),
 		OrganizationName:           organizationName,
@@ -98,6 +101,7 @@ func LoadConfig() {
 		WebApplicationCallbackUrl:  webApplicationCallbackUrl,
 		ServiceAccountClientEmail:  serviceAccountClientEmail,
 		ServiceAccountPrivateKey:   serviceAccountPrivateKey,
+		PagerDefaultLimit:          pagerDefaultLimit,
 	}
 }
 

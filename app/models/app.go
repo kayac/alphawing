@@ -54,6 +54,31 @@ func (app *App) BundlesByPlatformType(txn gorp.SqlExecutor, platformType BundleP
 	return bundles, nil
 }
 
+func (app *App) BundlesWithPager(txn gorp.SqlExecutor, page, limit int) (Bundles, int, error) {
+	if page < 1 {
+		page = 1
+	}
+
+	count, err := txn.SelectInt("SELECT COUNT(*) FROM bundle WHERE app_id = ?", app.Id)
+	if err != nil {
+		return nil, 0, err
+	}
+
+	offset := (page - 1) * limit
+	if int(count) <= offset {
+		// 空であることが明らかなのでそのまま返す
+		return Bundles([]*Bundle{}), int(count), nil
+	}
+
+	var bundles []*Bundle
+	_, err = txn.Select(&bundles, "SELECT * FROM bundle WHERE app_id = ? ORDER BY id DESC LIMIT ? OFFSET ?", app.Id, limit, offset)
+	if err != nil {
+		return nil, 0, err
+	}
+
+	return Bundles(bundles), int(count), nil
+}
+
 func (app *App) Authorities(txn gorp.SqlExecutor) ([]*Authority, error) {
 	var authorities []*Authority
 	_, err := txn.Select(&authorities, "SELECT * FROM authority WHERE app_id = ? ORDER BY id ASC", app.Id)

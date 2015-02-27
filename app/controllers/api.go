@@ -22,6 +22,11 @@ type JsonResponseUploadBundle struct {
 	Content *models.BundleJsonResponse `json:"content"`
 }
 
+type JsonResponseListBundle struct {
+	*JsonResponse
+	Content *models.BundlesJsonResponse `json:"content"`
+}
+
 type ApiController struct {
 	AlphaWingController
 }
@@ -42,6 +47,13 @@ func (c ApiController) NewJsonResponseUploadBundle(stat int, mes []string, conte
 
 func (c ApiController) NewJsonResponseDeleteBundle(stat int, mes []string) *JsonResponse {
 	return c.NewJsonResponse(stat, mes)
+}
+
+func (c ApiController) NewJsonResponseListBundle(stat int, mes []string, content *models.BundlesJsonResponse) *JsonResponseListBundle {
+	return &JsonResponseListBundle{
+		c.NewJsonResponse(stat, mes),
+		content,
+	}
 }
 
 func (c ApiController) GetDocument() revel.Result {
@@ -136,4 +148,35 @@ func (c ApiController) PostDeleteBundle(token string, file_id string) revel.Resu
 
 	c.Response.Status = http.StatusOK
 	return c.RenderJson(c.NewJsonResponseDeleteBundle(c.Response.Status, []string{"Bundle is deleted!"}))
+}
+
+func (c ApiController) GetListBundle(token string, page int) revel.Result {
+	app, err := models.GetAppByApiToken(Dbm, token)
+	if err != nil {
+		c.Response.Status = http.StatusUnauthorized
+		return c.RenderJson(c.NewJsonResponseListBundle(c.Response.Status, []string{"Token is invalid."}, nil))
+	}
+
+	bundles, totalCount, err := app.BundlesWithPager(Dbm, page, Conf.PagerDefaultLimit)
+	if err != nil {
+		c.Response.Status = http.StatusInternalServerError
+		return c.RenderJson(c.NewJsonResponseListBundle(c.Response.Status, []string{err.Error()}, nil))
+	}
+
+	bundlesJsonResponse, err := bundles.JsonResponse(&c)
+	if err != nil {
+		c.Response.Status = http.StatusInternalServerError
+		return c.RenderJson(c.NewJsonResponseListBundle(c.Response.Status, []string{err.Error()}, nil))
+	}
+
+	content := &models.BundlesJsonResponse{
+		totalCount,
+		page,
+		Conf.PagerDefaultLimit,
+		bundlesJsonResponse,
+	}
+
+	c.Response.Status = http.StatusOK
+
+	return c.RenderJson(c.NewJsonResponseListBundle(c.Response.Status, []string{"Bundle List"}, content))
 }

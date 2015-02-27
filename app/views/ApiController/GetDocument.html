@@ -99,12 +99,70 @@
 <h3>
 <a id="user-content-response-1" class="anchor" href="#response-1" aria-hidden="true"><span class="octicon octicon-link"></span></a>Response</h3>
 
-<pre><code>
-{
+<pre><code>{
   "status": 200,
   "message": [
     "Bundle is deleted!"
   ],
+}
+</code></pre>
+
+<h2>
+<a id="user-content-listing-bundle" class="anchor" href="#listing-bundle" aria-hidden="true"><span class="octicon octicon-link"></span></a>Listing Bundle</h2>
+
+<div class="highlight highlight-sh"><pre>$ curl -XGET http://your-domain.com/api/list_bundle \
+    -F token=your-project-api-token \
+    -F paget=page_num</pre></div>
+
+<h3>
+<a id="user-content-parameters-2" class="anchor" href="#parameters-2" aria-hidden="true"><span class="octicon octicon-link"></span></a>Parameters</h3>
+
+<table>
+<thead>
+<tr>
+<th align="center">Name</th>
+<th align="center">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td align="center">token</td>
+<td align="center">
+<strong>Required.</strong> The API token of your project. You can check it in your project page.</td>
+</tr>
+<tr>
+<td align="center">page</td>
+<td align="center">Specific number for page.</td>
+</tr>
+</tbody>
+</table>
+
+<h3>
+<a id="user-content-response-2" class="anchor" href="#response-2" aria-hidden="true"><span class="octicon octicon-link"></span></a>Response</h3>
+
+<pre><code>{
+  "status": 200,
+  "message": [
+    "Bundle List"
+  ],
+  "content": {
+    "total_count": 2,
+    "page": 1,
+    "limit": 25,
+    "bundles": [
+      {
+        "file_id": "the ID of APK file on Google Drive",
+        "revision": 1,
+        "version": "1.0",
+        "qr_code_url": "the URL of the QR code to install the APK file uploaded",
+        "install_url": "the URL to install the APK file uploaded"
+      },
+      {
+      .
+      .
+      .
+    ]
+  }
 }
 </code></pre>
 <!-- /.github-markdown --></div>

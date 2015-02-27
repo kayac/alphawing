@@ -78,6 +78,30 @@ type BundleJsonResponse struct {
 	QrCodeUrl  string `json:"qr_code_url"`
 }
 
+type Bundles []*Bundle
+
+func (bundles Bundles) JsonResponse(ub UriBuilder) ([]*BundleJsonResponse, error) {
+	bundlesJsonResponse := []*BundleJsonResponse{}
+
+	for _, bundle := range bundles {
+		bundleJsonResponse, err := bundle.JsonResponse(ub)
+		if err != nil {
+			return nil, err
+		}
+
+		bundlesJsonResponse = append(bundlesJsonResponse, bundleJsonResponse)
+	}
+
+	return bundlesJsonResponse, nil
+}
+
+type BundlesJsonResponse struct {
+	TotalCount int                   `json:"total_count"`
+	Page       int                   `json:"page"`
+	Limit      int                   `json:"limit"`
+	Bundles    []*BundleJsonResponse `json:"bundles"`
+}
+
 func (bundle *Bundle) JsonResponse(ub UriBuilder) (*BundleJsonResponse, error) {
 	installUrl, err := ub.UriFor(fmt.Sprintf("bundle/%d/download", bundle.Id))
 	if err != nil {

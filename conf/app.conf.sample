@@ -37,6 +37,9 @@ i18n.default_language=en
 module.static=github.com/revel/revel/modules/static
 
 
+# limit per page. default 25
+app.pager.default.limit =
+
 
 [dev]
 mode.dev=true
