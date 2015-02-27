@@ -67,6 +67,8 @@ $ curl http://your-domain.com/api/delete_bundle \
 
 ## Listing Bundle
 
+### Usage
+
 ``` sh
 $ curl -XGET http://your-domain.com/api/list_bundle \
     -F token=your-project-api-token \
