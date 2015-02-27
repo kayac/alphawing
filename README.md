@@ -3,7 +3,7 @@ alphawing
 
 ![keyvisual](docs/img/keyvisual.jpg)
 
-alphawing is a [TestFlight](https://www.testflightapp.com/)-like application for Android.
+alphawing is a [TestFlight](https://www.testflightapp.com/)-like application for YOU.
 
 ## Getting Started
 
@@ -28,7 +28,7 @@ Because you have to enter the callback URL for the Google OAuth in the next step
 
 ### Setup new project on Google Developers Console
 
-alphawing uses the Google OAuth for login authentication, and the Google Drive API for APK file management.
+alphawing uses the Google OAuth for login authentication, and the Google Drive API for bundle file management.
 
 #### Create a new project 
 
