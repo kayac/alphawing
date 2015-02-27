@@ -23,7 +23,7 @@ $(function () {
     var ua = navigator.userAgent.toLowerCase();
     var isIOS = /iphone|ipod|ipad/.test(ua);
     var isAndroid = /android/.test(ua);
-    var isTouch = isIOS || isAndroid;
+    var isTouchDevice = isIOS || isAndroid;
 
 
     // submit post
@@ -160,7 +160,7 @@ $(function () {
 
     // sp optimize
     (function () {
-        if (!isTouch) {
+        if (!isTouchDevice) {
             return;
         }
         $([
@@ -236,14 +236,8 @@ $(function () {
         selectTab(isIOS ? 1 : 0);
 
         // SPの場合、タブは切り替えさせない
-        if (isTouch) {
+        if (isTouchDevice) {
             $nav.remove();
         }
     })();
 });
-
-
-
-
-
-
