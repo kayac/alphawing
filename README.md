@@ -28,7 +28,7 @@ Because you have to enter the callback URL for the Google OAuth in the next step
 
 ### Setup new project on Google Developers Console
 
-alphawing uses the Google OAuth for login authentication, and the Google Drive API for APK file management.
+alphawing uses the Google OAuth for login authentication, and the Google Drive API for bundle file management.
 
 #### Create a new project 
 
