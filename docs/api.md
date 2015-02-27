@@ -72,7 +72,7 @@ $ curl http://your-domain.com/api/delete_bundle \
 ``` sh
 $ curl -XGET http://your-domain.com/api/list_bundle \
     -F token=your-project-api-token \
-    -F paget=page_num
+    -F page=page_num
 ```
 
 ### Parameters
