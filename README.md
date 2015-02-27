@@ -3,7 +3,7 @@ alphawing
 
 ![keyvisual](docs/img/keyvisual.jpg)
 
-alphawing is a [TestFlight](https://www.testflightapp.com/)-like application for Android.
+alphawing is a [TestFlight](https://www.testflightapp.com/)-like application for YOU.
 
 ## Getting Started
 
