@@ -91,20 +91,23 @@ func (c *LimitedTimeController) CheckValidToken() revel.Result {
 }
 
 func (c *LimitedTimeController) CheckNotFound() revel.Result {
-	param := c.Params.Route["bundleId"]
-	if 0 < len(param) {
-		bundleId, err := strconv.Atoi(param[0])
-		if err != nil {
-			if err == sql.ErrNoRows {
-				return c.NotFound("NotFound")
-			}
-			panic(err)
-		}
-		bundle, err := models.GetBundle(Dbm, bundleId)
-		if err != nil {
-			panic(err)
-		}
-		c.Bundle = bundle
+	bundleIdStr := c.Params.Get("bundleId")
+	if len(bundleIdStr) == 0 {
+		return c.NotFound("NotFound")
 	}
+
+	bundleId, err := strconv.Atoi(bundleIdStr)
+	if err != nil {
+		if err == sql.ErrNoRows {
+			return c.NotFound("NotFound")
+		}
+		panic(err)
+	}
+	bundle, err := models.GetBundle(Dbm, bundleId)
+	if err != nil {
+		panic(err)
+	}
+	c.Bundle = bundle
+
 	return nil
 }
