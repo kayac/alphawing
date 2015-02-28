@@ -6,7 +6,7 @@
 <a id="user-content-api-document" class="anchor" href="#api-document" aria-hidden="true"><span class="octicon octicon-link"></span></a>API document</h1>
 
 <h2>
-<a id="user-content-upload-apk" class="anchor" href="#upload-apk" aria-hidden="true"><span class="octicon octicon-link"></span></a>Upload APK</h2>
+<a id="user-content-upload-bundle" class="anchor" href="#upload-bundle" aria-hidden="true"><span class="octicon octicon-link"></span></a>Upload Bundle</h2>
 
 <h3>
 <a id="user-content-usage" class="anchor" href="#usage" aria-hidden="true"><span class="octicon octicon-link"></span></a>Usage</h3>
@@ -14,7 +14,7 @@
 <div class="highlight highlight-sh"><pre>$ curl http://your-domain.com/api/upload_bundle \
     -F token=your-project-api-token \
     -F description=<span class="pl-s1"><span class="pl-pds">'</span>for alpha-test<span class="pl-pds">'</span></span> \
-    -F file=@/path/to/your/apk-file</pre></div>
+    -F file=@/path/to/your/bundle-file</pre></div>
 
 <h3>
 <a id="user-content-parameters" class="anchor" href="#parameters" aria-hidden="true"><span class="octicon octicon-link"></span></a>Parameters</h3>
@@ -34,12 +34,12 @@
 </tr>
 <tr>
 <td align="center">description</td>
-<td align="center">The description of the APK file.</td>
+<td align="center">The description of the bundle file.</td>
 </tr>
 <tr>
 <td align="center">file</td>
 <td align="center">
-<strong>Required.</strong> The path to the APK file.</td>
+<strong>Required.</strong> The path to the bundle file.</td>
 </tr>
 </tbody>
 </table>
@@ -53,11 +53,11 @@
     "Bundle is created!"
   ],
   "content": {
-    "file_id": "the ID of APK file on Google Drive",
+    "file_id": "the ID of Bundle file on Google Drive",
     "revision": 1,
     "version": "1.0",
-    "install_url": "the URL to install the APK file uploaded",
-    "qr_code_url": "the URL of the QR code to install the APK file uploaded"
+    "install_url": "the URL to install the Bundle file uploaded",
+    "qr_code_url": "the URL of the QR code to install the Bundle file uploaded"
   }
 }
 </code></pre>
@@ -110,9 +110,12 @@
 <h2>
 <a id="user-content-listing-bundle" class="anchor" href="#listing-bundle" aria-hidden="true"><span class="octicon octicon-link"></span></a>Listing Bundle</h2>
 
+<h3>
+<a id="user-content-usage-2" class="anchor" href="#usage-2" aria-hidden="true"><span class="octicon octicon-link"></span></a>Usage</h3>
+
 <div class="highlight highlight-sh"><pre>$ curl -XGET http://your-domain.com/api/list_bundle \
     -F token=your-project-api-token \
-    -F paget=page_num</pre></div>
+    -F page=page_num</pre></div>
 
 <h3>
 <a id="user-content-parameters-2" class="anchor" href="#parameters-2" aria-hidden="true"><span class="octicon octicon-link"></span></a>Parameters</h3>
