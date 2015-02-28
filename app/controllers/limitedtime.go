@@ -72,7 +72,7 @@ func (c *LimitedTimeController) CheckValidToken() revel.Result {
 
 	c.Validation.Required(token).Message(models.TokenKey + " is required")
 	c.Validation.Required(seed).Message(models.SeedKey + " is required")
-	c.Validation.Required(limit).Message(models.LimitKey + "is required")
+	c.Validation.Required(limit).Message(models.LimitKey + " is required")
 	if c.Validation.HasErrors() {
 		c.Validation.Keep()
 		c.FlashParams()
@@ -92,19 +92,25 @@ func (c *LimitedTimeController) CheckValidToken() revel.Result {
 
 func (c *LimitedTimeController) CheckNotFound() revel.Result {
 	bundleIdStr := c.Params.Get("bundleId")
-	if len(bundleIdStr) == 0 {
-		return c.NotFound("NotFound")
+
+	c.Validation.Required(bundleIdStr).Message("BundleId is required.")
+	if c.Validation.HasErrors() {
+		c.Validation.Keep()
+		c.FlashParams()
+		return c.Redirect(routes.AlphaWingController.Index())
 	}
 
 	bundleId, err := strconv.Atoi(bundleIdStr)
 	if err != nil {
+		c.Flash.Error("BundleId is invalid.")
+		return c.Redirect(routes.AlphaWingController.Index())
+	}
+
+	bundle, err := models.GetBundle(Dbm, bundleId)
+	if err != nil {
 		if err == sql.ErrNoRows {
 			return c.NotFound("NotFound")
 		}
-		panic(err)
-	}
-	bundle, err := models.GetBundle(Dbm, bundleId)
-	if err != nil {
 		panic(err)
 	}
 	c.Bundle = bundle
