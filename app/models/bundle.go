@@ -228,17 +228,16 @@ func CreateBundle(txn gorp.SqlExecutor, bundle *Bundle) error {
 }
 
 func GetBundle(txn gorp.SqlExecutor, id int) (*Bundle, error) {
-	bundle, err := txn.Get(Bundle{}, id)
-	if err != nil {
+	var bundle Bundle
+	if err := txn.SelectOne(&bundle, "SELECT * FROM bundle WHERE id = ?", id); err != nil {
 		return nil, err
 	}
-	return bundle.(*Bundle), nil
+	return &bundle, nil
 }
 
 func GetBundleByFileId(txn gorp.SqlExecutor, fileId string) (*Bundle, error) {
 	var bundle Bundle
-	err := txn.SelectOne(&bundle, "SELECT * FROM bundle WHERE file_id = ?", fileId)
-	if err != nil {
+	if err := txn.SelectOne(&bundle, "SELECT * FROM bundle WHERE file_id = ?", fileId); err != nil {
 		return nil, err
 	}
 	return &bundle, nil
