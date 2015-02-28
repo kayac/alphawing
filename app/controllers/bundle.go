@@ -85,10 +85,17 @@ func (c BundleControllerWithValidation) PostDeleteBundle(bundleId int) revel.Res
 func (c BundleControllerWithValidation) GetDownloadBundle(bundleId int) revel.Result {
 	bundle := c.Bundle
 
+	t, err := models.NewLimitedTimeTokenInfo()
+	if err != nil {
+		panic(err)
+	}
+	v := t.UrlValues()
+
 	plistUrl, err := c.UriFor(fmt.Sprintf("bundle/%d/download_plist", bundle.Id))
 	if err != nil {
 		panic(err)
 	}
+	plistUrl.RawQuery = v.Encode()
 
 	return c.Render(plistUrl)
 }

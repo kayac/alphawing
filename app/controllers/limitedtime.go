@@ -18,10 +18,17 @@ type LimitedTimeController struct {
 func (c *LimitedTimeController) GetDownloadPlist(bundleId int) revel.Result {
 	bundle := c.Bundle
 
+	t, err := models.NewLimitedTimeTokenInfo()
+	if err != nil {
+		panic(err)
+	}
+	v := t.UrlValues()
+
 	ipaUrl, err := c.UriFor(fmt.Sprintf("bundle/%d/download_ipa", bundle.Id))
 	if err != nil {
 		panic(err)
 	}
+	ipaUrl.RawQuery = v.Encode()
 
 	r, err := bundle.PlistReader(Dbm, ipaUrl)
 	if err != nil {
