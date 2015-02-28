@@ -48,10 +48,7 @@ func (tokenInfo *LimitedTimeTokenInfo) IsValid(key string) (bool, error) {
 		return false, err
 	}
 
-	if hmac.Equal(tokenDecoded, tokenValid) {
-		return true, nil
-	}
-	return false, nil
+	return hmac.Equal(tokenDecoded, tokenValid), nil
 }
 
 func NewTokenBytes(seed string, limit int64, key string) ([]byte, error) {
