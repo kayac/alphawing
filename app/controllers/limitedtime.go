@@ -114,7 +114,7 @@ func (c *LimitedTimeController) CheckNotFound() revel.Result {
 	bundle, err := models.GetBundle(Dbm, bundleId)
 	if err != nil {
 		if err == sql.ErrNoRows {
-			return c.NotFound("NotFound")
+			return c.NotFound("Bundle is not found.")
 		}
 		panic(err)
 	}
