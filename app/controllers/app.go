@@ -2,7 +2,6 @@ package controllers
 
 import (
 	"database/sql"
-	"errors"
 	"os"
 	"path/filepath"
 	"strconv"
@@ -272,14 +271,21 @@ func (c AppControllerWithValidation) PostDeleteAuthority(appId, authorityId int)
 }
 
 func (c *AppControllerWithValidation) CheckNotFound() revel.Result {
-	param := c.Params.Route["appId"]
-	if len(param) == 0 {
-		panic(errors.New("AppId is Required."))
+	appIdStr := c.Params.Get("appId")
+
+	c.Validation.Required(appIdStr).Message("AppId is required.")
+	if c.Validation.HasErrors() {
+		c.Validation.Keep()
+		c.FlashParams()
+		return c.Redirect(routes.AlphaWingController.Index())
 	}
-	appId, err := strconv.Atoi(param[0])
+
+	appId, err := strconv.Atoi(appIdStr)
 	if err != nil {
-		panic(err)
+		c.Flash.Error("AppId is invalid.")
+		return c.Redirect(routes.AlphaWingController.Index())
 	}
+
 	app, err := models.GetApp(Dbm, appId)
 	if err != nil {
 		if err == sql.ErrNoRows {
@@ -288,21 +294,25 @@ func (c *AppControllerWithValidation) CheckNotFound() revel.Result {
 		panic(err)
 	}
 	c.App = app
+
 	return nil
 }
 
 func (c *AppControllerWithValidation) CheckForbidden() revel.Result {
-	if c.App == nil {
+	app := c.App
+
+	if app == nil {
 		c.NotFound("NotFound")
 	}
-	app := c.App
+
 	s, err := c.userGoogleService()
 	if err != nil {
 		panic(err)
 	}
-	_, err = s.GetFile(app.FileId)
-	if err != nil {
+
+	if _, err = s.GetFile(app.FileId); err != nil {
 		return c.Forbidden("Forbidden")
 	}
+
 	return nil
 }

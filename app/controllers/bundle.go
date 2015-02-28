@@ -114,35 +114,47 @@ func (c BundleControllerWithValidation) GetDownloadApk(bundleId int) revel.Resul
 }
 
 func (c *BundleControllerWithValidation) CheckNotFound() revel.Result {
-	param := c.Params.Route["bundleId"]
-	if 0 < len(param) {
-		bundleId, err := strconv.Atoi(param[0])
-		if err != nil {
-			if err == sql.ErrNoRows {
-				return c.NotFound("NotFound")
-			}
-			panic(err)
-		}
-		bundle, err := models.GetBundle(Dbm, bundleId)
-		if err != nil {
-			panic(err)
-		}
-		c.Bundle = bundle
+	bundleIdStr := c.Params.Get("bundleId")
+
+	c.Validation.Required(bundleIdStr).Message("BundleId is required.")
+	if c.Validation.HasErrors() {
+		c.Validation.Keep()
+		c.FlashParams()
+		return c.Redirect(routes.AlphaWingController.Index())
 	}
+
+	bundleId, err := strconv.Atoi(bundleIdStr)
+	if err != nil {
+		c.Flash.Error("BundleId is invalid.")
+		return c.Redirect(routes.AlphaWingController.Index())
+	}
+
+	bundle, err := models.GetBundle(Dbm, bundleId)
+	if err != nil {
+		if err == sql.ErrNoRows {
+			return c.NotFound("NotFound")
+		}
+		panic(err)
+	}
+	c.Bundle = bundle
+
 	return nil
 }
 
 func (c *BundleControllerWithValidation) CheckForbidden() revel.Result {
-	if c.Bundle != nil {
-		bundle := c.Bundle
-		s, err := c.userGoogleService()
-		if err != nil {
-			panic(err)
-		}
-		_, err = s.GetFile(bundle.FileId)
-		if err != nil {
-			return c.Forbidden("Forbidden")
-		}
+	bundle := c.Bundle
+	if bundle == nil {
+		return c.NotFound("NotFound")
 	}
+
+	s, err := c.userGoogleService()
+	if err != nil {
+		panic(err)
+	}
+
+	if _, err = s.GetFile(bundle.FileId); err != nil {
+		return c.Forbidden("Forbidden")
+	}
+
 	return nil
 }
