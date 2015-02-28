@@ -22,20 +22,33 @@ const (
 type LimitedTimeTokenInfo struct {
 	Token string
 	Seed  string
-	Limit int64
+	Limit string
 }
 
 func (tokenInfo *LimitedTimeTokenInfo) UrlValues() *url.Values {
 	v := &url.Values{}
-	v.Add(TokenKey, string(tokenInfo.Token))
+	v.Add(TokenKey, tokenInfo.Token)
 	v.Add(SeedKey, tokenInfo.Seed)
-	v.Add(LimitKey, strconv.Itoa(int(tokenInfo.Limit)))
+	v.Add(LimitKey, tokenInfo.Limit)
 
 	return v
 }
 
+func (tokenInfo *LimitedTimeTokenInfo) IsExpired() (bool, error) {
+	limit, err := strconv.ParseInt(tokenInfo.Limit, 10, 64)
+	if err != nil {
+		return false, err
+	}
+
+	return limit < time.Now().Unix(), nil
+}
+
 func (tokenInfo *LimitedTimeTokenInfo) IsValid(key string) (bool, error) {
-	if tokenInfo.Limit < time.Now().Unix() {
+	expired, err := tokenInfo.IsExpired()
+	if err != nil {
+		return false, err
+	}
+	if expired {
 		return false, nil
 	}
 
@@ -52,15 +65,15 @@ func (tokenInfo *LimitedTimeTokenInfo) IsValid(key string) (bool, error) {
 	return hmac.Equal(tokenDecoded, tokenValid), nil
 }
 
-func NewTokenBytes(seed string, limit int64, key string) ([]byte, error) {
+func NewTokenBytes(seed, limit, key string) ([]byte, error) {
 	mac := hmac.New(sha256.New, []byte(key))
 	mac.Write([]byte(seed))
-	tokenBytes := mac.Sum([]byte(strconv.Itoa(int(limit))))
+	tokenBytes := mac.Sum([]byte(limit))
 
 	return tokenBytes, nil
 }
 
-func NewEncodedToken(seed string, limit int64, key string) (string, error) {
+func NewEncodedToken(seed, limit, key string) (string, error) {
 	tokenBytes, err := NewTokenBytes(seed, limit, key)
 	if err != nil {
 		return "", err
@@ -71,12 +84,7 @@ func NewEncodedToken(seed string, limit int64, key string) (string, error) {
 	return token, nil
 }
 
-func NewLimitedTimeTokenInfo(token, seed, limitStr string) (*LimitedTimeTokenInfo, error) {
-	limit, err := strconv.ParseInt(limitStr, 10, 64)
-	if err != nil {
-		return nil, err
-	}
-
+func NewLimitedTimeTokenInfo(token, seed, limit string) (*LimitedTimeTokenInfo, error) {
 	return &LimitedTimeTokenInfo{
 		Token: token,
 		Seed:  seed,
@@ -87,7 +95,8 @@ func NewLimitedTimeTokenInfo(token, seed, limitStr string) (*LimitedTimeTokenInf
 func NewLimitedTimeTokenInfoByKey(key string) (*LimitedTimeTokenInfo, error) {
 	u := uuid.NewRandom()
 	seed := u.String()
-	limit := time.Now().Add(TokenExpireDuration).Unix()
+
+	limit := strconv.FormatInt(time.Now().Add(TokenExpireDuration).Unix(), 10)
 
 	token, err := NewEncodedToken(seed, limit, key)
 	if err != nil {
