@@ -18,11 +18,11 @@ type LimitedTimeController struct {
 func (c *LimitedTimeController) GetDownloadPlist(bundleId int) revel.Result {
 	bundle := c.Bundle
 
-	t, err := models.NewLimitedTimeTokenInfoByKey(Conf.Secret)
+	signatureInfo, err := models.NewLimitedTimeSignatureInfoByKey(Conf.Secret)
 	if err != nil {
 		panic(err)
 	}
-	v := t.UrlValues()
+	v := signatureInfo.UrlValues()
 
 	ipaUrl, err := c.UriFor(fmt.Sprintf("bundle/%d/download_ipa", bundle.Id))
 	if err != nil {
@@ -67,25 +67,25 @@ func (c *LimitedTimeController) CheckValidLimitedTimeToken() revel.Result {
 		return c.NotFound("")
 	}
 
+	signature := c.Params.Query.Get(models.SignatureKey)
 	token := c.Params.Query.Get(models.TokenKey)
-	seed := c.Params.Query.Get(models.SeedKey)
 	limit := c.Params.Query.Get(models.LimitKey)
 
+	c.Validation.Required(signature)
 	c.Validation.Required(token)
-	c.Validation.Required(seed)
 	c.Validation.Required(limit)
 	if c.Validation.HasErrors() {
 		revel.ERROR.Printf("Parameters are invalid.")
 		return c.NotFound("")
 	}
 
-	tokenInfo, err := models.NewLimitedTimeTokenInfo(token, seed, limit)
+	signatureInfo, err := models.NewLimitedTimeSignatureInfo(signature, token, limit)
 	if err != nil {
 		revel.ERROR.Printf(err.Error())
 		return c.NotFound("")
 	}
 
-	ok, err := tokenInfo.IsValid(Conf.Secret)
+	ok, err := signatureInfo.IsValid(Conf.Secret)
 	if err != nil {
 		revel.ERROR.Printf(err.Error())
 		return c.NotFound("")
