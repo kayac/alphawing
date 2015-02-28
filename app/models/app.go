@@ -77,10 +77,11 @@ func (app *App) Authorities(txn gorp.SqlExecutor) ([]*Authority, error) {
 	return authorities, nil
 }
 
-func (app *App) GetMaxRevisionByBundleVersion(txn gorp.SqlExecutor, bundleVersion string) (int, error) {
+func (app *App) GetMaxRevisionByBundleVersion(txn gorp.SqlExecutor, platformType BundlePlatformType, bundleVersion string) (int, error) {
 	revision, err := txn.SelectInt(
-		"SELECT IFNULL(MAX(revision), 0) FROM bundle WHERE app_id = ? AND bundle_version = ?",
+		"SELECT IFNULL(MAX(revision), 0) FROM bundle WHERE app_id = ? AND platform_type = ? AND bundle_version = ?",
 		app.Id,
+		platformType,
 		bundleVersion,
 	)
 	return int(revision), err
@@ -227,7 +228,7 @@ func (app *App) CreateBundle(dbm *gorp.DbMap, s *GoogleService, bundle *Bundle) 
 
 	// increment revision number & save application information
 	err = Transact(dbm, func(txn gorp.SqlExecutor) error {
-		maxRevision, err := app.GetMaxRevisionByBundleVersion(txn, bundleInfo.Version)
+		maxRevision, err := app.GetMaxRevisionByBundleVersion(txn, bundle.PlatformType, bundleInfo.Version)
 		if err != nil {
 			return err
 		}
