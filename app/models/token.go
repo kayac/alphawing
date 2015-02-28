@@ -71,7 +71,7 @@ func NewEncodedToken(seed string, limit int64, key string) (string, error) {
 }
 
 func NewLimitedTimeTokenInfo(token, seed, limitStr string) (*LimitedTimeTokenInfo, error) {
-	limit, err := strconv.Atoi(limitStr)
+	limit, err := strconv.ParseInt(limitStr, 10, 64)
 	if err != nil {
 		return nil, err
 	}
@@ -79,7 +79,7 @@ func NewLimitedTimeTokenInfo(token, seed, limitStr string) (*LimitedTimeTokenInf
 	return &LimitedTimeTokenInfo{
 		Token: token,
 		Seed:  seed,
-		Limit: int64(limit),
+		Limit: limit,
 	}, nil
 }
 
