@@ -19,7 +19,7 @@ type LimitedTimeController struct {
 func (c *LimitedTimeController) GetDownloadPlist(bundleId int) revel.Result {
 	bundle := c.Bundle
 
-	t, err := models.NewLimitedTimeTokenInfo(Conf.Secret)
+	t, err := models.NewLimitedTimeTokenInfoByKey(Conf.Secret)
 	if err != nil {
 		panic(err)
 	}
@@ -79,7 +79,12 @@ func (c *LimitedTimeController) CheckValidLimitedTimeToken() revel.Result {
 		return c.Redirect(routes.BundleControllerWithValidation.GetDownloadBundle(bundle.Id))
 	}
 
-	ok, err := models.LimitedTimeToken(token).IsValid(seed, limit, Conf.Secret)
+	tokenInfo, err := models.NewLimitedTimeTokenInfo(token, seed, limit)
+	if err != nil {
+		panic(err)
+	}
+
+	ok, err := tokenInfo.IsValid(Conf.Secret)
 	if err != nil {
 		panic(err)
 	}
