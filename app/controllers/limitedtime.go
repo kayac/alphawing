@@ -66,9 +66,9 @@ func (c *LimitedTimeController) CheckValidLimitedTimeToken() revel.Result {
 		return c.NotFound("NotFound")
 	}
 
-	token := c.Params.Get(models.TokenKey)
-	seed := c.Params.Get(models.SeedKey)
-	limit := c.Params.Get(models.LimitKey)
+	token := c.Params.Query.Get(models.TokenKey)
+	seed := c.Params.Query.Get(models.SeedKey)
+	limit := c.Params.Query.Get(models.LimitKey)
 
 	c.Validation.Required(token).Message(models.TokenKey + " is required")
 	c.Validation.Required(seed).Message(models.SeedKey + " is required")
