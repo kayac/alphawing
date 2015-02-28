@@ -25,17 +25,6 @@ type App struct {
 	UpdatedAt   time.Time `db:"updated_at"`
 }
 
-func GetAppByApiToken(txn gorp.SqlExecutor, apiToken string) (*App, error) {
-	var app App
-	err := txn.SelectOne(&app, "SELECT * FROM app where api_token = ?", apiToken)
-
-	if err != nil {
-		return nil, err
-	}
-
-	return &app, nil
-}
-
 func (app *App) Bundles(txn gorp.SqlExecutor) ([]*Bundle, error) {
 	var bundles []*Bundle
 	_, err := txn.Select(&bundles, "SELECT * FROM bundle WHERE app_id = ? ORDER BY id DESC", app.Id)
@@ -288,11 +277,19 @@ func CreateApp(txn gorp.SqlExecutor, s *GoogleService, app *App) error {
 }
 
 func GetApp(txn gorp.SqlExecutor, id int) (*App, error) {
-	app, err := txn.Get(App{}, id)
-	if err != nil {
+	var app App
+	if err := txn.SelectOne(&app, "SELECT * FROM app WHERE id = ?", id); err != nil {
 		return nil, err
 	}
-	return app.(*App), nil
+	return &app, nil
+}
+
+func GetAppByApiToken(txn gorp.SqlExecutor, apiToken string) (*App, error) {
+	var app App
+	if err := txn.SelectOne(&app, "SELECT * FROM app where api_token = ?", apiToken); err != nil {
+		return nil, err
+	}
+	return &app, nil
 }
 
 func GetApps(txn gorp.SqlExecutor, fileIds []string) ([]*App, error) {
