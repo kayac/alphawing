@@ -12,9 +12,10 @@ import (
 )
 
 const (
-	TokenKey            = "token"
-	SeedKey             = "seed"
-	LimitKey            = "limit"
+	TokenKey = "token"
+	SeedKey  = "seed"
+	LimitKey = "limit"
+
 	TokenExpireDuration = 15 * time.Minute
 )
 
