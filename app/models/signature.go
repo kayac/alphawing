@@ -16,7 +16,7 @@ const (
 	TokenKey     = "token"
 	LimitKey     = "limit"
 
-	TokenExpireDuration = 15 * time.Minute
+	SignatureExpireDuration = 15 * time.Minute
 )
 
 type LimitedTimeSignatureInfo struct {
@@ -91,7 +91,7 @@ func NewLimitedTimeSignatureInfo(signature, token, limit string) (*LimitedTimeSi
 
 func NewLimitedTimeSignatureInfoByKey(key string) (*LimitedTimeSignatureInfo, error) {
 	token := uuid.NewRandom().String()
-	limit := strconv.FormatInt(time.Now().Add(TokenExpireDuration).Unix(), 10)
+	limit := strconv.FormatInt(time.Now().Add(SignatureExpireDuration).Unix(), 10)
 
 	signature, err := NewEncodedSigature(token, limit, key)
 	if err != nil {
