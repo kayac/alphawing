@@ -289,7 +289,7 @@ func (c *AppControllerWithValidation) CheckNotFound() revel.Result {
 	app, err := models.GetApp(Dbm, appId)
 	if err != nil {
 		if err == sql.ErrNoRows {
-			return c.NotFound("NotFound")
+			return c.NotFound("App is not found.")
 		}
 		panic(err)
 	}
@@ -302,7 +302,7 @@ func (c *AppControllerWithValidation) CheckForbidden() revel.Result {
 	app := c.App
 
 	if app == nil {
-		c.NotFound("NotFound")
+		c.NotFound("App is not found.")
 	}
 
 	s, err := c.userGoogleService()
@@ -311,7 +311,7 @@ func (c *AppControllerWithValidation) CheckForbidden() revel.Result {
 	}
 
 	if _, err = s.GetFile(app.FileId); err != nil {
-		return c.Forbidden("Forbidden")
+		return c.Forbidden("Can't access the app.")
 	}
 
 	return nil

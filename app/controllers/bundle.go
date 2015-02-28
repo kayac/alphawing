@@ -132,7 +132,7 @@ func (c *BundleControllerWithValidation) CheckNotFound() revel.Result {
 	bundle, err := models.GetBundle(Dbm, bundleId)
 	if err != nil {
 		if err == sql.ErrNoRows {
-			return c.NotFound("NotFound")
+			return c.NotFound("Bundle is not found.")
 		}
 		panic(err)
 	}
@@ -144,7 +144,7 @@ func (c *BundleControllerWithValidation) CheckNotFound() revel.Result {
 func (c *BundleControllerWithValidation) CheckForbidden() revel.Result {
 	bundle := c.Bundle
 	if bundle == nil {
-		return c.NotFound("NotFound")
+		return c.NotFound("Bundle is not found.")
 	}
 
 	s, err := c.userGoogleService()
@@ -153,7 +153,7 @@ func (c *BundleControllerWithValidation) CheckForbidden() revel.Result {
 	}
 
 	if _, err = s.GetFile(bundle.FileId); err != nil {
-		return c.Forbidden("Forbidden")
+		return c.Forbidden("Can't access the bundle.")
 	}
 
 	return nil
