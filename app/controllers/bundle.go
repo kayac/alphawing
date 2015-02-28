@@ -85,7 +85,7 @@ func (c BundleControllerWithValidation) PostDeleteBundle(bundleId int) revel.Res
 func (c BundleControllerWithValidation) GetDownloadBundle(bundleId int) revel.Result {
 	bundle := c.Bundle
 
-	t, err := models.NewLimitedTimeTokenInfo()
+	t, err := models.NewLimitedTimeTokenInfo(Conf.Secret)
 	if err != nil {
 		panic(err)
 	}

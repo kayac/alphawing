@@ -4,12 +4,9 @@ import (
 	"crypto/hmac"
 	"crypto/sha256"
 	"encoding/hex"
-	"fmt"
 	"net/url"
 	"strconv"
 	"time"
-
-	"github.com/revel/revel"
 
 	"code.google.com/p/go-uuid/uuid"
 )
@@ -27,7 +24,7 @@ func (token LimitedTimeToken) Decode() ([]byte, error) {
 	return hex.DecodeString(string(token))
 }
 
-func (token LimitedTimeToken) IsValid(seed, limitStr string) (bool, error) {
+func (token LimitedTimeToken) IsValid(seed, limitStr, key string) (bool, error) {
 	limit, err := strconv.Atoi(limitStr)
 	if err != nil {
 		return false, err
@@ -37,7 +34,7 @@ func (token LimitedTimeToken) IsValid(seed, limitStr string) (bool, error) {
 		return false, nil
 	}
 
-	tokenValid, err := NewTokenBytes(seed, int64(limit))
+	tokenValid, err := NewTokenBytes(seed, int64(limit), key)
 	if err != nil {
 		return false, err
 	}
@@ -68,29 +65,16 @@ func (tokenInfo *LimitedTimeTokenInfo) UrlValues() *url.Values {
 	return v
 }
 
-func GetSecret() (string, error) {
-	secret, found := revel.Config.String("app.secret")
-	if !found {
-		return "", fmt.Errorf("undefined config: app.secret")
-	}
-	return secret, nil
-}
-
-func NewTokenBytes(seed string, limit int64) ([]byte, error) {
-	secret, err := GetSecret()
-	if err != nil {
-		return nil, err
-	}
-
-	mac := hmac.New(sha256.New, []byte(secret))
+func NewTokenBytes(seed string, limit int64, key string) ([]byte, error) {
+	mac := hmac.New(sha256.New, []byte(key))
 	mac.Write([]byte(seed))
 	tokenBytes := mac.Sum([]byte(strconv.Itoa(int(limit))))
 
 	return tokenBytes, nil
 }
 
-func NewEncodedToken(seed string, limit int64) (LimitedTimeToken, error) {
-	tokenBytes, err := NewTokenBytes(seed, limit)
+func NewEncodedToken(seed string, limit int64, key string) (LimitedTimeToken, error) {
+	tokenBytes, err := NewTokenBytes(seed, limit, key)
 	if err != nil {
 		return "", err
 	}
@@ -100,12 +84,12 @@ func NewEncodedToken(seed string, limit int64) (LimitedTimeToken, error) {
 	return LimitedTimeToken(token), nil
 }
 
-func NewLimitedTimeTokenInfo() (*LimitedTimeTokenInfo, error) {
+func NewLimitedTimeTokenInfo(key string) (*LimitedTimeTokenInfo, error) {
 	u := uuid.NewRandom()
 	seed := u.String()
 	limit := time.Now().Add(TokenExpireDuration).Unix()
 
-	token, err := NewEncodedToken(seed, limit)
+	token, err := NewEncodedToken(seed, limit, key)
 	if err != nil {
 		return nil, err
 	}
