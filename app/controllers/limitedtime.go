@@ -7,6 +7,7 @@ import (
 	"time"
 
 	"github.com/kayac/alphawing/app/models"
+	"github.com/kayac/alphawing/app/routes"
 	"github.com/revel/revel"
 )
 
@@ -57,6 +58,36 @@ func (c *LimitedTimeController) GetDownloadIpa(bundleId int) revel.Result {
 
 	c.Response.ContentType = "application/octet-stream"
 	return c.RenderBinary(resp.Body, file.OriginalFilename, revel.Attachment, modtime)
+}
+
+func (c *LimitedTimeController) CheckValidToken() revel.Result {
+	bundle := c.Bundle
+	if c.Bundle == nil {
+		return c.NotFound("NotFound")
+	}
+
+	token := c.Params.Get(models.TokenKey)
+	seed := c.Params.Get(models.SeedKey)
+	limit := c.Params.Get(models.LimitKey)
+
+	c.Validation.Required(token).Message(models.TokenKey + " is required")
+	c.Validation.Required(seed).Message(models.SeedKey + " is required")
+	c.Validation.Required(limit).Message(models.LimitKey + "is required")
+	if c.Validation.HasErrors() {
+		c.Validation.Keep()
+		c.FlashParams()
+		return c.Redirect(routes.BundleControllerWithValidation.GetDownloadBundle(bundle.Id))
+	}
+
+	ok, err := models.LimitedTimeToken(token).IsValid(seed, limit)
+	if err != nil {
+		panic(err)
+	}
+	if !ok {
+		return c.Forbidden("Forbidden")
+	}
+
+	return nil
 }
 
 func (c *LimitedTimeController) CheckNotFound() revel.Result {

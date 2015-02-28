@@ -49,6 +49,9 @@ func init() {
 	revel.InterceptMethod((*BundleControllerWithValidation).CheckForbidden, revel.BEFORE)
 	revel.InterceptMethod((*LimitedTimeController).CheckNotFound, revel.BEFORE)
 
+	// validate limited time token
+	revel.InterceptMethod((*LimitedTimeController).CheckValidToken, revel.BEFORE)
+
 	// document
 	revel.OnAppStart(GenerateApiDocument)
 
