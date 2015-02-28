@@ -53,7 +53,7 @@ alphawing uses the Google OAuth for login authentication, and the Google Drive A
 3. Select **Create Client ID**.
 4. JSON key file will be downloaded automatically.
 
-ref. https://developers.google.com/drive/web/service-accounts
+ref. https://developers.google.com/accounts/docs/OAuth2ServiceAccount
 
 ##### Client ID for Web application
 
