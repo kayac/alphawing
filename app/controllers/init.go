@@ -50,7 +50,7 @@ func init() {
 	revel.InterceptMethod((*LimitedTimeController).CheckNotFound, revel.BEFORE)
 
 	// validate limited time token
-	revel.InterceptMethod((*LimitedTimeController).CheckValidToken, revel.BEFORE)
+	revel.InterceptMethod((*LimitedTimeController).CheckValidLimitedTimeToken, revel.BEFORE)
 
 	// document
 	revel.OnAppStart(GenerateApiDocument)

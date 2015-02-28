@@ -60,7 +60,7 @@ func (c *LimitedTimeController) GetDownloadIpa(bundleId int) revel.Result {
 	return c.RenderBinary(resp.Body, file.OriginalFilename, revel.Attachment, modtime)
 }
 
-func (c *LimitedTimeController) CheckValidToken() revel.Result {
+func (c *LimitedTimeController) CheckValidLimitedTimeToken() revel.Result {
 	bundle := c.Bundle
 	if c.Bundle == nil {
 		return c.NotFound("NotFound")
