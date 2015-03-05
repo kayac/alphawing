@@ -28,12 +28,13 @@ func (platformType BundlePlatformType) Extention() BundleFileExtension {
 }
 
 func (platformType BundlePlatformType) String() string {
+	var str string
 	if platformType == BundlePlatformTypeAndroid {
-		return "android"
+		str = "android"
 	} else if platformType == BundlePlatformTypeIOS {
-		return "ios"
+		str = "ios"
 	}
-	return ""
+	return str
 }
 
 type BundleFileExtension string
