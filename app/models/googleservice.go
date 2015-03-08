@@ -11,6 +11,7 @@ import (
 	"code.google.com/p/goauth2/oauth"
 	"code.google.com/p/goauth2/oauth/jwt"
 	"code.google.com/p/google-api-go-client/drive/v2"
+	"code.google.com/p/google-api-go-client/googleapi"
 	"code.google.com/p/google-api-go-client/oauth2/v2"
 )
 
@@ -225,6 +226,10 @@ func (s *GoogleService) GetCapacityInfo() (*CapacityInfo, error) {
 }
 
 func ParseGoogleApiError(apiErr error) (int, string, error) {
+	if googleErr, ok := apiErr.(*googleapi.Error); ok {
+		return googleErr.Code, googleErr.Message, nil
+	}
+
 	reg, err := regexp.Compile(`googleapi: got HTTP response code (\d+) and error reading body: (.+)`)
 	if err != nil {
 		return 0, "", err
