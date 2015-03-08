@@ -3,6 +3,7 @@ package models
 import (
 	"crypto/hmac"
 	"crypto/sha256"
+	"database/sql"
 	"encoding/hex"
 	"fmt"
 	"strings"
@@ -23,6 +24,14 @@ type App struct {
 	Description string    `db:"description"`
 	CreatedAt   time.Time `db:"created_at"`
 	UpdatedAt   time.Time `db:"updated_at"`
+}
+
+type Revision struct {
+	Id            int                `db:"id"`
+	AppId         int                `db:"app_id"`
+	PlatformType  BundlePlatformType `db:"platform_type"`
+	BundleVersion string             `db:"bundle_version"`
+	MaxRevision   int                `db:"max_revision"`
 }
 
 func (app *App) Bundles(txn gorp.SqlExecutor) ([]*Bundle, error) {
@@ -77,14 +86,44 @@ func (app *App) Authorities(txn gorp.SqlExecutor) ([]*Authority, error) {
 	return authorities, nil
 }
 
-func (app *App) GetMaxRevisionByBundleVersion(txn gorp.SqlExecutor, platformType BundlePlatformType, bundleVersion string) (int, error) {
-	revision, err := txn.SelectInt(
-		"SELECT IFNULL(MAX(revision), 0) FROM bundle WHERE app_id = ? AND platform_type = ? AND bundle_version = ?",
+func (app *App) IncrementRevision(txn gorp.SqlExecutor, platformType BundlePlatformType, bundleVersion string) (int, error) {
+	var revision Revision
+	err := txn.SelectOne(
+		&revision,
+		"SELECT * FROM revision WHERE app_id = ? AND platform_type = ? AND bundle_version = ?",
 		app.Id,
 		platformType,
 		bundleVersion,
 	)
-	return int(revision), err
+
+	if err == sql.ErrNoRows {
+		var maxRevision int64
+		maxRevision, err = txn.SelectInt(
+			"SELECT IFNULL(MAX(revision), 0) FROM bundle WHERE app_id = ? AND platform_type = ? AND bundle_version = ?",
+			app.Id,
+			platformType,
+			bundleVersion,
+		)
+		if err != nil {
+			return 0, err
+		}
+		maxRevision++
+		revision = Revision{
+			AppId:         app.Id,
+			PlatformType:  platformType,
+			BundleVersion: bundleVersion,
+			MaxRevision:   int(maxRevision),
+		}
+		err = txn.Insert(&revision)
+	} else if err == nil {
+		revision.MaxRevision++
+		_, err = txn.Update(&revision)
+	}
+
+	if err != nil {
+		return 0, err
+	}
+	return revision.MaxRevision, err
 }
 
 func NewToken() string {
@@ -228,13 +267,13 @@ func (app *App) CreateBundle(dbm *gorp.DbMap, s *GoogleService, bundle *Bundle) 
 
 	// increment revision number & save application information
 	err = Transact(dbm, func(txn gorp.SqlExecutor) error {
-		maxRevision, err := app.GetMaxRevisionByBundleVersion(txn, bundle.PlatformType, bundleInfo.Version)
+		nextRevision, err := app.IncrementRevision(txn, bundle.PlatformType, bundleInfo.Version)
 		if err != nil {
 			return err
 		}
-		bundle.Revision = maxRevision + 1
+		bundle.Revision = nextRevision
 		bundle.FileName = bundle.BuildFileName()
-		return bundle.Save(txn)
+		return nil
 	})
 	if err != nil {
 		panic(err)
@@ -250,7 +289,7 @@ func (app *App) CreateBundle(dbm *gorp.DbMap, s *GoogleService, bundle *Bundle) 
 	// update FileId
 	bundle.FileId = driveFile.Id
 	return Transact(dbm, func(txn gorp.SqlExecutor) error {
-		return bundle.Update(txn)
+		return bundle.Save(txn)
 	})
 }
 
