@@ -27,6 +27,16 @@ func (platformType BundlePlatformType) Extention() BundleFileExtension {
 	return ext
 }
 
+func (platformType BundlePlatformType) String() string {
+	var str string
+	if platformType == BundlePlatformTypeAndroid {
+		str = "android"
+	} else if platformType == BundlePlatformTypeIOS {
+		str = "ios"
+	}
+	return str
+}
+
 type BundleFileExtension string
 
 const (
@@ -71,11 +81,14 @@ type Bundle struct {
 }
 
 type BundleJsonResponse struct {
-	FileId     string `json:"file_id"`
-	Version    string `json:"version"`
-	Revision   int    `json:"revision"`
-	InstallUrl string `json:"install_url"`
-	QrCodeUrl  string `json:"qr_code_url"`
+	FileId       string `json:"file_id"`
+	Version      string `json:"version"`
+	Revision     int    `json:"revision"`
+	InstallUrl   string `json:"install_url"`
+	QrCodeUrl    string `json:"qr_code_url"`
+	PlatformType string `json:"platform_type"`
+	CreatedAt    string `json:"created_at"`
+	UpdatedAt    string `json:"updated_at"`
 }
 
 type Bundles []*Bundle
@@ -113,11 +126,14 @@ func (bundle *Bundle) JsonResponse(ub UriBuilder) (*BundleJsonResponse, error) {
 	}
 
 	return &BundleJsonResponse{
-		FileId:     bundle.FileId,
-		Version:    bundle.BundleVersion,
-		Revision:   bundle.Revision,
-		InstallUrl: installUrl.String(),
-		QrCodeUrl:  qrCodeUrl.String(),
+		FileId:       bundle.FileId,
+		Version:      bundle.BundleVersion,
+		Revision:     bundle.Revision,
+		InstallUrl:   installUrl.String(),
+		QrCodeUrl:    qrCodeUrl.String(),
+		PlatformType: bundle.PlatformType.String(),
+		CreatedAt:    bundle.CreatedAt.Format(time.RFC3339),
+		UpdatedAt:    bundle.CreatedAt.Format(time.RFC3339),
 	}, nil
 }
 

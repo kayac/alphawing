@@ -32,7 +32,10 @@ $ curl http://your-domain.com/api/upload_bundle \
     "revision": 1,
     "version": "1.0",
     "install_url": "the URL to install the Bundle file uploaded",
-    "qr_code_url": "the URL of the QR code to install the Bundle file uploaded"
+    "qr_code_url": "the URL of the QR code to install the Bundle file uploaded",
+    "platform_type": "android",
+    "created_at": "2006-01-02T15:04:05Z07:00",
+    "updated_at": "2006-01-02T15:04:05Z07:00"
   }
 }
 ```
@@ -100,7 +103,10 @@ $ curl -XGET http://your-domain.com/api/list_bundle \
         "revision": 1,
         "version": "1.0",
         "qr_code_url": "the URL of the QR code to install the APK file uploaded",
-        "install_url": "the URL to install the APK file uploaded"
+        "install_url": "the URL to install the APK file uploaded",
+        "platform_type": "android",
+        "created_at": "2006-01-02T15:04:05Z07:00",
+        "updated_at": "2006-01-02T15:04:05Z07:00"
       },
       {
       .
