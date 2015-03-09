@@ -26,14 +26,6 @@ type App struct {
 	UpdatedAt   time.Time `db:"updated_at"`
 }
 
-type Revision struct {
-	Id            int                `db:"id"`
-	AppId         int                `db:"app_id"`
-	PlatformType  BundlePlatformType `db:"platform_type"`
-	BundleVersion string             `db:"bundle_version"`
-	MaxRevision   int                `db:"max_revision"`
-}
-
 func (app *App) Bundles(txn gorp.SqlExecutor) ([]*Bundle, error) {
 	var bundles []*Bundle
 	_, err := txn.Select(&bundles, "SELECT * FROM bundle WHERE app_id = ? ORDER BY id DESC", app.Id)
@@ -87,10 +79,8 @@ func (app *App) Authorities(txn gorp.SqlExecutor) ([]*Authority, error) {
 }
 
 func (app *App) IncrementRevision(txn gorp.SqlExecutor, platformType BundlePlatformType, bundleVersion string) (int, error) {
-	var revision Revision
-	err := txn.SelectOne(
-		&revision,
-		"SELECT * FROM revision WHERE app_id = ? AND platform_type = ? AND bundle_version = ?",
+	revision, err := GetMaxRevision(
+		txn,
 		app.Id,
 		platformType,
 		bundleVersion,
@@ -108,16 +98,16 @@ func (app *App) IncrementRevision(txn gorp.SqlExecutor, platformType BundlePlatf
 			return 0, err
 		}
 		maxRevision++
-		revision = Revision{
+		revision = &Revision{
 			AppId:         app.Id,
 			PlatformType:  platformType,
 			BundleVersion: bundleVersion,
 			MaxRevision:   int(maxRevision),
 		}
-		err = txn.Insert(&revision)
+		err = revision.Save(txn)
 	} else if err == nil {
 		revision.MaxRevision++
-		_, err = txn.Update(&revision)
+		err = revision.Update(txn)
 	}
 
 	if err != nil {
