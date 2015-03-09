@@ -3,6 +3,7 @@ package models
 import (
 	"fmt"
 	"io"
+	"net/http"
 	"net/url"
 	"os"
 	"time"
@@ -226,17 +227,20 @@ func (bundle *Bundle) DeleteFromDB(txn gorp.SqlExecutor) error {
 }
 
 func (bundle *Bundle) DeleteFromGoogleDrive(s *GoogleService) error {
+	if bundle.FileId == "" {
+		return nil
+	}
 	return s.DeleteFile(bundle.FileId)
 }
 
 func (bundle *Bundle) Delete(txn gorp.SqlExecutor, s *GoogleService) error {
-	if err := bundle.DeleteFromDB(txn); err != nil {
-		return err
-	}
 	if err := bundle.DeleteFromGoogleDrive(s); err != nil {
-		return err
+		code, _, _ := ParseGoogleApiError(err)
+		if code != http.StatusNotFound {
+			return err
+		}
 	}
-	return nil
+	return bundle.DeleteFromDB(txn)
 }
 
 func CreateBundle(txn gorp.SqlExecutor, bundle *Bundle) error {
