@@ -36,5 +36,21 @@ func (gd *GoogleDrive) GetUrl(ident FileIdentifier) (string, error) {
 }
 
 func (gd *GoogleDrive) Delete(ident FileIdentifier) error {
+	return gd.Service.FilesService.Delete(ident.FileId).Do()
+}
+
+func (gd *GoogleDrive) DeleteAll() error {
+	fileList, err := gd.Service.FilesService.List().Do()
+	if err != nil {
+		return err
+	}
+
+	for _, file := range fileList.Items {
+		err = gd.Delete(FileIdentifier{FileId: file.Id})
+		if err != nil {
+			return err
+		}
+	}
+
 	return nil
 }
