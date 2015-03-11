@@ -3,7 +3,6 @@ package models
 import (
 	"fmt"
 	"net/http"
-	"os"
 	"regexp"
 	"strconv"
 	"strings"
@@ -113,14 +112,6 @@ func (s *GoogleService) CreateFolder(folderName string) (*drive.File, error) {
 		MimeType: "application/vnd.google-apps.folder",
 	}
 	return s.FilesService.Insert(driveFolder).Do()
-}
-
-func (s *GoogleService) InsertFile(file *os.File, filename string, parent *drive.ParentReference) (*drive.File, error) {
-	driveFile := &drive.File{
-		Title:   filename,
-		Parents: []*drive.ParentReference{parent},
-	}
-	return s.FilesService.Insert(driveFile).Media(file).Do()
 }
 
 func (s *GoogleService) GetFile(fileId string) (*drive.File, error) {
