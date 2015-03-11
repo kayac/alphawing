@@ -149,26 +149,6 @@ func (s *GoogleService) UpdateFileTitle(fileId string, title string) error {
 	return err
 }
 
-func (s *GoogleService) DeleteFile(fileId string) error {
-	return s.FilesService.Delete(fileId).Do()
-}
-
-func (s *GoogleService) DeleteAllFiles() error {
-	fileList, err := s.GetFileList()
-	if err != nil {
-		return err
-	}
-
-	for _, file := range fileList.Items {
-		err = s.DeleteFile(file.Id)
-		if err != nil {
-			return err
-		}
-	}
-
-	return nil
-}
-
 func (s *GoogleService) CreateUserPermission(email string, role string) *drive.Permission {
 	return &drive.Permission{
 		Role:  role,

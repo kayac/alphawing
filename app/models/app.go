@@ -144,7 +144,10 @@ func (app *App) DeleteFromDB(txn gorp.SqlExecutor) error {
 }
 
 func (app *App) DeleteFromGoogleDrive(s *GoogleService) error {
-	return s.DeleteFile(app.FileId)
+	gd := &storage.GoogleDrive{
+		Service: &googleservice.GoogleService{FilesService: s.FilesService},
+	}
+	return gd.Delete(storage.FileIdentifier{FileId: app.FileId})
 }
 
 func (app *App) Delete(txn gorp.SqlExecutor, s *GoogleService) error {

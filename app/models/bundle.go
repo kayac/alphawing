@@ -9,6 +9,8 @@ import (
 	"time"
 
 	"github.com/coopernurse/gorp"
+	"github.com/kayac/alphawing/app/googleservice"
+	"github.com/kayac/alphawing/app/storage"
 )
 
 type BundlePlatformType int
@@ -230,7 +232,10 @@ func (bundle *Bundle) DeleteFromGoogleDrive(s *GoogleService) error {
 	if bundle.FileId == "" {
 		return nil
 	}
-	return s.DeleteFile(bundle.FileId)
+	gd := &storage.GoogleDrive{
+		Service: &googleservice.GoogleService{FilesService: s.FilesService},
+	}
+	return gd.Delete(storage.FileIdentifier{FileId: bundle.FileId})
 }
 
 func (bundle *Bundle) Delete(txn gorp.SqlExecutor, s *GoogleService) error {
