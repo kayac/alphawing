@@ -12,6 +12,8 @@ import (
 	"code.google.com/p/google-api-go-client/drive/v2"
 
 	"github.com/coopernurse/gorp"
+	"github.com/kayac/alphawing/app/googleservice"
+	"github.com/kayac/alphawing/app/storage"
 )
 
 // https://github.com/coopernurse/gorp#mapping-structs-to-tables
@@ -240,14 +242,17 @@ func (app *App) CreateBundle(dbm *gorp.DbMap, s *GoogleService, bundle *Bundle) 
 	}
 
 	// upload file
-	parent := app.ParentReference()
-	driveFile, err := s.InsertFile(bundle.File, bundle.FileName, parent)
+	gd := &storage.GoogleDrive{
+		Service: &googleservice.GoogleService{FilesService: s.FilesService},
+		Parent:  app.ParentReference(),
+	}
+	fident, err := gd.Upload(bundle.File, bundle.FileName)
 	if err != nil {
 		return err
 	}
 
 	// update FileId
-	bundle.FileId = driveFile.Id
+	bundle.FileId = fident.FileId
 	return Transact(dbm, func(txn gorp.SqlExecutor) error {
 		return bundle.Update(txn)
 	})
