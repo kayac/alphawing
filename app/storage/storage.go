@@ -5,13 +5,12 @@ import (
 )
 
 type Storage interface {
-	Upload(file os.File, filename string) (url string, err error)
-	GetUrl(filename string) (url string, err error)
-	Delete(filename string) error
+	Upload(file *os.File, filename string) (ident FileIdentifier, err error)
+	GetUrl(identifier FileIdentifier) (url string, err error)
+	Delete(identifier FileIdentifier) error
 }
 
-type NotFoundError struct{}
-
-func (e NotFoundError) Error() string {
-	return "Not found file in storage"
+type FileIdentifier struct {
+	Filename string
+	FileId   string
 }
