@@ -114,41 +114,6 @@ func (s *GoogleService) CreateFolder(folderName string) (*drive.File, error) {
 	return s.FilesService.Insert(driveFolder).Do()
 }
 
-func (s *GoogleService) GetFile(fileId string) (*drive.File, error) {
-	return s.FilesService.Get(fileId).Do()
-}
-
-func (s *GoogleService) DownloadFile(fileId string) (*http.Response, *drive.File, error) {
-	file, err := s.GetFile(fileId)
-	if err != nil {
-		return nil, nil, err
-	}
-	resp, err := s.Client.Get(file.DownloadUrl)
-	if err != nil {
-		return nil, nil, err
-	}
-	return resp, file, nil
-}
-
-func (s *GoogleService) GetFileList() (*drive.FileList, error) {
-	return s.FilesService.List().Do()
-}
-
-func (s *GoogleService) GetSharedFileList(ownerEmail string) (*drive.FileList, error) {
-	q := fmt.Sprintf("'%s' in owners and sharedWithMe = true", ownerEmail)
-	return s.FilesService.List().Q(q).Do()
-}
-
-func (s *GoogleService) UpdateFileTitle(fileId string, title string) error {
-	file, err := s.GetFile(fileId)
-	if err != nil {
-		return err
-	}
-	file.Title = title
-	_, err = s.FilesService.Update(fileId, file).Do()
-	return err
-}
-
 func (s *GoogleService) CreateUserPermission(email string, role string) *drive.Permission {
 	return &drive.Permission{
 		Role:  role,
