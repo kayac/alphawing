@@ -130,10 +130,6 @@ func (s *GoogleService) GetPermissionList(fileId string) (*drive.PermissionList,
 	return s.PermissionsService.List(fileId).Do()
 }
 
-func (sa *GoogleService) UpdatePermission(fileId string, permissionId string, permission *drive.Permission) (*drive.Permission, error) {
-	return sa.PermissionsService.Update(fileId, permissionId, permission).Do()
-}
-
 func (s *GoogleService) DeletePermission(fileId string, permissionId string) error {
 	return s.PermissionsService.Delete(fileId, permissionId).Do()
 }
