@@ -106,34 +106,6 @@ func (s *GoogleService) GetTokenInfo() (*oauth2.Tokeninfo, error) {
 	return s.OAuth2Service.Tokeninfo().Access_token(s.AccessToken).Do()
 }
 
-func (s *GoogleService) CreateFolder(folderName string) (*drive.File, error) {
-	driveFolder := &drive.File{
-		Title:    folderName,
-		MimeType: "application/vnd.google-apps.folder",
-	}
-	return s.FilesService.Insert(driveFolder).Do()
-}
-
-func (s *GoogleService) CreateUserPermission(email string, role string) *drive.Permission {
-	return &drive.Permission{
-		Role:  role,
-		Type:  "user",
-		Value: email,
-	}
-}
-
-func (s *GoogleService) InsertPermission(fileId string, permission *drive.Permission) (*drive.Permission, error) {
-	return s.PermissionsService.Insert(fileId, permission).Do()
-}
-
-func (s *GoogleService) GetPermissionList(fileId string) (*drive.PermissionList, error) {
-	return s.PermissionsService.List(fileId).Do()
-}
-
-func (s *GoogleService) DeletePermission(fileId string, permissionId string) error {
-	return s.PermissionsService.Delete(fileId, permissionId).Do()
-}
-
 func (s *GoogleService) GetAbout() (*drive.About, error) {
 	return s.AboutService.Get().Do()
 }
