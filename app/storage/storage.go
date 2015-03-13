@@ -19,5 +19,6 @@ type Storage interface {
 }
 
 type StorageFile struct {
-	Modtime time.Time
+	Modtime  time.Time
+	Filename string
 }

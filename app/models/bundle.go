@@ -247,8 +247,8 @@ func (bundle *Bundle) Delete(txn gorp.SqlExecutor) error {
 	return bundle.DeleteFromDB(txn)
 }
 
-func (bundle *Bundle) DownloadFile() (*http.Response, error) {
-	return bundle.Storage.GetFile(bundle.FileId)
+func (bundle *Bundle) DownloadFile() (*http.Response, storage.StorageFile, error) {
+	return bundle.Storage.DownloadFile(bundle.FileId)
 }
 
 func CreateBundle(txn gorp.SqlExecutor, bundle *Bundle) error {

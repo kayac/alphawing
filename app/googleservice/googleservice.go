@@ -24,7 +24,7 @@ type GoogleService struct {
 
 type Config struct {
 	ClientId     string
-	CliendSecret string
+	ClientSecret string
 	CallbackUrl  string
 	Scope        []string
 }
@@ -38,12 +38,12 @@ func createOAuthClient(token *oauth.Token) *http.Client {
 
 func (c *Config) NewOAuthConfig(tokenCache oauth.Cache) *oauth.Config {
 	return &oauth.Config{
-		ClientId:     config.ClientId,
-		ClientSecret: config.ClientSecret,
+		ClientId:     c.ClientId,
+		ClientSecret: c.ClientSecret,
 		AuthURL:      "https://accounts.google.com/o/oauth2/auth",
 		TokenURL:     "https://accounts.google.com/o/oauth2/token",
-		RedirectURL:  config.CallbackUrl,
-		Scope:        strings.Join(config.Scope, " "),
+		RedirectURL:  c.CallbackUrl,
+		Scope:        strings.Join(c.Scope, " "),
 		TokenCache:   tokenCache,
 	}
 }
@@ -131,7 +131,7 @@ func (s *GoogleService) GetPermissionId(fileId string, email string) (string, er
 		}
 	}
 
-	if !permId {
+	if permId == "" {
 		return "", errors.New("Not found email in folder")
 	}
 

@@ -34,7 +34,7 @@ func (c AppController) GetCreateApp() revel.Result {
 		PrivateKey:  Conf.ServiceAccountPrivateKey,
 	}
 
-	token, err := models.GetServiceAccountToken(config)
+	token, err := googleservice.GetServiceAccountToken(config)
 	if err != nil {
 		panic(err)
 	}

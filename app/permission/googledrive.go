@@ -8,16 +8,16 @@ type GoogleDrive struct {
 	Service *googleservice.GoogleService
 }
 
-func (gd *GoogleDrive) CreateGroup(name string) (string, error) {
+func (gd GoogleDrive) CreateGroup(name string) (string, error) {
 	file, err := gd.Service.CreateFolder(name)
 	if err != nil {
 		return "", err
 	}
 
-	return fild.Id, nil
+	return file.Id, nil
 }
 
-func (gd *GoogleDrive) AddUser(groupId string, email string) (string, error) {
+func (gd GoogleDrive) AddUser(groupId string, email string) (string, error) {
 	perm := gd.Service.CreateUserPermission(email, defaultRole)
 	insertedPerm, err := gd.Service.InsertPermission(groupId, perm)
 	if err != nil {
@@ -26,14 +26,14 @@ func (gd *GoogleDrive) AddUser(groupId string, email string) (string, error) {
 	return insertedPerm.Id, err
 }
 
-func (gd *GoogleDrive) DeleteUser(groupId string, permId string) error {
+func (gd GoogleDrive) DeleteUser(groupId string, permId string) error {
 	return gd.Service.DeletePermission(groupId, permId)
 }
 
-func (gd *GoogleDrive) GetUserList(groupId string) ([]string, error) {
+func (gd GoogleDrive) GetUserList(groupId string) ([]string, error) {
 	permList, err := gd.Service.GetPermissionList(groupId)
 	if err != nil {
-		return err
+		return []string{}, err
 	}
 
 	var permIds []string
@@ -44,6 +44,6 @@ func (gd *GoogleDrive) GetUserList(groupId string) ([]string, error) {
 	return permIds, nil
 }
 
-func (gd *GoogleDrive) DeleteGroup(groupId string) error {
+func (gd GoogleDrive) DeleteGroup(groupId string) error {
 	return gd.Service.FilesService.Delete(groupId).Do()
 }

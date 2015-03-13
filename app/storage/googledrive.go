@@ -16,7 +16,7 @@ type GoogleDrive struct {
 	Parent  *drive.ParentReference
 }
 
-func (gd *GoogleDrive) GetUrl(fileId string) (string, error) {
+func (gd GoogleDrive) GetUrl(fileId string) (string, error) {
 	file, err := gd.Service.FilesService.Get(fileId).Do()
 	if err != nil {
 		return "", err
@@ -24,7 +24,7 @@ func (gd *GoogleDrive) GetUrl(fileId string) (string, error) {
 	return file.DownloadUrl, nil
 }
 
-func (gd *GoogleDrive) DownloadFile(fileId string) (*http.Response, StorageFile, error) {
+func (gd GoogleDrive) DownloadFile(fileId string) (*http.Response, StorageFile, error) {
 	file, err := gd.Service.FilesService.Get(fileId).Do()
 	if err != nil {
 		return &http.Response{}, StorageFile{}, err
@@ -35,10 +35,11 @@ func (gd *GoogleDrive) DownloadFile(fileId string) (*http.Response, StorageFile,
 		return &http.Response{}, StorageFile{}, err
 	}
 	storageFile := StorageFile{
-		modtime: modtime,
+		Modtime:  modtime,
+		Filename: file.OriginalFilename,
 	}
 
-	resp, err := http.Get(url)
+	resp, err := http.Get(file.DownloadUrl)
 	if err != nil {
 		return &http.Response{}, StorageFile{}, err
 	}
@@ -46,7 +47,7 @@ func (gd *GoogleDrive) DownloadFile(fileId string) (*http.Response, StorageFile,
 	return resp, storageFile, nil
 }
 
-func (gd *GoogleDrive) GetFileList(viewerEmail string) ([]string, error) {
+func (gd GoogleDrive) GetFileList(viewerEmail string) ([]string, error) {
 	var fileIds []string
 
 	q := fmt.Sprintf("'%s' in owners and sharedWithMe = true", viewerEmail)
@@ -62,7 +63,7 @@ func (gd *GoogleDrive) GetFileList(viewerEmail string) ([]string, error) {
 	return fileIds, nil
 }
 
-func (gd *GoogleDrive) Upload(file *os.File, filename string) (string, error) {
+func (gd GoogleDrive) Upload(file *os.File, filename string) (string, error) {
 	driveFile := &drive.File{
 		Title:   filename,
 		Parents: []*drive.ParentReference{gd.Parent},
@@ -70,12 +71,12 @@ func (gd *GoogleDrive) Upload(file *os.File, filename string) (string, error) {
 
 	driveFile, err := gd.Service.FilesService.Insert(driveFile).Media(file).Do()
 	if err != nil {
-		return FileIdentifier{}, err
+		return "", err
 	}
 	return driveFile.Id, nil
 }
 
-func (gd *GoogleDrive) ChangeFilename(fileId string, filename string) error {
+func (gd GoogleDrive) ChangeFilename(fileId string, filename string) error {
 	file, err := gd.Service.FilesService.Get(fileId).Do()
 	if err != nil {
 		return err
@@ -87,18 +88,18 @@ func (gd *GoogleDrive) ChangeFilename(fileId string, filename string) error {
 	return err
 }
 
-func (gd *GoogleDrive) Delete(fileId string) error {
+func (gd GoogleDrive) Delete(fileId string) error {
 	return gd.Service.FilesService.Delete(fileId).Do()
 }
 
-func (gd *GoogleDrive) DeleteAll() error {
+func (gd GoogleDrive) DeleteAll() error {
 	fileList, err := gd.Service.FilesService.List().Do()
 	if err != nil {
 		return err
 	}
 
 	for _, file := range fileList.Items {
-		err = gd.Delete(FileIdentifier{FileId: file.Id})
+		err = gd.Delete(file.Id)
 		if err != nil {
 			return err
 		}

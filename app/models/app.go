@@ -271,7 +271,7 @@ func (app *App) CreateAuthority(txn gorp.SqlExecutor, authority *Authority) erro
 }
 
 func (app *App) UpdateFileTitle(name string) error {
-	return app.Storage.ChangeFilename(name)
+	return app.Storage.ChangeFilename(app.FileId, name)
 }
 
 func CreateApp(txn gorp.SqlExecutor, app *App) error {
