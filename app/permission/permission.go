@@ -1,10 +1,9 @@
 package permission
 
-import "github.com/kayac/alphawing/app/storage"
-
 type Permission interface {
-	CreateGroup(name string) (ident storage.FileIdentifier, err error)
-	AddUser(ident storage.FileIdentifier, email string) error
-	DeleteUser(ident storage.FileIdentifier, email string) error
-	GetUserList(ident storage.FileIdentifier, name string) (emails []string, err error)
+	CreateGroup(name string) (groupId string, err error)
+	DeleteGroup(groupId string) (groupId string, err error)
+	AddUser(groupId string, email string) (permId string, err error)
+	DeleteUser(groupId string, permId string) error
+	GetUserList(groupId string, name string) (emails []string, err error)
 }

@@ -5,10 +5,7 @@ import (
 	"net/http"
 	"regexp"
 	"strconv"
-	"strings"
 
-	"code.google.com/p/goauth2/oauth"
-	"code.google.com/p/goauth2/oauth/jwt"
 	"code.google.com/p/google-api-go-client/drive/v2"
 	"code.google.com/p/google-api-go-client/googleapi"
 	"code.google.com/p/google-api-go-client/oauth2/v2"
@@ -41,61 +38,6 @@ type CapacityInfo struct {
 	Used               string
 	Total              string
 	PercentageRemained string
-}
-
-func CreateOAuthConfig(config *WebApplicationConfig, tokenCache oauth.Cache) *oauth.Config {
-	return &oauth.Config{
-		ClientId:     config.ClientId,
-		ClientSecret: config.ClientSecret,
-		AuthURL:      "https://accounts.google.com/o/oauth2/auth",
-		TokenURL:     "https://accounts.google.com/o/oauth2/token",
-		RedirectURL:  config.CallbackUrl,
-		Scope:        strings.Join(config.Scope, " "),
-		TokenCache:   tokenCache,
-	}
-}
-
-func GetServiceAccountToken(config *ServiceAccountConfig) (*oauth.Token, error) {
-	token := jwt.NewToken(config.ClientEmail, strings.Join(config.Scope, " "), []byte(config.PrivateKey))
-
-	client := &http.Client{}
-	oauthToken, err := token.Assert(client)
-	if err != nil {
-		return nil, err
-	}
-
-	return oauthToken, nil
-}
-
-func createOAuthClient(token *oauth.Token) *http.Client {
-	transport := &oauth.Transport{
-		Token: token,
-	}
-	return transport.Client()
-}
-
-func NewGoogleService(token *oauth.Token) (*GoogleService, error) {
-	client := createOAuthClient(token)
-
-	oauth2Service, err := oauth2.New(client)
-	if err != nil {
-		return nil, err
-	}
-
-	driveService, err := drive.New(client)
-	if err != nil {
-		return nil, err
-	}
-
-	return &GoogleService{
-		AccessToken:        token.AccessToken,
-		Client:             client,
-		OAuth2Service:      oauth2Service,
-		DriveService:       driveService,
-		AboutService:       drive.NewAboutService(driveService),
-		FilesService:       drive.NewFilesService(driveService),
-		PermissionsService: drive.NewPermissionsService(driveService),
-	}, nil
 }
 
 func (s *GoogleService) GetUserInfo() (*oauth2.Userinfoplus, error) {

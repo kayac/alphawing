@@ -9,7 +9,7 @@ import (
 	"time"
 
 	"github.com/coopernurse/gorp"
-	"github.com/kayac/alphawing/app/googleservice"
+	"github.com/kayac/alphawing/app/permission"
 	"github.com/kayac/alphawing/app/storage"
 )
 
@@ -78,9 +78,11 @@ type Bundle struct {
 	CreatedAt     time.Time          `db:"created_at"`
 	UpdatedAt     time.Time          `db:"updated_at"`
 
-	BundleInfo *BundleInfo `db:"-"`
-	File       *os.File    `db:"-"`
-	FileName   string      `db:"-"`
+	BundleInfo *BundleInfo           `db:"-"`
+	File       *os.File              `db:"-"`
+	FileName   string                `db:"-"`
+	Storage    storage.Storage       `db:"-"`
+	Permission permission.Permission `db:"-"`
 }
 
 type BundleJsonResponse struct {
@@ -228,24 +230,25 @@ func (bundle *Bundle) DeleteFromDB(txn gorp.SqlExecutor) error {
 	return err
 }
 
-func (bundle *Bundle) DeleteFromGoogleDrive(s *GoogleService) error {
+func (bundle *Bundle) DeleteFromGoogleDrive() error {
 	if bundle.FileId == "" {
 		return nil
 	}
-	gd := &storage.GoogleDrive{
-		Service: &googleservice.GoogleService{FilesService: s.FilesService},
-	}
-	return gd.Delete(storage.FileIdentifier{FileId: bundle.FileId})
+	return bundle.Storage.Delete(bundle.FileId)
 }
 
-func (bundle *Bundle) Delete(txn gorp.SqlExecutor, s *GoogleService) error {
-	if err := bundle.DeleteFromGoogleDrive(s); err != nil {
+func (bundle *Bundle) Delete(txn gorp.SqlExecutor) error {
+	if err := bundle.DeleteFromGoogleDrive(); err != nil {
 		code, _, _ := ParseGoogleApiError(err)
 		if code != http.StatusNotFound {
 			return err
 		}
 	}
 	return bundle.DeleteFromDB(txn)
+}
+
+func (bundle *Bundle) DownloadFile() (*http.Response, error) {
+	return bundle.Storage.GetFile(bundle.FileId)
 }
 
 func CreateBundle(txn gorp.SqlExecutor, bundle *Bundle) error {

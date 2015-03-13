@@ -6,8 +6,11 @@ import (
 	"path/filepath"
 	"strconv"
 
+	"github.com/kayac/alphawing/app/googleservice"
 	"github.com/kayac/alphawing/app/models"
+	"github.com/kayac/alphawing/app/permission"
 	"github.com/kayac/alphawing/app/routes"
+	"github.com/kayac/alphawing/app/storage"
 
 	"github.com/coopernurse/gorp"
 	"github.com/revel/revel"
@@ -26,7 +29,29 @@ type AppControllerWithValidation struct {
 // ------------------------------------------------------
 // AppController
 func (c AppController) GetCreateApp() revel.Result {
-	app := &models.App{}
+	config := &googleservice.ServiceAccountConfig{
+		ClientEmail: Conf.ServiceAccountClientEmail,
+		PrivateKey:  Conf.ServiceAccountPrivateKey,
+	}
+
+	token, err := models.GetServiceAccountToken(config)
+	if err != nil {
+		panic(err)
+	}
+
+	service, err := googleservice.NewGoogleService(token)
+	if err != nil {
+		panic(err)
+	}
+
+	app := &models.App{
+		Storage: storage.GoogleDrive{
+			Service: service,
+		},
+		Permission: permission.GoogleDrive{
+			Service: service,
+		},
+	}
 	return c.Render(app)
 }
 
@@ -39,7 +64,7 @@ func (c AppController) PostCreateApp(app models.App) revel.Result {
 	}
 
 	err := Transact(func(txn gorp.SqlExecutor) error {
-		if err := models.CreateApp(txn, c.GoogleService, &app); err != nil {
+		if err := models.CreateApp(txn, &app); err != nil {
 			return err
 		}
 
@@ -50,7 +75,7 @@ func (c AppController) PostCreateApp(app models.App) revel.Result {
 		authority := &models.Authority{
 			Email: tokeninfo.Email,
 		}
-		return app.CreateAuthority(txn, c.GoogleService, authority)
+		return app.CreateAuthority(txn, authority)
 	})
 	if err != nil {
 		panic(err)
@@ -112,7 +137,7 @@ func (c AppControllerWithValidation) PostUpdateApp(appId int, app models.App) re
 		panic(err)
 	}
 
-	if err := c.GoogleService.UpdateFileTitle(c.App.FileId, app.Title); err != nil {
+	if err := app.UpdateFileTitle(app.Title); err != nil {
 		panic(err)
 	}
 
@@ -141,7 +166,7 @@ func (c AppControllerWithValidation) PostDeleteApp(appId int) revel.Result {
 	app := c.App
 
 	err := Transact(func(txn gorp.SqlExecutor) error {
-		return app.Delete(txn, c.GoogleService)
+		return app.Delete(txn)
 	})
 	if err != nil {
 		panic(err)
@@ -185,7 +210,7 @@ func (c AppControllerWithValidation) PostCreateBundle(appId int, bundle models.B
 
 	bundle.File = file
 	bundle.PlatformType = ext.PlatformType()
-	if err := c.App.CreateBundle(Dbm, c.GoogleService, &bundle); err != nil {
+	if err := c.App.CreateBundle(Dbm, &bundle); err != nil {
 		if bperr, ok := err.(*models.BundleParseError); ok {
 			c.Flash.Error(bperr.Error())
 			return c.Redirect(routes.AppControllerWithValidation.GetCreateBundle(appId))
@@ -228,7 +253,7 @@ func (c AppControllerWithValidation) PostCreateAuthority(appId int, email string
 	}
 
 	err = Transact(func(txn gorp.SqlExecutor) error {
-		return app.CreateAuthority(txn, c.GoogleService, authority)
+		return app.CreateAuthority(txn, authority)
 	})
 	if err != nil {
 		panic(err)
@@ -256,7 +281,7 @@ func (c AppControllerWithValidation) PostDeleteAuthority(appId, authorityId int)
 	}
 
 	err = Transact(func(txn gorp.SqlExecutor) error {
-		return app.DeleteAuthority(txn, c.GoogleService, authority)
+		return app.DeleteAuthority(txn, authority)
 	})
 	if err != nil {
 		panic(err)

@@ -1,9 +1,6 @@
-package googledrive
+package permission
 
-import (
-	"github.com/kayac/alphawing/app/googleservice"
-	"github.com/kayac/alphawing/app/storage"
-)
+import "github.com/kayac/alphawing/app/googleservice"
 
 var defaultRole = "reader"
 
@@ -11,35 +8,30 @@ type GoogleDrive struct {
 	Service *googleservice.GoogleService
 }
 
-func (gd *GoogleDrive) CreateGroup(name string) (*storage.FileIdentifier, error) {
-	ident := &storage.FileIdentifier{}
-
+func (gd *GoogleDrive) CreateGroup(name string) (string, error) {
 	file, err := gd.Service.CreateFolder(name)
 	if err != nil {
-		return ident, err
+		return "", err
 	}
 
-	ident.FileId = file.Id
-	return ident, nil
+	return fild.Id, nil
 }
 
-func (gd *GoogleDrive) AddUser(ident *storage.FileIdentifier, email string) error {
+func (gd *GoogleDrive) AddUser(groupId string, email string) (string, error) {
 	perm := gd.Service.CreateUserPermission(email, defaultRole)
-	_, err := gd.Service.InsertPermission(ident.FileId, perm)
-	return err
-}
-
-func (gd *GoogleDrive) DeleteUser(ident *storage.FileIdentifier, email string) error {
-	permId, err := gd.Service.GetPermissionId(ident.FileId, email)
+	insertedPerm, err := gd.Service.InsertPermission(groupId, perm)
 	if err != nil {
-		return err
+		return "", err
 	}
-
-	return gd.Service.DeletePermission(ident.FileId, permId)
+	return insertedPerm.Id, err
 }
 
-func (gd *GoogleDrive) GetUserList(ident *storage.FileIdentifier) ([]string, error) {
-	permList, err := gd.Service.GetPermissionList(ident.FileId)
+func (gd *GoogleDrive) DeleteUser(groupId string, permId string) error {
+	return gd.Service.DeletePermission(groupId, permId)
+}
+
+func (gd *GoogleDrive) GetUserList(groupId string) ([]string, error) {
+	permList, err := gd.Service.GetPermissionList(groupId)
 	if err != nil {
 		return err
 	}
@@ -50,4 +42,8 @@ func (gd *GoogleDrive) GetUserList(ident *storage.FileIdentifier) ([]string, err
 	}
 
 	return permIds, nil
+}
+
+func (gd *GoogleDrive) DeleteGroup(groupId string) error {
+	return gd.Service.FilesService.Delete(groupId).Do()
 }

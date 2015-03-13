@@ -1,22 +1,23 @@
 package storage
 
 import (
+	"net/http"
 	"os"
+	"time"
 )
 
 type Storage interface {
-	GetUrl(identifier FileIdentifier) (url string, err error)
-	GetFile(identifier FileIdentifier) (file *os.File, err error)
+	GetUrl(fileId string) (url string, err error)
+	DownloadFile(fileId string) (resp *http.Response, file StorageFile, err error)
 	GetFileList(viewerEmail string) (fileIds []string, err error)
 
-	Upload(file *os.File, filename string) (ident FileIdentifier, err error)
-	ChangeFilename(identifier FileIdentifier, filename string) error
+	Upload(file *os.File, filename string) (fileId string, err error)
+	ChangeFilename(fileId string, filename string) error
 
-	Delete(identifier FileIdentifier) error
+	Delete(fileId string) error
 	DeleteAll() error
 }
 
-type FileIdentifier struct {
-	Filename string
-	FileId   string
+type StorageFile struct {
+	Modtime time.Time
 }

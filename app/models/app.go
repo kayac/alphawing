@@ -12,19 +12,21 @@ import (
 	"code.google.com/p/google-api-go-client/drive/v2"
 
 	"github.com/coopernurse/gorp"
-	"github.com/kayac/alphawing/app/googleservice"
+	"github.com/kayac/alphawing/app/permission"
 	"github.com/kayac/alphawing/app/storage"
 )
 
 // https://github.com/coopernurse/gorp#mapping-structs-to-tables
 type App struct {
-	Id          int       `db:"id"`
-	Title       string    `db:"title"`
-	FileId      string    `db:"file_id"`
-	ApiToken    string    `db:"api_token"`
-	Description string    `db:"description"`
-	CreatedAt   time.Time `db:"created_at"`
-	UpdatedAt   time.Time `db:"updated_at"`
+	Id          int                   `db:"id"`
+	Title       string                `db:"title"`
+	FileId      string                `db:"file_id"`
+	ApiToken    string                `db:"api_token"`
+	Description string                `db:"description"`
+	CreatedAt   time.Time             `db:"created_at"`
+	UpdatedAt   time.Time             `db:"updated_at"`
+	Storage     storage.Storage       `db:"-"`
+	Permission  permission.Permission `db:"-"`
 }
 
 func (app *App) Bundles(txn gorp.SqlExecutor) ([]*Bundle, error) {
@@ -143,14 +145,11 @@ func (app *App) DeleteFromDB(txn gorp.SqlExecutor) error {
 	return err
 }
 
-func (app *App) DeleteFromGoogleDrive(s *GoogleService) error {
-	gd := &storage.GoogleDrive{
-		Service: &googleservice.GoogleService{FilesService: s.FilesService},
-	}
-	return gd.Delete(storage.FileIdentifier{FileId: app.FileId})
+func (app *App) DeleteFromGoogleDrive() error {
+	return app.Permission.DeleteGroup(app.FileId)
 }
 
-func (app *App) Delete(txn gorp.SqlExecutor, s *GoogleService) error {
+func (app *App) Delete(txn gorp.SqlExecutor) error {
 	if err := app.DeleteBundles(txn); err != nil {
 		return err
 	}
@@ -160,7 +159,7 @@ func (app *App) Delete(txn gorp.SqlExecutor, s *GoogleService) error {
 	if err := app.DeleteFromDB(txn); err != nil {
 		return err
 	}
-	return app.DeleteFromGoogleDrive(s)
+	return app.DeleteFromGoogleDrive()
 }
 
 func (app *App) DeleteBundles(txn gorp.SqlExecutor) error {
@@ -178,12 +177,12 @@ func (app *App) DeleteBundles(txn gorp.SqlExecutor) error {
 	return err
 }
 
-func (app *App) DeleteAuthority(txn gorp.SqlExecutor, s *GoogleService, authority *Authority) error {
+func (app *App) DeleteAuthority(txn gorp.SqlExecutor, authority *Authority) error {
 	if err := authority.DeleteFromDB(txn); err != nil {
 		return err
 	}
 
-	return s.DeletePermission(app.FileId, authority.PermissionId)
+	return app.Permission.DeleteUser(app.FileId, authority.PermissionId)
 }
 
 func (app *App) DeleteAuthorities(txn gorp.SqlExecutor) error {
@@ -218,8 +217,10 @@ func (app *App) ParentReference() *drive.ParentReference {
 	}
 }
 
-func (app *App) CreateBundle(dbm *gorp.DbMap, s *GoogleService, bundle *Bundle) error {
+func (app *App) CreateBundle(dbm *gorp.DbMap, bundle *Bundle) error {
 	bundle.AppId = app.Id
+	bundle.Permission = app.Permission
+	bundle.Storage = app.Storage
 
 	bundleInfo, err := NewBundleInfo(bundle.File, bundle.PlatformType)
 	if err != nil {
@@ -245,41 +246,40 @@ func (app *App) CreateBundle(dbm *gorp.DbMap, s *GoogleService, bundle *Bundle) 
 	}
 
 	// upload file
-	gd := &storage.GoogleDrive{
-		Service: &googleservice.GoogleService{FilesService: s.FilesService},
-		Parent:  app.ParentReference(),
-	}
-	fident, err := gd.Upload(bundle.File, bundle.FileName)
+	fileId, err := app.Storage.Upload(bundle.File, bundle.FileName)
 	if err != nil {
 		return err
 	}
 
 	// update FileId
-	bundle.FileId = fident.FileId
+	bundle.FileId = fileId
 	return Transact(dbm, func(txn gorp.SqlExecutor) error {
 		return bundle.Update(txn)
 	})
 }
 
-func (app *App) CreateAuthority(txn gorp.SqlExecutor, s *GoogleService, authority *Authority) error {
+func (app *App) CreateAuthority(txn gorp.SqlExecutor, authority *Authority) error {
 	authority.AppId = app.Id
 
-	permission := s.CreateUserPermission(authority.Email, "reader")
-	permissionInserted, err := s.InsertPermission(app.FileId, permission)
+	permId, err := app.Permission.AddUser(app.FileId, authority.Email)
 	if err != nil {
 		return err
 	}
-	authority.PermissionId = permissionInserted.Id
+	authority.PermissionId = permId
 
 	return authority.Save(txn)
 }
 
-func CreateApp(txn gorp.SqlExecutor, s *GoogleService, app *App) error {
-	driveFolder, err := s.CreateFolder(app.Title)
+func (app *App) UpdateFileTitle(name string) error {
+	return app.Storage.ChangeFilename(name)
+}
+
+func CreateApp(txn gorp.SqlExecutor, app *App) error {
+	groupId, err := app.Permission.CreateGroup(app.Title)
 	if err != nil {
 		return err
 	}
-	app.FileId = driveFolder.Id
+	app.FileId = groupId
 
 	return app.Save(txn)
 }

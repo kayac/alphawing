@@ -2,7 +2,9 @@ package storage
 
 import (
 	"fmt"
+	"net/http"
 	"os"
+	"time"
 
 	"code.google.com/p/google-api-go-client/drive/v2"
 
@@ -14,12 +16,34 @@ type GoogleDrive struct {
 	Parent  *drive.ParentReference
 }
 
-func (gd *GoogleDrive) GetUrl(ident FileIdentifier) (string, error) {
-	file, err := gd.Service.FilesService.Get(ident.FileId).Do()
+func (gd *GoogleDrive) GetUrl(fileId string) (string, error) {
+	file, err := gd.Service.FilesService.Get(fileId).Do()
 	if err != nil {
 		return "", err
 	}
 	return file.DownloadUrl, nil
+}
+
+func (gd *GoogleDrive) DownloadFile(fileId string) (*http.Response, StorageFile, error) {
+	file, err := gd.Service.FilesService.Get(fileId).Do()
+	if err != nil {
+		return &http.Response{}, StorageFile{}, err
+	}
+
+	modtime, err := time.Parse(time.RFC3339, file.ModifiedDate)
+	if err != nil {
+		return &http.Response{}, StorageFile{}, err
+	}
+	storageFile := StorageFile{
+		modtime: modtime,
+	}
+
+	resp, err := http.Get(url)
+	if err != nil {
+		return &http.Response{}, StorageFile{}, err
+	}
+
+	return resp, storageFile, nil
 }
 
 func (gd *GoogleDrive) GetFileList(viewerEmail string) ([]string, error) {
@@ -38,7 +62,7 @@ func (gd *GoogleDrive) GetFileList(viewerEmail string) ([]string, error) {
 	return fileIds, nil
 }
 
-func (gd *GoogleDrive) Upload(file *os.File, filename string) (FileIdentifier, error) {
+func (gd *GoogleDrive) Upload(file *os.File, filename string) (string, error) {
 	driveFile := &drive.File{
 		Title:   filename,
 		Parents: []*drive.ParentReference{gd.Parent},
@@ -48,16 +72,11 @@ func (gd *GoogleDrive) Upload(file *os.File, filename string) (FileIdentifier, e
 	if err != nil {
 		return FileIdentifier{}, err
 	}
-
-	ident := FileIdentifier{
-		FileId:   driveFile.Id,
-		Filename: filename,
-	}
-	return ident, nil
+	return driveFile.Id, nil
 }
 
-func (gd *GoogleDrive) ChangeFilename(ident FileIdentifier, filename string) error {
-	file, err := gd.Service.FilesService.Get(ident.FileId).Do()
+func (gd *GoogleDrive) ChangeFilename(fileId string, filename string) error {
+	file, err := gd.Service.FilesService.Get(fileId).Do()
 	if err != nil {
 		return err
 	}
@@ -68,8 +87,8 @@ func (gd *GoogleDrive) ChangeFilename(ident FileIdentifier, filename string) err
 	return err
 }
 
-func (gd *GoogleDrive) Delete(ident FileIdentifier) error {
-	return gd.Service.FilesService.Delete(ident.FileId).Do()
+func (gd *GoogleDrive) Delete(fileId string) error {
+	return gd.Service.FilesService.Delete(fileId).Do()
 }
 
 func (gd *GoogleDrive) DeleteAll() error {
