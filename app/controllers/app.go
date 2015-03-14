@@ -42,9 +42,11 @@ func (c AppController) injectServiceToApp(app *models.App) error {
 		return err
 	}
 
-	app.Storage = storage.GoogleDrive{
-		Service: service,
+	s, err := storage.NewGoogleDrive(service, app.FileId)
+	if err != nil {
+		return err
 	}
+	app.Storage = s
 	app.Permission = permission.GoogleDrive{
 		Service: service,
 	}

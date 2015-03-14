@@ -16,6 +16,18 @@ type GoogleDrive struct {
 	Parent  *drive.ParentReference
 }
 
+func NewGoogleDrive(service *googleservice.GoogleService, parentFileId string) (GoogleDrive, error) {
+	parent := &drive.ParentReference{
+		Id: parentFileId,
+	}
+	gd := GoogleDrive{
+		Service: service,
+		Parent:  parent,
+	}
+
+	return gd, nil
+}
+
 func (gd GoogleDrive) GetUrl(fileId string) (string, error) {
 	file, err := gd.Service.FilesService.Get(fileId).Do()
 	if err != nil {
@@ -39,7 +51,7 @@ func (gd GoogleDrive) DownloadFile(fileId string) (*http.Response, StorageFile, 
 		Filename: file.OriginalFilename,
 	}
 
-	resp, err := http.Get(file.DownloadUrl)
+	resp, err := gd.Service.Client.Get(file.DownloadUrl)
 	if err != nil {
 		return &http.Response{}, StorageFile{}, err
 	}
