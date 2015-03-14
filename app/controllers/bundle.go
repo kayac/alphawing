@@ -101,8 +101,6 @@ func (c BundleControllerWithValidation) GetDownloadApk(bundleId int) revel.Resul
 		panic(err)
 	}
 
-	fmt.Printf("%+v", resp)
-
 	err = c.createAudit(models.ResourceBundle, bundleId, models.ActionDownload)
 	if err != nil {
 		panic(err)
