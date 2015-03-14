@@ -16,7 +16,22 @@ func (l Local) GetUrl(fileId string) (string, error) {
 }
 
 func (l Local) DownloadFile(fileId string) (io.Reader, StorageFile, error) {
-	return nil, StorageFile{}, nil
+	targetPath := filepath.Join(l.Dir, fileId)
+	target, err := os.Open(targetPath)
+	if err != nil {
+		return nil, StorageFile{}, err
+	}
+
+	fileInfo, err := target.Stat()
+	if err != nil {
+		return nil, StorageFile{}, err
+	}
+	storageFile := StorageFile{
+		Modtime:  fileInfo.ModTime(),
+		Filename: fileId,
+	}
+
+	return target, storageFile, nil
 }
 
 func (l Local) GetFileList(viewerEmail string) ([]string, error) {
@@ -30,7 +45,7 @@ func (l Local) Upload(src *os.File, filename string) (string, error) {
 		return "", err
 	}
 
-	if _, err := io.Copy(dst, src); err != nil {
+	if _, err = io.Copy(dst, src); err != nil {
 		dst.Close()
 		return "", err
 	}

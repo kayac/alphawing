@@ -3,6 +3,8 @@ package storage
 import (
 	"crypto/rand"
 	"encoding/binary"
+	"io"
+	"io/ioutil"
 	"os"
 	"path/filepath"
 	"strconv"
@@ -34,11 +36,22 @@ func TestUploadLocal(t *testing.T) {
 	}
 	defer os.Remove(tempDir)
 
-	src, err := os.Create(filepath.Join(tempDir, randStringForTestFile()))
+	srcPath := filepath.Join(tempDir, randStringForTestFile())
+	src, err := os.Create(srcPath)
 	if err != nil {
 		t.Fatal("cannot create source file: ", err)
 	}
-	defer src.Close()
+
+	data := randStringForTestFile()
+	_, err = io.WriteString(src, data)
+	if err != nil {
+		t.Fatal("cannot write to source file: ", err)
+	}
+	src.Close()
+	src, err = os.Open(srcPath)
+	if err != nil {
+		t.Fatal("cannot reopen source file: ", err)
+	}
 
 	dstDir := filepath.Join(tempDir, randStringForTestFile())
 	if err != nil {
@@ -62,4 +75,25 @@ func TestUploadLocal(t *testing.T) {
 		t.Fatal("cannot open destination file: ", err)
 	}
 	defer dst.Close()
+
+	r, storageFile, err := l.DownloadFile(filename)
+	if err != nil {
+		t.Fatal("unexpected error: ", err)
+	}
+	defer r.(io.Closer).Close()
+
+	gotBytesData, err := ioutil.ReadAll(r)
+	if err != nil {
+		t.Fatal("cannot read by download file reader: ", err)
+	}
+
+	gotData := string(gotBytesData)
+	if gotData != data {
+		t.Fatalf("unmatch read data: got %s, expected %s.", gotData, data)
+	}
+
+	if storageFile.Filename != filename {
+		t.Fatalf("unmatch filename: got %s, expected %s.", storageFile.Filename, filename)
+	}
+
 }
