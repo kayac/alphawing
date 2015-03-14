@@ -62,21 +62,18 @@ func TestUploadLocal(t *testing.T) {
 	l := Local{Dir: dstDir}
 
 	dstBasename := randStringForTestFile()
-	filename, err := l.Upload(src, dstBasename)
+	fileId, err := l.Upload(src, dstBasename)
 	if err != nil {
 		t.Fatal("unexpected error: ", err)
 	}
-	if filename != dstBasename {
-		t.Fatal("unexpected fileId: ", filename)
-	}
 
-	dst, err := os.Open(filepath.Join(dstDir, dstBasename))
+	dst, err := os.Open(filepath.Join(dstDir, fileId+"_"+dstBasename))
 	if err != nil {
 		t.Fatal("cannot open destination file: ", err)
 	}
 	defer dst.Close()
 
-	r, storageFile, err := l.DownloadFile(filename)
+	r, storageFile, err := l.DownloadFile(fileId)
 	if err != nil {
 		t.Fatal("unexpected error: ", err)
 	}
@@ -92,8 +89,14 @@ func TestUploadLocal(t *testing.T) {
 		t.Fatalf("unmatch read data: got %s, expected %s.", gotData, data)
 	}
 
-	if storageFile.Filename != filename {
-		t.Fatalf("unmatch filename: got %s, expected %s.", storageFile.Filename, filename)
+	if storageFile.Filename != dstBasename {
+		t.Fatalf("unmatch filename: got %s, expected %s.", storageFile.Filename, dstBasename)
+	}
+
+	newBasename := randStringForTestFile()
+	err = l.ChangeFilename(fileId, newBasename)
+	if err != nil {
+		t.Fatal("unexpected error: ", err)
 	}
 
 }
