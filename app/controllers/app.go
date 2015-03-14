@@ -26,9 +26,7 @@ type AppControllerWithValidation struct {
 	AppController
 }
 
-// ------------------------------------------------------
-// AppController
-func (c AppController) GetCreateApp() revel.Result {
+func (c AppController) injectServiceToApp(app *models.App) error {
 	config := &googleservice.ServiceAccountConfig{
 		ClientEmail: Conf.ServiceAccountClientEmail,
 		PrivateKey:  Conf.ServiceAccountPrivateKey,
@@ -36,26 +34,42 @@ func (c AppController) GetCreateApp() revel.Result {
 
 	token, err := googleservice.GetServiceAccountToken(config)
 	if err != nil {
-		panic(err)
+		return err
 	}
 
 	service, err := googleservice.NewGoogleService(token)
 	if err != nil {
+		return err
+	}
+
+	app.Storage = storage.GoogleDrive{
+		Service: service,
+	}
+	app.Permission = permission.GoogleDrive{
+		Service: service,
+	}
+
+	return nil
+}
+
+// ------------------------------------------------------
+// AppController
+func (c AppController) GetCreateApp() revel.Result {
+	app := models.App{}
+	err := c.injectServiceToApp(&app)
+	if err != nil {
 		panic(err)
 	}
 
-	app := &models.App{
-		Storage: storage.GoogleDrive{
-			Service: service,
-		},
-		Permission: permission.GoogleDrive{
-			Service: service,
-		},
-	}
 	return c.Render(app)
 }
 
 func (c AppController) PostCreateApp(app models.App) revel.Result {
+	err := c.injectServiceToApp(&app)
+	if err != nil {
+		panic(err)
+	}
+
 	c.Validation.Required(app.Title).Message("Title is required.")
 	if c.Validation.HasErrors() {
 		c.Validation.Keep()
@@ -63,7 +77,7 @@ func (c AppController) PostCreateApp(app models.App) revel.Result {
 		return c.Redirect(routes.AppController.GetCreateApp())
 	}
 
-	err := Transact(func(txn gorp.SqlExecutor) error {
+	err = Transact(func(txn gorp.SqlExecutor) error {
 		if err := models.CreateApp(txn, &app); err != nil {
 			return err
 		}
@@ -118,6 +132,11 @@ func (c AppControllerWithValidation) GetUpdateApp(appId int) revel.Result {
 }
 
 func (c AppControllerWithValidation) PostUpdateApp(appId int, app models.App) revel.Result {
+	err := c.injectServiceToApp(&app)
+	if err != nil {
+		panic(err)
+	}
+
 	if appId != app.Id {
 		c.Flash.Error("Parameter is invalid.")
 		c.Redirect(routes.AppControllerWithValidation.GetUpdateApp(app.Id))
@@ -130,7 +149,7 @@ func (c AppControllerWithValidation) PostUpdateApp(appId int, app models.App) re
 		return c.Redirect(routes.AppControllerWithValidation.GetUpdateApp(app.Id))
 	}
 
-	err := Transact(func(txn gorp.SqlExecutor) error {
+	err = Transact(func(txn gorp.SqlExecutor) error {
 		return app.Update(txn)
 	})
 	if err != nil {
@@ -318,6 +337,11 @@ func (c *AppControllerWithValidation) CheckNotFound() revel.Result {
 		}
 		panic(err)
 	}
+	err = c.injectServiceToApp(app)
+	if err != nil {
+		panic(err)
+	}
+
 	c.App = app
 
 	return nil

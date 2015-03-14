@@ -275,6 +275,7 @@ func (app *App) UpdateFileTitle(name string) error {
 }
 
 func CreateApp(txn gorp.SqlExecutor, app *App) error {
+	fmt.Printf("%+v", app)
 	groupId, err := app.Permission.CreateGroup(app.Title)
 	if err != nil {
 		return err
