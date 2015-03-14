@@ -96,7 +96,7 @@ func (c BundleControllerWithValidation) GetDownloadBundle(bundleId int) revel.Re
 }
 
 func (c BundleControllerWithValidation) GetDownloadApk(bundleId int) revel.Result {
-	resp, storageFile, err := c.Bundle.DownloadFile()
+	r, storageFile, err := c.Bundle.DownloadFile()
 	if err != nil {
 		panic(err)
 	}
@@ -107,7 +107,7 @@ func (c BundleControllerWithValidation) GetDownloadApk(bundleId int) revel.Resul
 	}
 
 	c.Response.ContentType = "application/vnd.android.package-archive"
-	return c.RenderBinary(resp.Body, storageFile.Filename, revel.Attachment, storageFile.Modtime)
+	return c.RenderBinary(r, storageFile.Filename, revel.Attachment, storageFile.Modtime)
 }
 
 func (c *BundleControllerWithValidation) CheckNotFound() revel.Result {

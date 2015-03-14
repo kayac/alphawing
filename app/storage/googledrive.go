@@ -2,7 +2,7 @@ package storage
 
 import (
 	"fmt"
-	"net/http"
+	"io"
 	"os"
 	"time"
 
@@ -36,15 +36,15 @@ func (gd GoogleDrive) GetUrl(fileId string) (string, error) {
 	return file.DownloadUrl, nil
 }
 
-func (gd GoogleDrive) DownloadFile(fileId string) (*http.Response, StorageFile, error) {
+func (gd GoogleDrive) DownloadFile(fileId string) (io.Reader, StorageFile, error) {
 	file, err := gd.Service.FilesService.Get(fileId).Do()
 	if err != nil {
-		return &http.Response{}, StorageFile{}, err
+		return nil, StorageFile{}, err
 	}
 
 	modtime, err := time.Parse(time.RFC3339, file.ModifiedDate)
 	if err != nil {
-		return &http.Response{}, StorageFile{}, err
+		return nil, StorageFile{}, err
 	}
 	storageFile := StorageFile{
 		Modtime:  modtime,
@@ -53,10 +53,10 @@ func (gd GoogleDrive) DownloadFile(fileId string) (*http.Response, StorageFile, 
 
 	resp, err := gd.Service.Client.Get(file.DownloadUrl)
 	if err != nil {
-		return &http.Response{}, StorageFile{}, err
+		return nil, StorageFile{}, err
 	}
 
-	return resp, storageFile, nil
+	return resp.Body, storageFile, nil
 }
 
 func (gd GoogleDrive) GetFileList(viewerEmail string) ([]string, error) {

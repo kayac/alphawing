@@ -1,14 +1,14 @@
 package storage
 
 import (
-	"net/http"
+	"io"
 	"os"
 	"time"
 )
 
 type Storage interface {
 	GetUrl(fileId string) (url string, err error)
-	DownloadFile(fileId string) (resp *http.Response, file StorageFile, err error)
+	DownloadFile(fileId string) (r io.Reader, file StorageFile, err error)
 	GetFileList(viewerEmail string) (fileIds []string, err error)
 
 	Upload(file *os.File, filename string) (fileId string, err error)

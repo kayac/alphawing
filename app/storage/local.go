@@ -2,7 +2,6 @@ package storage
 
 import (
 	"io"
-	"net/http"
 	"os"
 	"path/filepath"
 )
@@ -11,13 +10,13 @@ type Local struct {
 	Dir string
 }
 
-// implement not yet
+// not implemented yet
 func (l Local) GetUrl(fileId string) (string, error) {
 	return "", nil
 }
 
-func (l Local) DownloadFile(fileId string) (*http.Response, StorageFile, error) {
-	return &http.Response{}, StorageFile{}, nil
+func (l Local) DownloadFile(fileId string) (io.Reader, StorageFile, error) {
+	return nil, StorageFile{}, nil
 }
 
 func (l Local) GetFileList(viewerEmail string) ([]string, error) {
