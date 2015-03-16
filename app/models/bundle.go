@@ -230,7 +230,7 @@ func (bundle *Bundle) DeleteFromGoogleDrive(s *GoogleService) error {
 	if bundle.FileId == "" {
 		return nil
 	}
-	return s.DeleteFile(bundle.FileId)
+	return s.DeleteObject(bundle.FileId)
 }
 
 func (bundle *Bundle) Delete(txn gorp.SqlExecutor, s *GoogleService) error {

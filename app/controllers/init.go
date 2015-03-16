@@ -23,6 +23,8 @@ type Config struct {
 	ServiceAccountClientEmail  string
 	ServiceAccountPrivateKey   string
 	PagerDefaultLimit          int
+	ProjectId                  string
+	BucketPrefix               string
 }
 
 func init() {
@@ -93,6 +95,9 @@ func LoadConfig() {
 
 	pagerDefaultLimit := revel.Config.IntDefault("app.pager.default.limit", 25)
 
+	projectId, _ := revel.Config.String("google.projectid")
+	bucketPrefix, _ := revel.Config.String("google.bucketprefix")
+
 	Conf = &Config{
 		PermittedDomains:           strings.Split(permittedDomain, ","),
 		OrganizationName:           organizationName,
@@ -102,6 +107,8 @@ func LoadConfig() {
 		ServiceAccountClientEmail:  serviceAccountClientEmail,
 		ServiceAccountPrivateKey:   serviceAccountPrivateKey,
 		PagerDefaultLimit:          pagerDefaultLimit,
+		ProjectId:                  projectId,
+		BucketPrefix:               bucketPrefix,
 	}
 }
 

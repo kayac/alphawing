@@ -112,10 +112,6 @@ func (c AppControllerWithValidation) PostUpdateApp(appId int, app models.App) re
 		panic(err)
 	}
 
-	if err := c.GoogleService.UpdateFileTitle(c.App.FileId, app.Title); err != nil {
-		panic(err)
-	}
-
 	c.Flash.Success("Updated!")
 	return c.Redirect(routes.AppControllerWithValidation.GetApp(app.Id))
 }
@@ -310,7 +306,7 @@ func (c *AppControllerWithValidation) CheckForbidden() revel.Result {
 		panic(err)
 	}
 
-	if _, err = s.GetFile(app.FileId); err != nil {
+	if _, err = s.GetBucket(app.FileId); err != nil {
 		return c.Forbidden("Can't access the app.")
 	}
 

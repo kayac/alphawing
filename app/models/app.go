@@ -141,8 +141,8 @@ func (app *App) DeleteFromDB(txn gorp.SqlExecutor) error {
 	return err
 }
 
-func (app *App) DeleteFromGoogleDrive(s *GoogleService) error {
-	return s.DeleteFile(app.FileId)
+func (app *App) DeleteFromStorage(s *GoogleService) error {
+	return s.DeleteBucket(app.FileId)
 }
 
 func (app *App) Delete(txn gorp.SqlExecutor, s *GoogleService) error {
@@ -155,7 +155,7 @@ func (app *App) Delete(txn gorp.SqlExecutor, s *GoogleService) error {
 	if err := app.DeleteFromDB(txn); err != nil {
 		return err
 	}
-	return app.DeleteFromGoogleDrive(s)
+	return app.DeleteFromStorage(s)
 }
 
 func (app *App) DeleteBundles(txn gorp.SqlExecutor) error {
@@ -240,14 +240,13 @@ func (app *App) CreateBundle(dbm *gorp.DbMap, s *GoogleService, bundle *Bundle) 
 	}
 
 	// upload file
-	parent := app.ParentReference()
-	driveFile, err := s.InsertFile(bundle.File, bundle.FileName, parent)
+	file, err := s.InsertFile(bundle.File, bundle.FileName, app.FileId)
 	if err != nil {
 		return err
 	}
 
 	// update FileId
-	bundle.FileId = driveFile.Id
+	bundle.FileId = app.FileId + "/" + file.Name
 	return Transact(dbm, func(txn gorp.SqlExecutor) error {
 		return bundle.Update(txn)
 	})
@@ -261,17 +260,17 @@ func (app *App) CreateAuthority(txn gorp.SqlExecutor, s *GoogleService, authorit
 	if err != nil {
 		return err
 	}
-	authority.PermissionId = permissionInserted.Id
+	authority.PermissionId = permissionInserted.Entity
 
 	return authority.Save(txn)
 }
 
 func CreateApp(txn gorp.SqlExecutor, s *GoogleService, app *App) error {
-	driveFolder, err := s.CreateFolder(app.Title)
+	bucket, err := s.CreateBucket()
 	if err != nil {
 		return err
 	}
-	app.FileId = driveFolder.Id
+	app.FileId = bucket.Name
 
 	return app.Save(txn)
 }

@@ -11,6 +11,7 @@ import (
 	"code.google.com/p/goauth2/oauth"
 	"code.google.com/p/google-api-go-client/drive/v2"
 	"code.google.com/p/google-api-go-client/oauth2/v2"
+	"code.google.com/p/google-api-go-client/storage/v1"
 
 	"github.com/kayac/alphawing/app/models"
 	"github.com/kayac/alphawing/app/routes"
@@ -39,14 +40,9 @@ func (c AlphaWingController) Index() revel.Result {
 		panic(err)
 	}
 
-	fileList, err := s.GetSharedFileList(Conf.ServiceAccountClientEmail)
+	fileIds, err := s.GetSharedFileList()
 	if err != nil {
 		panic(err)
-	}
-
-	var fileIds []string
-	for _, file := range fileList.Items {
-		fileIds = append(fileIds, file.Id)
 	}
 
 	apps, err := models.GetApps(Dbm, fileIds)
@@ -244,7 +240,7 @@ func (c *AlphaWingController) InitOAuthConfig() revel.Result {
 		ClientId:     Conf.WebApplicationClientId,
 		ClientSecret: Conf.WebApplicationClientSecret,
 		CallbackUrl:  Conf.WebApplicationCallbackUrl,
-		Scope:        []string{oauth2.UserinfoEmailScope, drive.DriveMetadataReadonlyScope},
+		Scope:        []string{oauth2.UserinfoEmailScope, drive.DriveMetadataReadonlyScope, storage.DevstorageRead_onlyScope},
 	}
 	tokenCache := &TokenSession{Session: c.Session}
 
@@ -257,7 +253,7 @@ func (c *AlphaWingController) InitGoogleService() revel.Result {
 	config := &models.ServiceAccountConfig{
 		ClientEmail: Conf.ServiceAccountClientEmail,
 		PrivateKey:  Conf.ServiceAccountPrivateKey,
-		Scope:       []string{drive.DriveScope},
+		Scope:       []string{drive.DriveScope, storage.DevstorageFull_controlScope},
 	}
 
 	token, err := models.GetServiceAccountToken(config)
@@ -265,17 +261,11 @@ func (c *AlphaWingController) InitGoogleService() revel.Result {
 		panic(err)
 	}
 
-	s, err := models.NewGoogleService(token)
+	s, err := models.NewGoogleService(token, Conf.ProjectId, Conf.BucketPrefix)
 	if err != nil {
 		panic(err)
 	}
 	c.GoogleService = s
-
-	capacityInfo, err := s.GetCapacityInfo()
-	if err != nil {
-		panic(err)
-	}
-	c.RenderArgs["capacityInfo"] = capacityInfo
 
 	return nil
 }
@@ -292,7 +282,7 @@ func (c *AlphaWingController) userGoogleService() (*models.GoogleService, error)
 		return nil, err
 	}
 
-	s, err := models.NewGoogleService(token)
+	s, err := models.NewGoogleService(token, Conf.ProjectId, Conf.BucketPrefix)
 	if err != nil {
 		return nil, err
 	}

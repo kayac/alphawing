@@ -99,7 +99,7 @@ func (c BundleControllerWithValidation) GetDownloadApk(bundleId int) revel.Resul
 		panic(err)
 	}
 
-	modtime, err := time.Parse(time.RFC3339, file.ModifiedDate)
+	modtime, err := time.Parse(time.RFC3339, file.Updated)
 	if err != nil {
 		panic(err)
 	}
@@ -110,7 +110,7 @@ func (c BundleControllerWithValidation) GetDownloadApk(bundleId int) revel.Resul
 	}
 
 	c.Response.ContentType = "application/vnd.android.package-archive"
-	return c.RenderBinary(resp.Body, file.OriginalFilename, revel.Attachment, modtime)
+	return c.RenderBinary(resp.Body, file.Name, revel.Attachment, modtime)
 }
 
 func (c *BundleControllerWithValidation) CheckNotFound() revel.Result {
@@ -152,7 +152,7 @@ func (c *BundleControllerWithValidation) CheckForbidden() revel.Result {
 		panic(err)
 	}
 
-	if _, err = s.GetFile(bundle.FileId); err != nil {
+	if _, err = s.GetObject(bundle.FileId); err != nil {
 		return c.Forbidden("Can't access the bundle.")
 	}
 

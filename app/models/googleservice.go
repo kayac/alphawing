@@ -1,10 +1,11 @@
 package models
 
 import (
-	"fmt"
+	cryptorand "crypto/rand"
+	"encoding/binary"
+	mathrand "math/rand"
 	"net/http"
 	"os"
-	"regexp"
 	"strconv"
 	"strings"
 
@@ -13,6 +14,7 @@ import (
 	"code.google.com/p/google-api-go-client/drive/v2"
 	"code.google.com/p/google-api-go-client/googleapi"
 	"code.google.com/p/google-api-go-client/oauth2/v2"
+	"code.google.com/p/google-api-go-client/storage/v1"
 )
 
 type WebApplicationConfig struct {
@@ -36,12 +38,23 @@ type GoogleService struct {
 	AboutService       *drive.AboutService
 	FilesService       *drive.FilesService
 	PermissionsService *drive.PermissionsService
+	StorageService     *storage.Service
+	ProjectId          string
+	BucketPrefix       string
 }
 
 type CapacityInfo struct {
 	Used               string
 	Total              string
 	PercentageRemained string
+}
+
+var rand *mathrand.Rand
+
+func init() {
+	var n int64
+	binary.Read(cryptorand.Reader, binary.LittleEndian, &n)
+	rand = mathrand.New(mathrand.NewSource(n))
 }
 
 func CreateOAuthConfig(config *WebApplicationConfig, tokenCache oauth.Cache) *oauth.Config {
@@ -75,7 +88,7 @@ func createOAuthClient(token *oauth.Token) *http.Client {
 	return transport.Client()
 }
 
-func NewGoogleService(token *oauth.Token) (*GoogleService, error) {
+func NewGoogleService(token *oauth.Token, projectId, bucketPrefix string) (*GoogleService, error) {
 	client := createOAuthClient(token)
 
 	oauth2Service, err := oauth2.New(client)
@@ -88,6 +101,11 @@ func NewGoogleService(token *oauth.Token) (*GoogleService, error) {
 		return nil, err
 	}
 
+	storageService, err := storage.New(client)
+	if err != nil {
+		return nil, err
+	}
+
 	return &GoogleService{
 		AccessToken:        token.AccessToken,
 		Client:             client,
@@ -96,6 +114,9 @@ func NewGoogleService(token *oauth.Token) (*GoogleService, error) {
 		AboutService:       drive.NewAboutService(driveService),
 		FilesService:       drive.NewFilesService(driveService),
 		PermissionsService: drive.NewPermissionsService(driveService),
+		StorageService:     storageService,
+		ProjectId:          projectId,
+		BucketPrefix:       bucketPrefix,
 	}, nil
 }
 
@@ -107,140 +128,113 @@ func (s *GoogleService) GetTokenInfo() (*oauth2.Tokeninfo, error) {
 	return s.OAuth2Service.Tokeninfo().Access_token(s.AccessToken).Do()
 }
 
-func (s *GoogleService) CreateFolder(folderName string) (*drive.File, error) {
-	driveFolder := &drive.File{
-		Title:    folderName,
-		MimeType: "application/vnd.google-apps.folder",
+func (s *GoogleService) CreateBucket() (*storage.Bucket, error) {
+	bucketName := s.BucketPrefix + strconv.FormatInt(rand.Int63(), 16)
+	bucket := &storage.Bucket{
+		Name: bucketName,
 	}
-	return s.FilesService.Insert(driveFolder).Do()
+	return s.StorageService.Buckets.Insert(s.ProjectId, bucket).Do()
 }
 
-func (s *GoogleService) InsertFile(file *os.File, filename string, parent *drive.ParentReference) (*drive.File, error) {
-	driveFile := &drive.File{
-		Title:   filename,
-		Parents: []*drive.ParentReference{parent},
+func (s *GoogleService) InsertFile(file *os.File, filename, bucketName string) (*storage.Object, error) {
+	obj := &storage.Object{
+		Name: filename,
 	}
-	return s.FilesService.Insert(driveFile).Media(file).Do()
+	return s.StorageService.Objects.Insert(bucketName, obj).Media(file).Do()
 }
 
-func (s *GoogleService) GetFile(fileId string) (*drive.File, error) {
-	return s.FilesService.Get(fileId).Do()
+func (s *GoogleService) GetObject(objId string) (*storage.Object, error) {
+	array := strings.SplitN(objId, "/", 2)
+	bucketName := array[0]
+	objectName := array[1]
+	return s.StorageService.Objects.Get(bucketName, objectName).Do()
 }
 
-func (s *GoogleService) DownloadFile(fileId string) (*http.Response, *drive.File, error) {
-	file, err := s.GetFile(fileId)
+func (s *GoogleService) GetBucket(bucketName string) (*storage.Bucket, error) {
+	return s.StorageService.Buckets.Get(bucketName).Do()
+}
+
+func (s *GoogleService) DownloadFile(objId string) (*http.Response, *storage.Object, error) {
+	file, err := s.GetObject(objId)
 	if err != nil {
 		return nil, nil, err
 	}
-	resp, err := s.Client.Get(file.DownloadUrl)
+	resp, err := s.Client.Get(file.MediaLink)
 	if err != nil {
 		return nil, nil, err
 	}
 	return resp, file, nil
 }
 
-func (s *GoogleService) GetFileList() (*drive.FileList, error) {
-	return s.FilesService.List().Do()
-}
-
-func (s *GoogleService) GetSharedFileList(ownerEmail string) (*drive.FileList, error) {
-	q := fmt.Sprintf("'%s' in owners and sharedWithMe = true", ownerEmail)
-	return s.FilesService.List().Q(q).Do()
-}
-
-func (s *GoogleService) UpdateFileTitle(fileId string, title string) error {
-	file, err := s.GetFile(fileId)
-	if err != nil {
-		return err
-	}
-	file.Title = title
-	_, err = s.FilesService.Update(fileId, file).Do()
-	return err
-}
-
-func (s *GoogleService) DeleteFile(fileId string) error {
-	return s.FilesService.Delete(fileId).Do()
-}
-
-func (s *GoogleService) DeleteAllFiles() error {
-	fileList, err := s.GetFileList()
-	if err != nil {
-		return err
-	}
-
-	for _, file := range fileList.Items {
-		err = s.DeleteFile(file.Id)
-		if err != nil {
-			return err
-		}
-	}
-
-	return nil
-}
-
-func (s *GoogleService) CreateUserPermission(email string, role string) *drive.Permission {
-	return &drive.Permission{
-		Role:  role,
-		Type:  "user",
-		Value: email,
-	}
-}
-
-func (s *GoogleService) InsertPermission(fileId string, permission *drive.Permission) (*drive.Permission, error) {
-	return s.PermissionsService.Insert(fileId, permission).Do()
-}
-
-func (s *GoogleService) GetPermissionList(fileId string) (*drive.PermissionList, error) {
-	return s.PermissionsService.List(fileId).Do()
-}
-
-func (sa *GoogleService) UpdatePermission(fileId string, permissionId string, permission *drive.Permission) (*drive.Permission, error) {
-	return sa.PermissionsService.Update(fileId, permissionId, permission).Do()
-}
-
-func (s *GoogleService) DeletePermission(fileId string, permissionId string) error {
-	return s.PermissionsService.Delete(fileId, permissionId).Do()
-}
-
-func (s *GoogleService) GetAbout() (*drive.About, error) {
-	return s.AboutService.Get().Do()
-}
-
-func (s *GoogleService) GetCapacityInfo() (*CapacityInfo, error) {
-	about, err := s.GetAbout()
+func (s *GoogleService) GetSharedFileList() ([]string, error) {
+	buckets, err := s.StorageService.Buckets.List(s.ProjectId).Do()
 	if err != nil {
 		return nil, err
 	}
 
-	format := "%.2f"
-	divisor := 1000000000
-	used := float64(about.QuotaBytesUsed) / float64(divisor)
-	total := float64(about.QuotaBytesTotal) / float64(divisor)
-	percentageRemained := (total - used) / total * float64(100)
+	var ids []string
+	for _, b := range buckets.Items {
+		ids = append(ids, b.Name)
+	}
+	return ids, nil
+}
 
-	return &CapacityInfo{
-		Used:               fmt.Sprintf(format, used),
-		Total:              fmt.Sprintf(format, total),
-		PercentageRemained: fmt.Sprintf(format, percentageRemained),
-	}, nil
+func (s *GoogleService) DeleteObject(objId string) error {
+	array := strings.SplitN(objId, "/", 2)
+	bucketName := array[0]
+	objectName := array[1]
+	return s.StorageService.Objects.Delete(bucketName, objectName).Do()
+}
+
+func (s *GoogleService) DeleteBucket(bucketName string) error {
+	allObjects := []string{}
+	pageToken := ""
+	for {
+		call := s.StorageService.Objects.List(bucketName).MaxResults(1)
+		if pageToken != "" {
+			call = call.PageToken(pageToken)
+		}
+		result, err := call.Do()
+		if err != nil {
+			return err
+		}
+		for _, o := range result.Items {
+			allObjects = append(allObjects, o.Name)
+		}
+
+		pageToken = result.NextPageToken
+		if pageToken == "" {
+			break
+		}
+	}
+
+	for _, objectName := range allObjects {
+		err := s.StorageService.Objects.Delete(bucketName, objectName).Do()
+		if err != nil {
+			return err
+		}
+	}
+	return s.StorageService.Buckets.Delete(bucketName).Do()
+}
+
+func (s *GoogleService) CreateUserPermission(email string, role string) *storage.BucketAccessControl {
+	return &storage.BucketAccessControl{
+		Role:   role,
+		Entity: "user-" + email,
+	}
+}
+
+func (s *GoogleService) InsertPermission(bucketName string, permission *storage.BucketAccessControl) (*storage.BucketAccessControl, error) {
+	return s.StorageService.BucketAccessControls.Insert(bucketName, permission).Do()
+}
+
+func (s *GoogleService) DeletePermission(bucketName string, permissionId string) error {
+	return s.StorageService.BucketAccessControls.Delete(bucketName, permissionId).Do()
 }
 
 func ParseGoogleApiError(apiErr error) (int, string, error) {
 	if googleErr, ok := apiErr.(*googleapi.Error); ok {
-		return googleErr.Code, googleErr.Message, nil
+		return googleErr.Code, googleErr.Errors[0].Reason, nil
 	}
-
-	reg, err := regexp.Compile(`googleapi: got HTTP response code (\d+) and error reading body: (.+)`)
-	if err != nil {
-		return 0, "", err
-	}
-	ret := reg.FindStringSubmatch(apiErr.Error())
-	if len(ret) < 3 { // miss match
-		return 0, "", apiErr
-	}
-	code, err := strconv.Atoi(ret[1])
-	if err != nil {
-		return 0, "", err
-	}
-	return code, ret[2], nil
+	return 0, "", apiErr
 }

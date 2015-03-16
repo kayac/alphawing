@@ -38,7 +38,7 @@ func (c *LimitedTimeController) GetDownloadIpa(bundleId int) revel.Result {
 		panic(err)
 	}
 
-	modtime, err := time.Parse(time.RFC3339, file.ModifiedDate)
+	modtime, err := time.Parse(time.RFC3339, file.Updated)
 	if err != nil {
 		panic(err)
 	}
@@ -49,7 +49,7 @@ func (c *LimitedTimeController) GetDownloadIpa(bundleId int) revel.Result {
 	}
 
 	c.Response.ContentType = "application/octet-stream"
-	return c.RenderBinary(resp.Body, file.OriginalFilename, revel.Attachment, modtime)
+	return c.RenderBinary(resp.Body, file.Name, revel.Attachment, modtime)
 }
 
 func (c *LimitedTimeController) CheckNotFound() revel.Result {
