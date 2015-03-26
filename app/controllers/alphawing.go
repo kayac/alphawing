@@ -261,7 +261,7 @@ func (c *AlphaWingController) InitGoogleService() revel.Result {
 		panic(err)
 	}
 
-	s, err := models.NewGoogleService(token, Conf.ProjectId, Conf.BucketPrefix)
+	s, err := models.NewGoogleService(token, Conf.GoogleStorageConfig)
 	if err != nil {
 		panic(err)
 	}
@@ -282,7 +282,7 @@ func (c *AlphaWingController) userGoogleService() (*models.GoogleService, error)
 		return nil, err
 	}
 
-	s, err := models.NewGoogleService(token, Conf.ProjectId, Conf.BucketPrefix)
+	s, err := models.NewGoogleService(token, Conf.GoogleStorageConfig)
 	if err != nil {
 		return nil, err
 	}

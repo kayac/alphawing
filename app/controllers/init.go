@@ -23,8 +23,7 @@ type Config struct {
 	ServiceAccountClientEmail  string
 	ServiceAccountPrivateKey   string
 	PagerDefaultLimit          int
-	ProjectId                  string
-	BucketPrefix               string
+	GoogleStorageConfig        models.GoogleStorageConfig
 }
 
 func init() {
@@ -97,6 +96,8 @@ func LoadConfig() {
 
 	projectId, _ := revel.Config.String("google.projectid")
 	bucketPrefix, _ := revel.Config.String("google.bucketprefix")
+	bucketLocation, _ := revel.Config.String("google.bucketlocation")
+	bucketStorageClass, _ := revel.Config.String("google.bucketstorageclass")
 
 	Conf = &Config{
 		PermittedDomains:           strings.Split(permittedDomain, ","),
@@ -107,8 +108,12 @@ func LoadConfig() {
 		ServiceAccountClientEmail:  serviceAccountClientEmail,
 		ServiceAccountPrivateKey:   serviceAccountPrivateKey,
 		PagerDefaultLimit:          pagerDefaultLimit,
-		ProjectId:                  projectId,
-		BucketPrefix:               bucketPrefix,
+		GoogleStorageConfig: models.GoogleStorageConfig{
+			ProjectId:          projectId,
+			BucketPrefix:       bucketPrefix,
+			BucketLocation:     bucketLocation,
+			BucketStorageClass: bucketStorageClass,
+		},
 	}
 }
 

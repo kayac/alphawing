@@ -30,6 +30,13 @@ type ServiceAccountConfig struct {
 	Scope       []string
 }
 
+type GoogleStorageConfig struct {
+	ProjectId          string
+	BucketPrefix       string
+	BucketLocation     string
+	BucketStorageClass string
+}
+
 type GoogleService struct {
 	AccessToken        string
 	Client             *http.Client
@@ -39,8 +46,7 @@ type GoogleService struct {
 	FilesService       *drive.FilesService
 	PermissionsService *drive.PermissionsService
 	StorageService     *storage.Service
-	ProjectId          string
-	BucketPrefix       string
+	Config             GoogleStorageConfig
 }
 
 type CapacityInfo struct {
@@ -88,7 +94,7 @@ func createOAuthClient(token *oauth.Token) *http.Client {
 	return transport.Client()
 }
 
-func NewGoogleService(token *oauth.Token, projectId, bucketPrefix string) (*GoogleService, error) {
+func NewGoogleService(token *oauth.Token, config GoogleStorageConfig) (*GoogleService, error) {
 	client := createOAuthClient(token)
 
 	oauth2Service, err := oauth2.New(client)
@@ -115,8 +121,7 @@ func NewGoogleService(token *oauth.Token, projectId, bucketPrefix string) (*Goog
 		FilesService:       drive.NewFilesService(driveService),
 		PermissionsService: drive.NewPermissionsService(driveService),
 		StorageService:     storageService,
-		ProjectId:          projectId,
-		BucketPrefix:       bucketPrefix,
+		Config:             config,
 	}, nil
 }
 
@@ -129,11 +134,13 @@ func (s *GoogleService) GetTokenInfo() (*oauth2.Tokeninfo, error) {
 }
 
 func (s *GoogleService) CreateBucket() (*storage.Bucket, error) {
-	bucketName := s.BucketPrefix + strconv.FormatInt(rand.Int63(), 16)
+	bucketName := s.Config.BucketPrefix + strconv.FormatInt(rand.Int63(), 16)
 	bucket := &storage.Bucket{
-		Name: bucketName,
+		Name:         bucketName,
+		Location:     s.Config.BucketLocation,
+		StorageClass: s.Config.BucketStorageClass,
 	}
-	return s.StorageService.Buckets.Insert(s.ProjectId, bucket).Do()
+	return s.StorageService.Buckets.Insert(s.Config.ProjectId, bucket).Do()
 }
 
 func (s *GoogleService) InsertFile(file *os.File, filename, bucketName string) (*storage.Object, error) {
@@ -167,7 +174,7 @@ func (s *GoogleService) DownloadFile(objId string) (*http.Response, *storage.Obj
 }
 
 func (s *GoogleService) GetSharedFileList() ([]string, error) {
-	buckets, err := s.StorageService.Buckets.List(s.ProjectId).Do()
+	buckets, err := s.StorageService.Buckets.List(s.Config.ProjectId).Do()
 	if err != nil {
 		return nil, err
 	}
