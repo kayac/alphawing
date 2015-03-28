@@ -35,21 +35,7 @@ func (c AlphaWingController) Index() revel.Result {
 		return c.Render()
 	}
 
-	s, err := c.userGoogleService()
-	if err != nil {
-		panic(err)
-	}
-
-	fileIds, err := s.GetSharedFileList()
-	if err != nil {
-		panic(err)
-	}
-
-	apps, err := models.GetApps(Dbm, fileIds)
-	if err != nil {
-		panic(err)
-	}
-
+	apps := []*models.App{}
 	return c.Render(apps)
 }
 
