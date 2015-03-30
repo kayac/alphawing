@@ -147,13 +147,18 @@ func (c *BundleControllerWithValidation) CheckForbidden() revel.Result {
 		return c.NotFound("Bundle is not found.")
 	}
 
+	app, err := models.GetApp(Dbm, bundle.AppId)
+	if err != nil {
+		panic(err)
+	}
+
 	s, err := c.userGoogleService()
 	if err != nil {
 		panic(err)
 	}
 
-	if _, err = s.GetObject(bundle.FileId); err != nil {
-		return c.Forbidden("Can't access the bundle.")
+	if _, err = s.GetBucket(app.FileId); err != nil {
+		return c.Forbidden("Can't access the app.")
 	}
 
 	return nil
