@@ -227,12 +227,22 @@ func (s *GoogleService) DeleteBucket(bucketName string) error {
 func (s *GoogleService) CreateUserPermission(email string, role string) *storage.BucketAccessControl {
 	return &storage.BucketAccessControl{
 		Role:   role,
-		Entity: "user-" + email,
+		Entity: email,
 	}
 }
 
 func (s *GoogleService) InsertPermission(bucketName string, permission *storage.BucketAccessControl) (*storage.BucketAccessControl, error) {
-	return s.StorageService.BucketAccessControls.Insert(bucketName, permission).Do()
+	ret, err := s.StorageService.BucketAccessControls.Insert(bucketName, &storage.BucketAccessControl{
+		Role:   permission.Role,
+		Entity: "group-" + permission.Entity,
+	}).Do()
+	if err == nil {
+		return ret, nil
+	}
+	return s.StorageService.BucketAccessControls.Insert(bucketName, &storage.BucketAccessControl{
+		Role:   permission.Role,
+		Entity: "user-" + permission.Entity,
+	}).Do()
 }
 
 func (s *GoogleService) DeletePermission(bucketName string, permissionId string) error {
