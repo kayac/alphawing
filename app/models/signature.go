@@ -65,7 +65,7 @@ func (signatureInfo *LimitedTimeSignatureInfo) UrlValues() *url.Values {
 	return v
 }
 
-func (signatureInfo *LimitedTimeSignatureInfo) isExpired() (bool, error) {
+func (signatureInfo *LimitedTimeSignatureInfo) IsExpired() (bool, error) {
 	limit, err := strconv.ParseInt(signatureInfo.ParamToSign.Limit, 10, 64)
 	if err != nil {
 		return false, err
@@ -75,7 +75,7 @@ func (signatureInfo *LimitedTimeSignatureInfo) isExpired() (bool, error) {
 }
 
 func (signatureInfo *LimitedTimeSignatureInfo) IsValid(key string) (bool, error) {
-	expired, err := signatureInfo.isExpired()
+	expired, err := signatureInfo.IsExpired()
 	if err != nil {
 		return false, err
 	}
