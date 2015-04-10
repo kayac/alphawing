@@ -12,10 +12,6 @@ import (
 )
 
 const (
-	SignatureKey = "signature"
-	TokenKey     = "token"
-	LimitKey     = "limit"
-
 	SignatureExpireDuration      = 15 * time.Minute
 	SignaturePermittedHttpMethod = "GET"
 )
@@ -62,9 +58,9 @@ func (signatureInfo *LimitedTimeSignatureInfo) RefreshSignature(key string) {
 
 func (signatureInfo *LimitedTimeSignatureInfo) UrlValues() *url.Values {
 	v := &url.Values{}
-	v.Add(SignatureKey, signatureInfo.Signature)
-	v.Add(TokenKey, signatureInfo.ParamToSign.Token)
-	v.Add(LimitKey, signatureInfo.ParamToSign.Limit)
+	v.Add("signature", signatureInfo.Signature)
+	v.Add("token", signatureInfo.ParamToSign.Token)
+	v.Add("limit", signatureInfo.ParamToSign.Limit)
 
 	return v
 }

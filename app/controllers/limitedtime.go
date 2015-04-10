@@ -65,9 +65,9 @@ func (c *LimitedTimeController) CheckValidLimitedTimeToken() revel.Result {
 		return c.NotFound("")
 	}
 
-	signature := c.Params.Query.Get(models.SignatureKey)
-	token := c.Params.Query.Get(models.TokenKey)
-	limit := c.Params.Query.Get(models.LimitKey)
+	signature := c.Params.Query.Get("signature")
+	token := c.Params.Query.Get("token")
+	limit := c.Params.Query.Get("limit")
 
 	c.Validation.Required(signature)
 	c.Validation.Required(token)
