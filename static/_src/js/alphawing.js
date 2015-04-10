@@ -19,6 +19,13 @@ $(function () {
     };
 
 
+    // touch device flags
+    var ua = navigator.userAgent.toLowerCase();
+    var isIOS = /iphone|ipod|ipad/.test(ua);
+    var isAndroid = /android/.test(ua);
+    var isTouchDevice = isIOS || isAndroid;
+
+
     // submit post
     function submitPost (href, param) {
         param = param || {};
@@ -153,10 +160,9 @@ $(function () {
 
     // sp optimize
     (function () {
-        if (!/iphone|ipod|ipad|android/.test(navigator.userAgent.toLowerCase())) {
+        if (!isTouchDevice) {
             return;
         }
-
         $([
             '.api-token',
             '.btn--create-app',
@@ -226,12 +232,12 @@ $(function () {
             $nav.append($btn);
         });
 
-        selectTab(0);
+        // iOSの場合のみ、デフォルトでタブ1表示
+        selectTab(isIOS ? 1 : 0);
+
+        // SPの場合、タブは切り替えさせない
+        if (isTouchDevice) {
+            $nav.remove();
+        }
     })();
 });
-
-
-
-
-
-
