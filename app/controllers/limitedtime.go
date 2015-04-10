@@ -18,17 +18,15 @@ type LimitedTimeController struct {
 func (c *LimitedTimeController) GetDownloadPlist(bundleId int) revel.Result {
 	bundle := c.Bundle
 
-	signatureInfo, err := models.NewLimitedTimeSignatureInfoByKey(Conf.Secret)
-	if err != nil {
-		panic(err)
-	}
-	v := signatureInfo.UrlValues()
-
 	ipaUrl, err := c.UriFor(fmt.Sprintf("bundle/%d/download_ipa", bundle.Id))
 	if err != nil {
 		panic(err)
 	}
-	ipaUrl.RawQuery = v.Encode()
+
+	signatureInfo := models.NewLimitedTimeSignatureInfo(ipaUrl.Host, ipaUrl.Path)
+	signatureInfo.RefreshSignature(Conf.Secret)
+
+	ipaUrl.RawQuery = signatureInfo.UrlValues().Encode()
 
 	r, err := bundle.PlistReader(Dbm, ipaUrl)
 	if err != nil {
@@ -79,10 +77,16 @@ func (c *LimitedTimeController) CheckValidLimitedTimeToken() revel.Result {
 		return c.NotFound("")
 	}
 
-	signatureInfo, err := models.NewLimitedTimeSignatureInfo(signature, token, limit)
-	if err != nil {
-		revel.ERROR.Printf(err.Error())
-		return c.NotFound("")
+	paramToSign := &models.ParamToSign{
+		Method: c.Request.Method,
+		Host:   c.Request.Host,
+		Path:   c.Request.URL.Path,
+		Token:  token,
+		Limit:  limit,
+	}
+	signatureInfo := &models.LimitedTimeSignatureInfo{
+		Signature:   signature,
+		ParamToSign: paramToSign,
 	}
 
 	ok, err := signatureInfo.IsValid(Conf.Secret)
