@@ -145,7 +145,7 @@ func (bundle *Bundle) Plist(txn gorp.SqlExecutor, ipaUrl *url.URL) (*Plist, erro
 		return nil, err
 	}
 
-	return NewPlist(app.Title, bundle.BundleVersion, ipaUrl.String()), nil
+	return NewPlist(app.Title, bundle.BundleVersion, bundle.BundleIdentifier, ipaUrl.String()), nil
 }
 
 func (bundle *Bundle) PlistReader(txn gorp.SqlExecutor, ipaUrl *url.URL) (io.Reader, error) {
