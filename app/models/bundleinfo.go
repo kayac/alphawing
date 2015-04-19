@@ -16,6 +16,7 @@ import (
 // a BundleInfo is information of an application package(apk file, ipa file, etc.)
 type BundleInfo struct {
 	Version      string
+	Identifier   string
 	PlatformType BundlePlatformType
 }
 
@@ -25,7 +26,8 @@ type androidManifest struct {
 }
 
 type iosInfo struct {
-	CFBundleVersion string `plist:"CFBundleVersion"`
+	CFBundleVersion    string `plist:"CFBundleVersion"`
+	CFBundleIdentifier string `plist:"CFBundleIdentifier"`
 }
 
 type BundleParseError struct {
@@ -141,6 +143,7 @@ func parseIpaFile(plistFile *zip.File) (*BundleInfo, error) {
 
 	bundleInfo := &BundleInfo{}
 	bundleInfo.Version = info.CFBundleVersion
+	bundleInfo.Identifier = info.CFBundleIdentifier
 	bundleInfo.PlatformType = BundlePlatformTypeIOS
 
 	return bundleInfo, nil

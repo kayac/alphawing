@@ -8,10 +8,10 @@ import (
 )
 
 const (
-	PlistFileName            = "test.plist"
-	AssetKind                = "software-package"
-	MetadataBundleIdentifier = "com.example.test"
-	MetadataKind             = "software"
+	PlistFileName                   = "test.plist"
+	AssetKind                       = "software-package"
+	DefaultMetadataBundleIdentifier = "com.example.test"
+	MetadataKind                    = "software"
 )
 
 type Plist struct {
@@ -35,7 +35,11 @@ type Metadata struct {
 	Title            string `plist:"title"`
 }
 
-func NewPlist(title, version, ipaUrl string) *Plist {
+func NewPlist(title, version, identifier, ipaUrl string) *Plist {
+	if len(identifier) == 0 {
+		identifier = DefaultMetadataBundleIdentifier
+	}
+
 	return &Plist{
 		Items: []*Item{
 			&Item{
@@ -46,7 +50,7 @@ func NewPlist(title, version, ipaUrl string) *Plist {
 					},
 				},
 				Metadata: &Metadata{
-					BundleIdentifier: MetadataBundleIdentifier,
+					BundleIdentifier: identifier,
 					BundleVersion:    version,
 					Kind:             MetadataKind,
 					Title:            title,

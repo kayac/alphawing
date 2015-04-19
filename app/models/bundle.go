@@ -66,15 +66,16 @@ func (ext BundleFileExtension) PlatformType() BundlePlatformType {
 }
 
 type Bundle struct {
-	Id            int                `db:"id"`
-	AppId         int                `db:"app_id"`
-	FileId        string             `db:"file_id"`
-	PlatformType  BundlePlatformType `db:"platform_type"`
-	BundleVersion string             `db:"bundle_version"`
-	Revision      int                `db:"revision"`
-	Description   string             `db:"description"`
-	CreatedAt     time.Time          `db:"created_at"`
-	UpdatedAt     time.Time          `db:"updated_at"`
+	Id               int                `db:"id"`
+	AppId            int                `db:"app_id"`
+	FileId           string             `db:"file_id"`
+	PlatformType     BundlePlatformType `db:"platform_type"`
+	BundleVersion    string             `db:"bundle_version"`
+	BundleIdentifier string             `db:"bundle_identifier"`
+	Revision         int                `db:"revision"`
+	Description      string             `db:"description"`
+	CreatedAt        time.Time          `db:"created_at"`
+	UpdatedAt        time.Time          `db:"updated_at"`
 
 	BundleInfo *BundleInfo `db:"-"`
 	File       *os.File    `db:"-"`
@@ -144,7 +145,7 @@ func (bundle *Bundle) Plist(txn gorp.SqlExecutor, ipaUrl *url.URL) (*Plist, erro
 		return nil, err
 	}
 
-	return NewPlist(app.Title, bundle.BundleVersion, ipaUrl.String()), nil
+	return NewPlist(app.Title, bundle.BundleVersion, bundle.BundleIdentifier, ipaUrl.String()), nil
 }
 
 func (bundle *Bundle) PlistReader(txn gorp.SqlExecutor, ipaUrl *url.URL) (io.Reader, error) {
@@ -192,6 +193,7 @@ func (bundle *Bundle) App(txn gorp.SqlExecutor) (*App, error) {
 
 func (bundle *Bundle) PreInsert(s gorp.SqlExecutor) error {
 	bundle.BundleVersion = bundle.BundleInfo.Version
+	bundle.BundleIdentifier = bundle.BundleInfo.Identifier
 	bundle.CreatedAt = time.Now()
 	bundle.UpdatedAt = bundle.CreatedAt
 	return nil
