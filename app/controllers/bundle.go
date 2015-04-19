@@ -4,7 +4,6 @@ import (
 	"database/sql"
 	"fmt"
 	"strconv"
-	"time"
 
 	"github.com/kayac/alphawing/app/models"
 	"github.com/kayac/alphawing/app/routes"
@@ -99,23 +98,12 @@ func (c BundleControllerWithValidation) GetDownloadBundle(bundleId int) revel.Re
 }
 
 func (c BundleControllerWithValidation) GetDownloadApk(bundleId int) revel.Result {
-	resp, file, err := c.GoogleService.DownloadFile(c.Bundle.FileId)
+	url, err := c.GoogleService.GetDownloadURL(c.Bundle.FileId)
 	if err != nil {
 		panic(err)
 	}
 
-	modtime, err := time.Parse(time.RFC3339, file.Updated)
-	if err != nil {
-		panic(err)
-	}
-
-	err = c.createAudit(models.ResourceBundle, bundleId, models.ActionDownload)
-	if err != nil {
-		panic(err)
-	}
-
-	c.Response.ContentType = "application/vnd.android.package-archive"
-	return c.RenderBinary(resp.Body, file.Name, revel.Attachment, modtime)
+	return c.Redirect(url)
 }
 
 func (c *BundleControllerWithValidation) CheckNotFound() revel.Result {

@@ -38,23 +38,17 @@ func (c *LimitedTimeController) GetDownloadPlist(bundleId int) revel.Result {
 }
 
 func (c *LimitedTimeController) GetDownloadIpa(bundleId int) revel.Result {
-	resp, file, err := c.GoogleService.DownloadFile(c.Bundle.FileId)
+	err := c.createAudit(models.ResourceBundle, bundleId, models.ActionDownload)
 	if err != nil {
 		panic(err)
 	}
 
-	modtime, err := time.Parse(time.RFC3339, file.Updated)
+	url, err := c.GoogleService.GetDownloadURL(c.Bundle.FileId)
 	if err != nil {
 		panic(err)
 	}
 
-	err = c.createAudit(models.ResourceBundle, bundleId, models.ActionDownload)
-	if err != nil {
-		panic(err)
-	}
-
-	c.Response.ContentType = "application/octet-stream"
-	return c.RenderBinary(resp.Body, file.Name, revel.Attachment, modtime)
+	return c.Redirect(url)
 }
 
 func (c *LimitedTimeController) CheckValidLimitedTimeToken() revel.Result {

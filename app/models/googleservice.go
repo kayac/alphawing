@@ -8,6 +8,7 @@ import (
 	"os"
 	"strconv"
 	"strings"
+	"time"
 
 	"code.google.com/p/goauth2/oauth"
 	"code.google.com/p/goauth2/oauth/jwt"
@@ -15,6 +16,7 @@ import (
 	"code.google.com/p/google-api-go-client/googleapi"
 	"code.google.com/p/google-api-go-client/oauth2/v2"
 	"code.google.com/p/google-api-go-client/storage/v1"
+	gcs "google.golang.org/cloud/storage"
 )
 
 type WebApplicationConfig struct {
@@ -38,15 +40,16 @@ type GoogleStorageConfig struct {
 }
 
 type GoogleService struct {
-	AccessToken        string
-	Client             *http.Client
-	OAuth2Service      *oauth2.Service
-	DriveService       *drive.Service
-	AboutService       *drive.AboutService
-	FilesService       *drive.FilesService
-	PermissionsService *drive.PermissionsService
-	StorageService     *storage.Service
-	Config             GoogleStorageConfig
+	AccessToken          string
+	Client               *http.Client
+	OAuth2Service        *oauth2.Service
+	DriveService         *drive.Service
+	AboutService         *drive.AboutService
+	FilesService         *drive.FilesService
+	PermissionsService   *drive.PermissionsService
+	StorageService       *storage.Service
+	Config               *GoogleStorageConfig
+	ServiceAccountConfig *ServiceAccountConfig
 }
 
 type CapacityInfo struct {
@@ -94,7 +97,7 @@ func createOAuthClient(token *oauth.Token) *http.Client {
 	return transport.Client()
 }
 
-func NewGoogleService(token *oauth.Token, config GoogleStorageConfig) (*GoogleService, error) {
+func NewGoogleService(token *oauth.Token, config *GoogleStorageConfig, serviceAccountConfig *ServiceAccountConfig) (*GoogleService, error) {
 	client := createOAuthClient(token)
 
 	oauth2Service, err := oauth2.New(client)
@@ -113,15 +116,16 @@ func NewGoogleService(token *oauth.Token, config GoogleStorageConfig) (*GoogleSe
 	}
 
 	return &GoogleService{
-		AccessToken:        token.AccessToken,
-		Client:             client,
-		OAuth2Service:      oauth2Service,
-		DriveService:       driveService,
-		AboutService:       drive.NewAboutService(driveService),
-		FilesService:       drive.NewFilesService(driveService),
-		PermissionsService: drive.NewPermissionsService(driveService),
-		StorageService:     storageService,
-		Config:             config,
+		AccessToken:          token.AccessToken,
+		Client:               client,
+		OAuth2Service:        oauth2Service,
+		DriveService:         driveService,
+		AboutService:         drive.NewAboutService(driveService),
+		FilesService:         drive.NewFilesService(driveService),
+		PermissionsService:   drive.NewPermissionsService(driveService),
+		StorageService:       storageService,
+		Config:               config,
+		ServiceAccountConfig: serviceAccountConfig,
 	}, nil
 }
 
@@ -144,8 +148,13 @@ func (s *GoogleService) CreateBucket() (*storage.Bucket, error) {
 }
 
 func (s *GoogleService) InsertFile(file *os.File, filename, bucketName string) (*storage.Object, error) {
+	contentType := "application/octet-stream"
+	if strings.HasSuffix(filename, ".apk") {
+		contentType = "application/vnd.android.package-archive"
+	}
 	obj := &storage.Object{
-		Name: filename,
+		Name:        filename,
+		ContentType: contentType,
 	}
 	return s.StorageService.Objects.Insert(bucketName, obj).Media(file).Do()
 }
@@ -171,6 +180,21 @@ func (s *GoogleService) DownloadFile(objId string) (*http.Response, *storage.Obj
 		return nil, nil, err
 	}
 	return resp, file, nil
+}
+
+func (s *GoogleService) GetDownloadURL(objId string) (string, error) {
+	array := strings.SplitN(objId, "/", 2)
+	bucketName := array[0]
+	objectName := array[1]
+
+	opts := &gcs.SignedURLOptions{
+		GoogleAccessID: s.ServiceAccountConfig.ClientEmail,
+		PrivateKey:     []byte(s.ServiceAccountConfig.PrivateKey),
+		Method:         "GET",
+		Expires:        time.Now().Add(time.Second * 120),
+	}
+
+	return gcs.SignedURL(bucketName, objectName, opts)
 }
 
 func (s *GoogleService) GetSharedFileList() ([]string, error) {
