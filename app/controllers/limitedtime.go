@@ -23,6 +23,11 @@ func (c *LimitedTimeController) GetDownloadPlist(bundleId int) revel.Result {
 		panic(err)
 	}
 
+	signatureInfo := models.NewLimitedTimeSignatureInfo(ipaUrl.Host, ipaUrl.Path)
+	signatureInfo.RefreshSignature(Conf.Secret)
+
+	ipaUrl.RawQuery = signatureInfo.UrlValues().Encode()
+
 	r, err := bundle.PlistReader(Dbm, ipaUrl)
 	if err != nil {
 		panic(err)
@@ -52,21 +57,76 @@ func (c *LimitedTimeController) GetDownloadIpa(bundleId int) revel.Result {
 	return c.RenderBinary(resp.Body, file.Name, revel.Attachment, modtime)
 }
 
-func (c *LimitedTimeController) CheckNotFound() revel.Result {
-	param := c.Params.Route["bundleId"]
-	if 0 < len(param) {
-		bundleId, err := strconv.Atoi(param[0])
-		if err != nil {
-			if err == sql.ErrNoRows {
-				return c.NotFound("NotFound")
-			}
-			panic(err)
-		}
-		bundle, err := models.GetBundle(Dbm, bundleId)
-		if err != nil {
-			panic(err)
-		}
-		c.Bundle = bundle
+func (c *LimitedTimeController) CheckValidLimitedTimeToken() revel.Result {
+	bundle := c.Bundle
+
+	if bundle == nil {
+		revel.ERROR.Printf("Bundle is not found.")
+		return c.NotFound("")
 	}
+
+	signature := c.Params.Query.Get("signature")
+	token := c.Params.Query.Get("token")
+	limit := c.Params.Query.Get("limit")
+
+	c.Validation.Required(signature)
+	c.Validation.Required(token)
+	c.Validation.Required(limit)
+	if c.Validation.HasErrors() {
+		revel.ERROR.Printf("Parameters are invalid.")
+		return c.NotFound("")
+	}
+
+	paramToSign := &models.ParamToSign{
+		Method: c.Request.Method,
+		Host:   c.Request.Host,
+		Path:   c.Request.URL.Path,
+		Token:  token,
+		Limit:  limit,
+	}
+	signatureInfo := &models.LimitedTimeSignatureInfo{
+		Signature:   signature,
+		ParamToSign: paramToSign,
+	}
+
+	ok, err := signatureInfo.IsValid(Conf.Secret)
+	if err != nil {
+		revel.ERROR.Printf(err.Error())
+		return c.NotFound("")
+	}
+	if !ok {
+		revel.ERROR.Printf("Token is invalid.")
+		return c.NotFound("")
+	}
+
+	return nil
+}
+
+func (c *LimitedTimeController) CheckNotFound() revel.Result {
+	bundleIdStr := c.Params.Get("bundleId")
+
+	c.Validation.Required(bundleIdStr)
+	if c.Validation.HasErrors() {
+		revel.ERROR.Printf("BundleId is required.")
+		return c.NotFound("")
+	}
+
+	bundleId, err := strconv.Atoi(bundleIdStr)
+	if err != nil {
+		revel.ERROR.Printf(err.Error())
+		return c.NotFound("")
+	}
+
+	bundle, err := models.GetBundle(Dbm, bundleId)
+	if err != nil {
+		if err == sql.ErrNoRows {
+			revel.ERROR.Printf("Bundle is not found.")
+		} else {
+			revel.ERROR.Printf(err.Error())
+		}
+		return c.NotFound("")
+	}
+	c.Bundle = bundle
+
 	return nil
 }
