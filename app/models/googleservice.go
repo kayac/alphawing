@@ -3,6 +3,7 @@ package models
 import (
 	cryptorand "crypto/rand"
 	"encoding/binary"
+	"io"
 	mathrand "math/rand"
 	"net/http"
 	"os"
@@ -18,6 +19,22 @@ import (
 	"code.google.com/p/google-api-go-client/storage/v1"
 	gcs "google.golang.org/cloud/storage"
 )
+
+type IpaReader struct {
+	io.Reader
+}
+
+func (r IpaReader) ContentType() string {
+	return "application/octet-stream"
+}
+
+type ApkReader struct {
+	io.Reader
+}
+
+func (r ApkReader) ContentType() string {
+	return "application/vnd.android.package-archive"
+}
 
 type WebApplicationConfig struct {
 	ClientId     string
@@ -148,15 +165,16 @@ func (s *GoogleService) CreateBucket() (*storage.Bucket, error) {
 }
 
 func (s *GoogleService) InsertFile(file *os.File, filename, bucketName string) (*storage.Object, error) {
-	contentType := "application/octet-stream"
+	var reader io.Reader
 	if strings.HasSuffix(filename, ".apk") {
-		contentType = "application/vnd.android.package-archive"
+		reader = ApkReader{file}
+	} else {
+		reader = IpaReader{file}
 	}
 	obj := &storage.Object{
-		Name:        filename,
-		ContentType: contentType,
+		Name: filename,
 	}
-	return s.StorageService.Objects.Insert(bucketName, obj).Media(file).Do()
+	return s.StorageService.Objects.Insert(bucketName, obj).Media(reader).Do()
 }
 
 func (s *GoogleService) GetObject(objId string) (*storage.Object, error) {
