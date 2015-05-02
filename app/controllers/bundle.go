@@ -90,6 +90,11 @@ func (c BundleControllerWithValidation) GetDownloadBundle(bundleId int) revel.Re
 		panic(err)
 	}
 
+	signatureInfo := models.NewLimitedTimeSignatureInfo(plistUrl.Host, plistUrl.Path)
+	signatureInfo.RefreshSignature(Conf.Secret)
+
+	plistUrl.RawQuery = signatureInfo.UrlValues().Encode()
+
 	return c.Render(plistUrl)
 }
 

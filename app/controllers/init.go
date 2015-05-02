@@ -15,6 +15,7 @@ var (
 )
 
 type Config struct {
+	Secret                     string
 	PermittedDomains           []string
 	OrganizationName           string
 	WebApplicationClientId     string
@@ -49,6 +50,9 @@ func init() {
 	revel.InterceptMethod((*BundleControllerWithValidation).CheckForbidden, revel.BEFORE)
 	revel.InterceptMethod((*LimitedTimeController).CheckNotFound, revel.BEFORE)
 
+	// validate limited time token
+	revel.InterceptMethod((*LimitedTimeController).CheckValidLimitedTimeToken, revel.BEFORE)
+
 	// document
 	revel.OnAppStart(GenerateApiDocument)
 
@@ -57,6 +61,11 @@ func init() {
 }
 
 func LoadConfig() {
+	secret, found := revel.Config.String("app.secret")
+	if !found {
+		panic("undefined config: app.secret")
+	}
+
 	permittedDomain, found := revel.Config.String("app.permitteddomain")
 	if !found {
 		panic("undefined config: app.permitteddomain")
@@ -94,6 +103,7 @@ func LoadConfig() {
 	pagerDefaultLimit := revel.Config.IntDefault("app.pager.default.limit", 25)
 
 	Conf = &Config{
+		Secret:                     secret,
 		PermittedDomains:           strings.Split(permittedDomain, ","),
 		OrganizationName:           organizationName,
 		WebApplicationClientId:     webApplicationClientId,
