@@ -35,7 +35,17 @@ func (c AlphaWingController) Index() revel.Result {
 		return c.Render()
 	}
 
-	apps := []*models.App{}
+	userId := c.LoginUserId
+	user, err := models.GetUser(Dbm, userId)
+	if err != nil {
+		panic(err)
+	}
+
+	apps, err := user.GetViewableApps(Dbm)
+	if err != nil {
+		panic(err)
+	}
+
 	return c.Render(apps)
 }
 

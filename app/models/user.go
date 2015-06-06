@@ -44,6 +44,29 @@ func (user *User) Delete(txn gorp.SqlExecutor) error {
 	return err
 }
 
+func (user *User) GetViewableApps(txn gorp.SqlExecutor) ([]*App, error) {
+	userApps, err := GetUserAppsByUserId(txn, user.Id)
+	if err != nil {
+		return nil, err
+	}
+
+	if len(userApps) <= 0 {
+		return []*App{}, nil
+	}
+
+	appIds := make([]int, len(userApps))
+	for i, userApp := range userApps {
+		appIds[i] = userApp.AppId
+	}
+
+	apps, err := GetAppsByIds(txn, appIds)
+	if err != nil {
+		return nil, err
+	}
+
+	return apps, nil
+}
+
 func CreateUser(txn gorp.SqlExecutor, user *User) error {
 	return txn.Insert(user)
 }

@@ -311,3 +311,24 @@ func GetApps(txn gorp.SqlExecutor, fileIds []string) ([]*App, error) {
 
 	return apps, nil
 }
+
+func GetAppsByIds(txn gorp.SqlExecutor, ids []int) ([]*App, error) {
+	if len(ids) <= 0 {
+		return []*App{}, nil
+	}
+
+	args := make([]interface{}, len(ids))
+	quarks := make([]string, len(ids))
+	for i, id := range ids {
+		args[i] = id
+		quarks[i] = "?"
+	}
+
+	var apps []*App
+	_, err := txn.Select(&apps, fmt.Sprintf("SELECT * FROM app WHERE id in (%s) ORDER BY id DESC", strings.Join(quarks, ",")), args...)
+	if err != nil {
+		return nil, err
+	}
+
+	return apps, nil
+}
