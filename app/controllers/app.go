@@ -306,8 +306,15 @@ func (c *AppControllerWithValidation) CheckForbidden() revel.Result {
 		panic(err)
 	}
 
-	if _, err = s.GetBucket(app.FileId); err != nil {
+	if _, err := s.GetBucket(app.FileId); err != nil {
+		if err := models.TryDeleteUserApp(Dbm, c.LoginUserId, app.Id); err != nil {
+			panic(err)
+		}
 		return c.Forbidden("Can't access the app.")
+	}
+
+	if _, err := models.TryCreateUserApp(Dbm, c.LoginUserId, app.Id); err != nil {
+		panic(err)
 	}
 
 	return nil
