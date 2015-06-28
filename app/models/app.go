@@ -86,6 +86,15 @@ func (app *App) GetMaxRevisionByBundleVersion(txn gorp.SqlExecutor, bundleVersio
 	return int(revision), err
 }
 
+func (app *App) UserApps(txn gorp.SqlExecutor) ([]*UserApp, error) {
+	var userApps []*UserApp
+	_, err := txn.Select(&userApps, "SELECT * FROM user_app WHERE app_id = ? ORDER BY id ASC", app.Id)
+	if err != nil {
+		return nil, err
+	}
+	return userApps, nil
+}
+
 func NewToken() string {
 	uuid := uuid.NewRandom()
 	mac := hmac.New(sha256.New, nil)
@@ -152,6 +161,9 @@ func (app *App) Delete(txn gorp.SqlExecutor, s *GoogleService) error {
 	if err := app.DeleteAuthorities(txn); err != nil {
 		return err
 	}
+	if err := app.DeleteUserApps(txn); err != nil {
+		return err
+	}
 	if err := app.DeleteFromDB(txn); err != nil {
 		return err
 	}
@@ -190,6 +202,21 @@ func (app *App) DeleteAuthorities(txn gorp.SqlExecutor) error {
 	args := make([]interface{}, len(authorities))
 	for i, authority := range authorities {
 		args[i] = authority
+	}
+
+	_, err = txn.Delete(args...)
+	return err
+}
+
+func (app *App) DeleteUserApps(txn gorp.SqlExecutor) error {
+	userApps, err := app.UserApps(txn)
+	if err != nil {
+		return err
+	}
+
+	args := make([]interface{}, len(userApps))
+	for i, userApp := range userApps {
+		args[i] = userApp
 	}
 
 	_, err = txn.Delete(args...)
