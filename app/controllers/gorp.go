@@ -35,6 +35,9 @@ func InitDB() {
 	userTableMap := Dbm.AddTableWithName(models.User{}, "user")
 	userTableMap.SetKeys(true, "Id")
 
+	userAppTableMap := Dbm.AddTableWithName(models.UserApp{}, "user_app")
+	userAppTableMap.SetKeys(true, "Id")
+
 	auditTableMap := Dbm.AddTableWithName(models.Audit{}, "audit")
 	auditTableMap.SetKeys(true, "Id")
 
