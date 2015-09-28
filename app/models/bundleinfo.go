@@ -13,7 +13,7 @@ import (
 	"github.com/shogo82148/androidbinary"
 )
 
-var reInfoPlist = regexp.MustCompile(`/[^/]+/Info\.plist`)
+var reInfoPlist = regexp.MustCompile(`Payload/[^/]+/Info\.plist`)
 
 // a BundleInfo is information of an application package(apk file, ipa file, etc.)
 type BundleInfo struct {
