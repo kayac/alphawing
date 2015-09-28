@@ -7,11 +7,13 @@ import (
 	"errors"
 	"io/ioutil"
 	"os"
-	"strings"
+	"regexp"
 
 	"github.com/DHowett/go-plist"
 	"github.com/shogo82148/androidbinary"
 )
+
+var reInfoPlist = regexp.MustCompile(`/[^/]+/Info\.plist`)
 
 // a BundleInfo is information of an application package(apk file, ipa file, etc.)
 type BundleInfo struct {
@@ -56,7 +58,7 @@ func NewBundleInfo(file *os.File, platformType BundlePlatformType) (*BundleInfo,
 		switch {
 		case f.Name == "AndroidManifest.xml":
 			xmlFile = f
-		case strings.HasSuffix(f.Name, "/Info.plist"):
+		case reInfoPlist.MatchString(f):
 			plistFile = f
 		}
 	}
