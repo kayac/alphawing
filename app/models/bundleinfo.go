@@ -58,7 +58,7 @@ func NewBundleInfo(file *os.File, platformType BundlePlatformType) (*BundleInfo,
 		switch {
 		case f.Name == "AndroidManifest.xml":
 			xmlFile = f
-		case reInfoPlist.MatchString(f):
+		case reInfoPlist.MatchString(f.Name):
 			plistFile = f
 		}
 	}
