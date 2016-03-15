@@ -8,8 +8,8 @@ import (
 	"strings"
 	"time"
 
-	"code.google.com/p/go-uuid/uuid"
 	"github.com/coopernurse/gorp"
+	"github.com/pborman/uuid"
 	"google.golang.org/api/drive/v2"
 )
 

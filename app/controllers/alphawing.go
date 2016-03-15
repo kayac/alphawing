@@ -7,8 +7,8 @@ import (
 	"strconv"
 	"strings"
 
-	"code.google.com/p/go-uuid/uuid"
 	"code.google.com/p/goauth2/oauth"
+	"github.com/pborman/uuid"
 	"google.golang.org/api/drive/v2"
 	"google.golang.org/api/oauth2/v2"
 	"google.golang.org/api/storage/v1"
