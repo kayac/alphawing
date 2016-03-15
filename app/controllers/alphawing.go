@@ -9,9 +9,9 @@ import (
 
 	"code.google.com/p/go-uuid/uuid"
 	"code.google.com/p/goauth2/oauth"
-	"code.google.com/p/google-api-go-client/drive/v2"
-	"code.google.com/p/google-api-go-client/oauth2/v2"
-	"code.google.com/p/google-api-go-client/storage/v1"
+	"google.golang.org/api/drive/v2"
+	"google.golang.org/api/oauth2/v2"
+	"google.golang.org/api/storage/v1"
 
 	"github.com/kayac/alphawing/app/models"
 	"github.com/kayac/alphawing/app/routes"
@@ -236,7 +236,7 @@ func (c *AlphaWingController) InitOAuthConfig() revel.Result {
 		ClientId:     Conf.WebApplicationClientId,
 		ClientSecret: Conf.WebApplicationClientSecret,
 		CallbackUrl:  Conf.WebApplicationCallbackUrl,
-		Scope:        []string{oauth2.UserinfoEmailScope, drive.DriveMetadataReadonlyScope, storage.DevstorageRead_onlyScope},
+		Scope:        []string{oauth2.UserinfoEmailScope, drive.DriveMetadataReadonlyScope, storage.DevstorageReadOnlyScope},
 	}
 	tokenCache := &TokenSession{Session: c.Session}
 
@@ -249,7 +249,7 @@ func (c *AlphaWingController) InitGoogleService() revel.Result {
 	config := &models.ServiceAccountConfig{
 		ClientEmail: Conf.ServiceAccountClientEmail,
 		PrivateKey:  Conf.ServiceAccountPrivateKey,
-		Scope:       []string{drive.DriveScope, storage.DevstorageFull_controlScope},
+		Scope:       []string{drive.DriveScope, storage.DevstorageFullControlScope},
 	}
 
 	token, err := models.GetServiceAccountToken(config)
@@ -281,7 +281,7 @@ func (c *AlphaWingController) userGoogleService() (*models.GoogleService, error)
 	s, err := models.NewGoogleService(token, &Conf.GoogleStorageConfig, &models.ServiceAccountConfig{
 		ClientEmail: Conf.ServiceAccountClientEmail,
 		PrivateKey:  Conf.ServiceAccountPrivateKey,
-		Scope:       []string{drive.DriveScope, storage.DevstorageFull_controlScope},
+		Scope:       []string{drive.DriveScope, storage.DevstorageFullControlScope},
 	})
 	if err != nil {
 		return nil, err

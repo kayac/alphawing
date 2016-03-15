@@ -9,9 +9,8 @@ import (
 	"time"
 
 	"code.google.com/p/go-uuid/uuid"
-	"code.google.com/p/google-api-go-client/drive/v2"
-
 	"github.com/coopernurse/gorp"
+	"google.golang.org/api/drive/v2"
 )
 
 // https://github.com/coopernurse/gorp#mapping-structs-to-tables

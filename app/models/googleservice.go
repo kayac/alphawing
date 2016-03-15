@@ -13,10 +13,11 @@ import (
 
 	"code.google.com/p/goauth2/oauth"
 	"code.google.com/p/goauth2/oauth/jwt"
-	"code.google.com/p/google-api-go-client/drive/v2"
-	"code.google.com/p/google-api-go-client/googleapi"
-	"code.google.com/p/google-api-go-client/oauth2/v2"
-	"code.google.com/p/google-api-go-client/storage/v1"
+
+	"google.golang.org/api/drive/v2"
+	"google.golang.org/api/googleapi"
+	"google.golang.org/api/oauth2/v2"
+	"google.golang.org/api/storage/v1"
 	gcs "google.golang.org/cloud/storage"
 )
 
@@ -151,7 +152,7 @@ func (s *GoogleService) GetUserInfo() (*oauth2.Userinfoplus, error) {
 }
 
 func (s *GoogleService) GetTokenInfo() (*oauth2.Tokeninfo, error) {
-	return s.OAuth2Service.Tokeninfo().Access_token(s.AccessToken).Do()
+	return s.OAuth2Service.Tokeninfo().AccessToken(s.AccessToken).Do()
 }
 
 func (s *GoogleService) CreateBucket() (*storage.Bucket, error) {
