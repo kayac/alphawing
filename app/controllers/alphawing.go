@@ -7,7 +7,6 @@ import (
 	"strconv"
 	"strings"
 
-	"code.google.com/p/go-uuid/uuid"
 	"code.google.com/p/goauth2/oauth"
 	"google.golang.org/api/drive/v2"
 	"google.golang.org/api/oauth2/v2"
@@ -17,6 +16,7 @@ import (
 	"github.com/kayac/alphawing/app/routes"
 
 	"github.com/coopernurse/gorp"
+	"github.com/pborman/uuid"
 	"github.com/revel/revel"
 )
 
