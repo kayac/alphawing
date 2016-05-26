@@ -28,9 +28,9 @@ $(function () {
 
     var appleTouchIcon = document.getElementById('apple-touch-icon');
     if (isIOS) {
-        link.setAttribute('href', '/static/img/icon-ios.png');
+        appleTouchIcon.setAttribute('href', '/static/img/icon-ios.png');
     } else if (isAndroid) {
-        link.setAttribute('href', '/static/img/icon-android.png');
+        appleTouchIcon.setAttribute('href', '/static/img/icon-android.png');
     }
 
     // submit post
