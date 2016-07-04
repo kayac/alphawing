@@ -17,7 +17,6 @@ import (
 	"github.com/kayac/alphawing/app/routes"
 
 	"github.com/coopernurse/gorp"
-	"github.com/pborman/uuid"
 	"github.com/revel/revel"
 )
 
