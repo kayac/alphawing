@@ -26,6 +26,12 @@ $(function () {
     var isAndroid = /android/.test(ua);
     var isTouchDevice = isIOS || isAndroid;
 
+    var appleTouchIcon = document.getElementById('apple-touch-icon');
+    if (isIOS) {
+        appleTouchIcon.setAttribute('href', '/static/img/icon-ios.png');
+    } else if (isAndroid) {
+        appleTouchIcon.setAttribute('href', '/static/img/icon-android.png');
+    }
 
     // submit post
     function submitPost (href, param) {
