@@ -281,7 +281,7 @@ func (app *App) CreateBundle(dbm *gorp.DbMap, s *GoogleService, bundle *Bundle) 
 func (app *App) CreateAuthority(txn gorp.SqlExecutor, s *GoogleService, authority *Authority) error {
 	authority.AppId = app.Id
 
-	permission := s.CreateUserPermission(authority.Email, "reader")
+	permission := s.CreateUserPermission(authority.Email, "READER")
 	permissionInserted, err := s.InsertPermission(app.FileId, permission)
 	if err != nil {
 		return err
