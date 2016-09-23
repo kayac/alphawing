@@ -194,7 +194,6 @@ $(function () {
 
     // bundle list tab
     (function () {
-        var BUNDLE_LIST_HEIGHT = 300;
         var LABELS = ['Android', 'iOS'];
         var NAV_CLASS_NAME = 'app-detail__bundle-nav';
         var ACTIVE_CLASS_NAME = 'active';
@@ -216,12 +215,6 @@ $(function () {
             $nav.children().removeClass(ACTIVE_CLASS_NAME);
             $nav.children().eq(pos).addClass(ACTIVE_CLASS_NAME);
         };
-
-        $appBundle.css('height', BUNDLE_LIST_HEIGHT + 'px');
-        $appBundle.children().css({
-            position:'absolute',
-            top: '0px'
-        });
 
         $.each(LABELS, function (index, label) {
             var $btn = $('<a href="#" />');

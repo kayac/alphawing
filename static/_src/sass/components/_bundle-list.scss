@@ -1,7 +1,4 @@
 .bundle-list {
-    height: $bundle_list_height;
-    overflow-x: hidden;
-    overflow-y: scroll;
 }
 
 .bundle-list__list {
@@ -12,7 +9,6 @@
 
     position: relative;
     overflow: hidden;
-    min-height: $bundle_list_height;
 
     &:before {
         content: '';
@@ -26,10 +22,11 @@
 }
 
 .bundle-list__no-bundle {
+    $height: 300px;
     text-align: center;
     color: $color_navy;
     font-weight: bold;
-    height: $bundle_list_height / 2;
-    padding-top: $bundle_list_height / 2;
+    height: $height / 2;
+    padding-top: $height / 2;
 }
 
