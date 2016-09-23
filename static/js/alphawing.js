@@ -16,7 +16,8 @@ $(function () {
             '削除するとこのプロジェクトにアクセスできなくなります。よろしいですか?'
         ].join('\n'),
         ERROR_APP_ID: 'error:\n不正なapp idです。',
-        ERROR_AUTHORITY_ID: 'error:\n不正なauthority idです。'
+        ERROR_AUTHORITY_ID: 'error:\n不正なauthority idです。',
+        MORE: 'もっと見る'
     };
 
 
@@ -239,6 +240,46 @@ $(function () {
         if (isTouchDevice) {
             $nav.remove();
         }
+    })();
+
+
+    // limit bundle entries
+    (function () {
+        var MAX_COUNT = 5;
+
+        var $root = $('.bundle-list__list');
+        if (!$root.length) {
+            return;
+        }
+
+        var $item = $root.children();
+
+        if ($item.length <= MAX_COUNT) {
+            return;
+        }
+
+        $item.each(function (index, el) {
+            if (index < MAX_COUNT) {
+                return;
+            }
+            $(el).hide();
+        });
+
+        var $more = $([
+            '<li>',
+            '  <div class="bundle-item">',
+            '    <a href="#more">' + MSG.MORE + '</a>',
+            '  </div>',
+            '</li>'
+        ].join(''));
+        
+        $root.append($more);
+
+        $more.on('click', function (e) {
+            e.preventDefault();
+            $more.remove();
+            $item.show();
+        });
     })();
 });
 
