@@ -18,7 +18,8 @@ import (
 	"google.golang.org/api/googleapi"
 	"google.golang.org/api/oauth2/v2"
 	"google.golang.org/api/storage/v1"
-	gcs "google.golang.org/cloud/storage"
+
+	gcs "cloud.google.com/go/storage"
 )
 
 type IpaReader struct {
