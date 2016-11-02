@@ -15,7 +15,8 @@ $(function () {
             '削除するとこのプロジェクトにアクセスできなくなります。よろしいですか?'
         ].join('\n'),
         ERROR_APP_ID: 'error:\n不正なapp idです。',
-        ERROR_AUTHORITY_ID: 'error:\n不正なauthority idです。'
+        ERROR_AUTHORITY_ID: 'error:\n不正なauthority idです。',
+        MORE: 'もっと見る'
     };
 
 
@@ -193,7 +194,6 @@ $(function () {
 
     // bundle list tab
     (function () {
-        var BUNDLE_LIST_HEIGHT = 300;
         var LABELS = ['Android', 'iOS'];
         var NAV_CLASS_NAME = 'app-detail__bundle-nav';
         var ACTIVE_CLASS_NAME = 'active';
@@ -216,12 +216,6 @@ $(function () {
             $nav.children().eq(pos).addClass(ACTIVE_CLASS_NAME);
         };
 
-        $appBundle.css('height', BUNDLE_LIST_HEIGHT + 'px');
-        $appBundle.children().css({
-            position:'absolute',
-            top: '0px'
-        });
-
         $.each(LABELS, function (index, label) {
             var $btn = $('<a href="#" />');
             $btn.text(label);
@@ -239,5 +233,45 @@ $(function () {
         if (isTouchDevice) {
             $nav.remove();
         }
+    })();
+
+
+    // limit bundle entries
+    (function () {
+        var MAX_COUNT = 5;
+
+        var $root = $('.bundle-list__list');
+        if (!$root.length) {
+            return;
+        }
+
+        var $item = $root.children();
+
+        if ($item.length <= MAX_COUNT) {
+            return;
+        }
+
+        $item.each(function (index, el) {
+            if (index < MAX_COUNT) {
+                return;
+            }
+            $(el).hide();
+        });
+
+        var $more = $([
+            '<li>',
+            '  <div class="bundle-item">',
+            '    <a href="#more">' + MSG.MORE + '</a>',
+            '  </div>',
+            '</li>'
+        ].join(''));
+        
+        $root.append($more);
+
+        $more.on('click', function (e) {
+            e.preventDefault();
+            $more.remove();
+            $item.show();
+        });
     })();
 });
