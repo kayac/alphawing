@@ -238,10 +238,11 @@ $(function () {
 
 
     // limit bundle entries
-    (function () {
+    $('.bundle-list__list').each(function (index, el) {
         var MAX_COUNT = 5;
-
-        var $root = $('.bundle-list__list');
+        
+        var $root = $(el);
+        
         if (!$root.length) {
             return;
         }
@@ -274,7 +275,7 @@ $(function () {
             $more.remove();
             $item.show();
         });
-    })();
+    });
 });
 
 })();
