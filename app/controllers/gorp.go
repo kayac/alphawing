@@ -25,9 +25,15 @@ func InitDB() {
 	appTableMap := Dbm.AddTableWithName(models.App{}, "app")
 	appTableMap.SetKeys(true, "Id")
 	appTableMap.ColMap("ApiToken").SetUnique(true)
+	appTableMap.ColMap("FileId").SetUnique(true)
 
 	bundleTableMap := Dbm.AddTableWithName(models.Bundle{}, "bundle")
 	bundleTableMap.SetKeys(true, "Id")
+	bundleTableMap.ColMap("FileId").SetUnique(true)
+
+	revisionTableMap := Dbm.AddTableWithName(models.Revision{}, "revision")
+	revisionTableMap.SetKeys(true, "Id")
+	revisionTableMap.SetUniqueTogether("app_id", "platform_type", "bundle_version")
 
 	authorityTableMap := Dbm.AddTableWithName(models.Authority{}, "authority")
 	authorityTableMap.SetKeys(true, "Id")
@@ -39,7 +45,10 @@ func InitDB() {
 	auditTableMap.SetKeys(true, "Id")
 
 	Dbm.TraceOn("[gorp]", revel.INFO)
-	Dbm.CreateTablesIfNotExists()
+	err := Dbm.CreateTablesIfNotExists()
+	if err != nil {
+		panic(err)
+	}
 }
 
 func getDbm() *gorp.DbMap {
