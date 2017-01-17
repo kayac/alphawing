@@ -4,10 +4,12 @@ import (
 	"database/sql"
 	"fmt"
 	"strconv"
-	"time"
 
+	"github.com/kayac/alphawing/app/googleservice"
 	"github.com/kayac/alphawing/app/models"
+	"github.com/kayac/alphawing/app/permission"
 	"github.com/kayac/alphawing/app/routes"
+	"github.com/kayac/alphawing/app/storage"
 
 	"github.com/coopernurse/gorp"
 	"github.com/revel/revel"
@@ -68,7 +70,7 @@ func (c BundleControllerWithValidation) PostUpdateBundle(bundleId int, bundle mo
 func (c BundleControllerWithValidation) PostDeleteBundle(bundleId int) revel.Result {
 	bundle := c.Bundle
 	err := Transact(func(txn gorp.SqlExecutor) error {
-		return bundle.Delete(txn, c.GoogleService)
+		return bundle.Delete(txn)
 	})
 	if err != nil {
 		panic(err)
@@ -99,12 +101,7 @@ func (c BundleControllerWithValidation) GetDownloadBundle(bundleId int) revel.Re
 }
 
 func (c BundleControllerWithValidation) GetDownloadApk(bundleId int) revel.Result {
-	resp, file, err := c.GoogleService.DownloadFile(c.Bundle.FileId)
-	if err != nil {
-		panic(err)
-	}
-
-	modtime, err := time.Parse(time.RFC3339, file.ModifiedDate)
+	r, storageFile, err := c.Bundle.DownloadFile()
 	if err != nil {
 		panic(err)
 	}
@@ -115,7 +112,7 @@ func (c BundleControllerWithValidation) GetDownloadApk(bundleId int) revel.Resul
 	}
 
 	c.Response.ContentType = "application/vnd.android.package-archive"
-	return c.RenderBinary(resp.Body, file.OriginalFilename, revel.Attachment, modtime)
+	return c.RenderBinary(r, storageFile.Filename, revel.Attachment, storageFile.Modtime)
 }
 
 func (c *BundleControllerWithValidation) CheckNotFound() revel.Result {
@@ -134,7 +131,24 @@ func (c *BundleControllerWithValidation) CheckNotFound() revel.Result {
 		return c.Redirect(routes.AlphaWingController.Index())
 	}
 
+	config := &googleservice.ServiceAccountConfig{
+		ClientEmail: Conf.ServiceAccountClientEmail,
+		PrivateKey:  Conf.ServiceAccountPrivateKey,
+	}
+
+	token, err := googleservice.GetServiceAccountToken(config)
+	if err != nil {
+		panic(err)
+	}
+
+	service, err := googleservice.NewGoogleService(token)
+	if err != nil {
+		panic(err)
+	}
+
 	bundle, err := models.GetBundle(Dbm, bundleId)
+	bundle.Permission = permission.GoogleDrive{Service: service}
+	bundle.Storage = storage.GoogleDrive{Service: service}
 	if err != nil {
 		if err == sql.ErrNoRows {
 			return c.NotFound("Bundle is not found.")

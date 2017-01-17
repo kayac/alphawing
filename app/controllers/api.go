@@ -92,7 +92,7 @@ func (c ApiController) PostUploadBundle(token string, description string, file *
 		File:         file,
 	}
 
-	if err := app.CreateBundle(Dbm, c.GoogleService, bundle); err != nil {
+	if err := app.CreateBundle(Dbm, bundle); err != nil {
 		if bperr, ok := err.(*models.BundleParseError); ok {
 			c.Response.Status = http.StatusInternalServerError
 			return c.RenderJson(c.NewJsonResponseUploadBundle(c.Response.Status, []string{bperr.Error()}, nil))
@@ -139,7 +139,7 @@ func (c ApiController) PostDeleteBundle(token string, file_id string) revel.Resu
 	}
 
 	err = Transact(func(txn gorp.SqlExecutor) error {
-		return bundle.Delete(txn, c.GoogleService)
+		return bundle.Delete(txn)
 	})
 	if err != nil {
 		c.Response.Status = http.StatusInternalServerError
