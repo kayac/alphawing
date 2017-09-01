@@ -3,7 +3,6 @@ MAINTAINER mix3
 
 RUN apk --update add wget ca-certificates unzip git gcc musl-dev
 
-ADD patch         /tmp/patch
 ADD docker_run.sh /tmp/docker_run.sh
 
 RUN mkdir -p /go/src/code.google.com/p \
@@ -21,7 +20,7 @@ RUN go get github.com/mattn/go-sqlite3 \
  && go get github.com/shogo82148/androidbinary \
  && go get github.com/go-sql-driver/mysql \
  && go get cloud.google.com/go/storage \
- && cd /go/src/github.com/revel/cmd && git checkout v0.17 && patch -p1 < /tmp/patch && go install github.com/revel/cmd/revel \
+ && cd /go/src/github.com/revel/cmd   && git checkout v0.17 \
  && cd /go/src/github.com/revel/revel && git checkout v0.17.1
 
 RUN mkdir -p /go/src/github.com/kayac \
