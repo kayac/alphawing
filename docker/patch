@@ -1,0 +1,14 @@
+diff --git a/harness/build.go b/harness/build.go
+index 5f6627b..dba09a4 100755
+--- a/harness/build.go
++++ b/harness/build.go
+@@ -52,6 +52,9 @@ func Build(buildFlags ...string) (app *App, compileError *revel.Error) {
+ 	genSource("tmp", "main.go", RevelMainTemplate, templateArgs)
+ 	genSource("routes", "routes.go", RevelRoutesTemplate, templateArgs)
+ 
++	exec.Command("goimports", "-w", "app/tmp/main.go").Run()
++	exec.Command("goimports", "-w", "app/routes/routes.go").Run()
++
+ 	// Read build config.
+ 	buildTags := revel.Config.StringDefault("build.tags", "")
+ 

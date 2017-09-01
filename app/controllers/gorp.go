@@ -10,7 +10,7 @@ import (
 	"github.com/kayac/alphawing/app/models"
 
 	"github.com/coopernurse/gorp"
-	"github.com/revel/modules/db/app"
+	db "github.com/revel/modules/db/app"
 	"github.com/revel/revel"
 )
 

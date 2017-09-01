@@ -214,7 +214,7 @@ func (c *AlphaWingController) createAudit(resource int, resourceId int, action i
 }
 
 func (c *AlphaWingController) SetLoginInfo() revel.Result {
-	c.RenderArgs["islogin"] = c.isLogin()
+	c.ViewArgs["islogin"] = c.isLogin()
 	if c.isLogin() {
 		tokeninfo, err := c.tokenInfo()
 		if err != nil {
@@ -222,13 +222,13 @@ func (c *AlphaWingController) SetLoginInfo() revel.Result {
 			switch {
 			case code == 0 || (400 <= code && code <= 499):
 				c.logout()
-				c.RenderArgs["islogin"] = false
+				c.ViewArgs["islogin"] = false
 				return nil
 			default:
 				panic(err)
 			}
 		}
-		c.RenderArgs["tokeninfo"] = tokeninfo
+		c.ViewArgs["tokeninfo"] = tokeninfo
 
 		userId, err := strconv.Atoi(c.Session[LoginSessionKey])
 		if err != nil {
@@ -275,13 +275,13 @@ func (c *AlphaWingController) InitGoogleService() revel.Result {
 	if err != nil {
 		panic(err)
 	}
-	c.RenderArgs["capacityInfo"] = capacityInfo
+	c.ViewArgs["capacityInfo"] = capacityInfo
 
 	return nil
 }
 
 func (c *AlphaWingController) InitRenderArgs() revel.Result {
-	c.RenderArgs["organizationName"] = Conf.OrganizationName
+	c.ViewArgs["organizationName"] = Conf.OrganizationName
 
 	return nil
 }
