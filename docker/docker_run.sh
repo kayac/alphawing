@@ -4,12 +4,13 @@ set -e
 
 cd /go/src/github.com/kayac/alphawing
 
-git fetch
+if [ "$GIT_REMOTE" != "" ]; then
+    git remote rename origin temp
+    git remote add origin $GIT_REMOTE
+fi
+
+git fetch origin
 git checkout $GIT_BRANCH
 git pull
 
-mkdir -p /tmp/alphawing
-
-revel build github.com/kayac/alphawing /tmp/alphawing
-
-go build -a -tags netgo -installsuffix netgo app/tmp/main.go
+revel package github.com/kayac/alphawing
