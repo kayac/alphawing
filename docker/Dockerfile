@@ -1,14 +1,22 @@
 FROM golang:alpine AS build-env
 MAINTAINER mix3
 
-RUN apk --update add wget ca-certificates unzip git gcc musl-dev
+RUN apk --update add \
+    unzip \
+    # for go get
+    git \
+    # for revel build
+    gcc musl-dev
 
-ADD docker_run.sh /tmp/docker_run.sh
+ADD docker_run.sh            /tmp/docker_run.sh
+ADD goauth2.zip              /tmp/goauth2.zip
+ADD go-uuid.zip              /tmp/go-uuid.zip
+ADD google-api-go-client.zip /tmp/google-api-go-client.zip
 
-RUN mkdir -p /go/src/code.google.com/p
-COPY goauth2              /go/src/code.google.com/p/goauth2
-COPY go-uuid              /go/src/code.google.com/p/go-uuid
-COPY google-api-go-client /go/src/code.google.com/p/google-api-go-client
+RUN mkdir -p /go/src/code.google.com/p \
+ && unzip /tmp/goauth2.zip              -d /go/src/code.google.com/p \
+ && unzip /tmp/go-uuid.zip              -d /go/src/code.google.com/p \
+ && unzip /tmp/google-api-go-client.zip -d /go/src/code.google.com/p
 
 RUN go get github.com/revel/cmd/revel \
  && go get github.com/DHowett/go-plist \
@@ -19,6 +27,7 @@ RUN go get github.com/revel/cmd/revel \
  && go get github.com/pborman/uuid \
  && go get github.com/shogo82148/androidbinary \
  && go get cloud.google.com/go/storage \
+ # fixed version for revel
  && cd /go/src/github.com/revel/cmd   && git checkout v0.17 \
  && cd /go/src/github.com/revel/revel && git checkout v0.17.1
 
