@@ -6,7 +6,9 @@ RUN apk --update add wget ca-certificates unzip git gcc musl-dev
 ADD docker_run.sh /tmp/docker_run.sh
 
 RUN mkdir -p /go/src/code.google.com/p
-COPY goauth2 /go/src/code.google.com/p/goauth2
+COPY goauth2              /go/src/code.google.com/p/goauth2
+COPY go-uuid              /go/src/code.google.com/p/go-uuid
+COPY google-api-go-client /go/src/code.google.com/p/google-api-go-client
 
 RUN go get github.com/revel/cmd/revel \
  && go get github.com/DHowett/go-plist \
@@ -16,6 +18,7 @@ RUN go get github.com/revel/cmd/revel \
  && go get github.com/mattn/go-sqlite3 \
  && go get github.com/pborman/uuid \
  && go get github.com/shogo82148/androidbinary \
+ && go get cloud.google.com/go/storage \
  && cd /go/src/github.com/revel/cmd   && git checkout v0.17 \
  && cd /go/src/github.com/revel/revel && git checkout v0.17.1
 

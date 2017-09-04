@@ -1,6 +1,7 @@
 package models
 
 import (
+	"context"
 	"database/sql"
 	"io/ioutil"
 
@@ -9,9 +10,10 @@ import (
 )
 
 func RenderMarkdown(md string) (string, error) {
+	ctx := context.Background()
 	client := github.NewClient(nil)
 
-	html, _, err := client.Markdown(md, nil)
+	html, _, err := client.Markdown(md, ctx, nil)
 	if err != nil {
 		return "", err
 	}
