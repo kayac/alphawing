@@ -13,7 +13,7 @@ func RenderMarkdown(md string) (string, error) {
 	ctx := context.Background()
 	client := github.NewClient(nil)
 
-	html, _, err := client.Markdown(md, ctx, nil)
+	html, _, err := client.Markdown(ctx, md, nil)
 	if err != nil {
 		return "", err
 	}
