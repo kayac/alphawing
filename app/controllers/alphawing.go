@@ -266,7 +266,7 @@ func (c *AlphaWingController) InitGoogleService() revel.Result {
 	return nil
 }
 
-func (c *AlphaWingController) InitViewArgs() revel.Result {
+func (c *AlphaWingController) InitRenderArgs() revel.Result {
 	c.ViewArgs["organizationName"] = Conf.OrganizationName
 
 	return nil
