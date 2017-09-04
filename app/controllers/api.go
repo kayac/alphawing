@@ -64,7 +64,7 @@ func (c ApiController) PostUploadBundle(token string, description string, file *
 	app, err := models.GetAppByApiToken(Dbm, token)
 	if err != nil {
 		c.Response.Status = http.StatusUnauthorized
-		return c.RenderJson(c.NewJsonResponseUploadBundle(c.Response.Status, []string{"Token is invalid."}, nil))
+		return c.RenderJSON(c.NewJsonResponseUploadBundle(c.Response.Status, []string{"Token is invalid."}, nil))
 	}
 
 	var filename string
@@ -83,7 +83,7 @@ func (c ApiController) PostUploadBundle(token string, description string, file *
 			errors = append(errors, err.String())
 		}
 		c.Response.Status = http.StatusBadRequest
-		return c.RenderJson(c.NewJsonResponseUploadBundle(c.Response.Status, errors, nil))
+		return c.RenderJSON(c.NewJsonResponseUploadBundle(c.Response.Status, errors, nil))
 	}
 
 	bundle := &models.Bundle{
@@ -95,27 +95,27 @@ func (c ApiController) PostUploadBundle(token string, description string, file *
 	if err := app.CreateBundle(Dbm, c.GoogleService, bundle); err != nil {
 		if bperr, ok := err.(*models.BundleParseError); ok {
 			c.Response.Status = http.StatusInternalServerError
-			return c.RenderJson(c.NewJsonResponseUploadBundle(c.Response.Status, []string{bperr.Error()}, nil))
+			return c.RenderJSON(c.NewJsonResponseUploadBundle(c.Response.Status, []string{bperr.Error()}, nil))
 		}
 		c.Response.Status = http.StatusInternalServerError
-		return c.RenderJson(c.NewJsonResponseUploadBundle(c.Response.Status, []string{err.Error()}, nil))
+		return c.RenderJSON(c.NewJsonResponseUploadBundle(c.Response.Status, []string{err.Error()}, nil))
 	}
 
 	content, err := bundle.JsonResponse(&c)
 	if err != nil {
 		c.Response.Status = http.StatusInternalServerError
-		return c.RenderJson(c.NewJsonResponseUploadBundle(c.Response.Status, []string{err.Error()}, nil))
+		return c.RenderJSON(c.NewJsonResponseUploadBundle(c.Response.Status, []string{err.Error()}, nil))
 	}
 
 	c.Response.Status = http.StatusOK
-	return c.RenderJson(c.NewJsonResponseUploadBundle(c.Response.Status, []string{"Bundle is created!"}, content))
+	return c.RenderJSON(c.NewJsonResponseUploadBundle(c.Response.Status, []string{"Bundle is created!"}, content))
 }
 
 func (c ApiController) PostDeleteBundle(token string, file_id string) revel.Result {
 	_, err := models.GetAppByApiToken(Dbm, token)
 	if err != nil {
 		c.Response.Status = http.StatusUnauthorized
-		return c.RenderJson(c.NewJsonResponseDeleteBundle(c.Response.Status, []string{"Token is invalid."}))
+		return c.RenderJSON(c.NewJsonResponseDeleteBundle(c.Response.Status, []string{"Token is invalid."}))
 	}
 
 	c.Validation.Required(file_id).Message("file_id is required.")
@@ -125,17 +125,17 @@ func (c ApiController) PostDeleteBundle(token string, file_id string) revel.Resu
 			errors = append(errors, err.String())
 		}
 		c.Response.Status = http.StatusBadRequest
-		return c.RenderJson(c.NewJsonResponseDeleteBundle(c.Response.Status, errors))
+		return c.RenderJSON(c.NewJsonResponseDeleteBundle(c.Response.Status, errors))
 	}
 
 	bundle, err := models.GetBundleByFileId(Dbm, file_id)
 	if err != nil {
 		if err == sql.ErrNoRows {
 			c.Response.Status = http.StatusNotFound
-			return c.RenderJson(c.NewJsonResponseDeleteBundle(c.Response.Status, []string{"Bundle not found."}))
+			return c.RenderJSON(c.NewJsonResponseDeleteBundle(c.Response.Status, []string{"Bundle not found."}))
 		}
 		c.Response.Status = http.StatusInternalServerError
-		return c.RenderJson(c.NewJsonResponseDeleteBundle(c.Response.Status, []string{err.Error()}))
+		return c.RenderJSON(c.NewJsonResponseDeleteBundle(c.Response.Status, []string{err.Error()}))
 	}
 
 	err = Transact(func(txn gorp.SqlExecutor) error {
@@ -143,30 +143,30 @@ func (c ApiController) PostDeleteBundle(token string, file_id string) revel.Resu
 	})
 	if err != nil {
 		c.Response.Status = http.StatusInternalServerError
-		return c.RenderJson(c.NewJsonResponseDeleteBundle(c.Response.Status, []string{err.Error()}))
+		return c.RenderJSON(c.NewJsonResponseDeleteBundle(c.Response.Status, []string{err.Error()}))
 	}
 
 	c.Response.Status = http.StatusOK
-	return c.RenderJson(c.NewJsonResponseDeleteBundle(c.Response.Status, []string{"Bundle is deleted!"}))
+	return c.RenderJSON(c.NewJsonResponseDeleteBundle(c.Response.Status, []string{"Bundle is deleted!"}))
 }
 
 func (c ApiController) GetListBundle(token string, page int) revel.Result {
 	app, err := models.GetAppByApiToken(Dbm, token)
 	if err != nil {
 		c.Response.Status = http.StatusUnauthorized
-		return c.RenderJson(c.NewJsonResponseListBundle(c.Response.Status, []string{"Token is invalid."}, nil))
+		return c.RenderJSON(c.NewJsonResponseListBundle(c.Response.Status, []string{"Token is invalid."}, nil))
 	}
 
 	bundles, totalCount, err := app.BundlesWithPager(Dbm, page, Conf.PagerDefaultLimit)
 	if err != nil {
 		c.Response.Status = http.StatusInternalServerError
-		return c.RenderJson(c.NewJsonResponseListBundle(c.Response.Status, []string{err.Error()}, nil))
+		return c.RenderJSON(c.NewJsonResponseListBundle(c.Response.Status, []string{err.Error()}, nil))
 	}
 
 	bundlesJsonResponse, err := bundles.JsonResponse(&c)
 	if err != nil {
 		c.Response.Status = http.StatusInternalServerError
-		return c.RenderJson(c.NewJsonResponseListBundle(c.Response.Status, []string{err.Error()}, nil))
+		return c.RenderJSON(c.NewJsonResponseListBundle(c.Response.Status, []string{err.Error()}, nil))
 	}
 
 	content := &models.BundlesJsonResponse{
@@ -178,5 +178,5 @@ func (c ApiController) GetListBundle(token string, page int) revel.Result {
 
 	c.Response.Status = http.StatusOK
 
-	return c.RenderJson(c.NewJsonResponseListBundle(c.Response.Status, []string{"Bundle List"}, content))
+	return c.RenderJSON(c.NewJsonResponseListBundle(c.Response.Status, []string{"Bundle List"}, content))
 }
