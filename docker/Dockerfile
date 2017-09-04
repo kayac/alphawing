@@ -43,8 +43,9 @@ ARG GIT_REMOTE
 ENV GIT_REMOTE $GIT_REMOTE
 RUN sh /tmp/docker_run.sh
 
-FROM golang:alpine
+FROM alpine:latest
 RUN apk --update add ca-certificates
 COPY --from=build-env /go/src/github.com/kayac/alphawing/alphawing.tar.gz /tmp/alphawing.tar.gz
-RUN tar xvzf /tmp/alphawing.tar.gz -C /go
+RUN mkdir /go \
+ && tar xvzf /tmp/alphawing.tar.gz -C /go
 CMD sh /go/run.sh
