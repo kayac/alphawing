@@ -28,8 +28,10 @@ RUN go get github.com/revel/cmd/revel \
  && go get github.com/shogo82148/androidbinary \
  && go get cloud.google.com/go/storage \
  # fixed version for revel
- && cd /go/src/github.com/revel/cmd   && git checkout v0.17 \
- && cd /go/src/github.com/revel/revel && git checkout v0.17.1
+ && cd /go/src/github.com/revel/cmd     && git checkout v0.17 \
+ && cd /go/src/github.com/revel/revel   && git checkout v0.17.1 \
+ && cd /go/src/github.com/revel/modules && git checkout v0.17 \
+ && go get github.com/revel/cmd/revel
 
 RUN mkdir -p /go/src/github.com/kayac \
  && cd /go/src/github.com/kayac \
@@ -37,7 +39,7 @@ RUN mkdir -p /go/src/github.com/kayac \
  && cd alphawing \
  && cp conf/app.conf.sample conf/app.conf
 
-ARG GIT_BRANCH=master
+ARG GIT_BRANCH=feature/google-storage
 ENV GIT_BRANCH $GIT_BRANCH
 ARG GIT_REMOTE
 ENV GIT_REMOTE $GIT_REMOTE
