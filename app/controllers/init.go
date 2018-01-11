@@ -73,6 +73,7 @@ func LoadConfig() {
 		panic("undefined config: app.permitteddomain")
 	}
 	organizationName, _ := revel.Config.String("app.organizationname")
+	privacyPolicyURL, _ := revel.Config.String("app.privacypolicyurl")
 
 	webApplicationClientId, found := revel.Config.String("google.webapplication.clientid")
 	if !found {
@@ -113,6 +114,7 @@ func LoadConfig() {
 		Secret:                     secret,
 		PermittedDomains:           strings.Split(permittedDomain, ","),
 		OrganizationName:           organizationName,
+		PrivacyPolicyURL:           privacyPolicyURL,
 		WebApplicationClientId:     webApplicationClientId,
 		WebApplicationClientSecret: webApplicationClientSecret,
 		WebApplicationCallbackUrl:  webApplicationCallbackUrl,
