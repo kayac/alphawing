@@ -7,6 +7,7 @@
 <!-- /.account --></div>{{end}}
 <footer class="footer">
 <small class="footer__credit">{{.organizationName}}</small>
+<small class="footer__credit">{{if ne .privacyPolicyURL ""}}<a href="{{.privacyPolicyURL}}" target="_blank">Privacy Policy</a>{{end}}</small>
 <!-- /.footer --></footer>
 <!-- /.wrapper --></section>
 <script src="//ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>

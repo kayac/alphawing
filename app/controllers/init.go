@@ -25,6 +25,7 @@ type Config struct {
 	ServiceAccountPrivateKey   string
 	PagerDefaultLimit          int
 	GoogleStorageConfig        models.GoogleStorageConfig
+	PrivacyPolicyURL           string
 }
 
 func init() {

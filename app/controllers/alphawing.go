@@ -268,6 +268,7 @@ func (c *AlphaWingController) InitGoogleService() revel.Result {
 
 func (c *AlphaWingController) InitRenderArgs() revel.Result {
 	c.ViewArgs["organizationName"] = Conf.OrganizationName
+	c.ViewArgs["privacyPolicyURL"] = Conf.PrivacyPolicyURL
 
 	return nil
 }
