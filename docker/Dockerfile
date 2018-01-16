@@ -46,7 +46,7 @@ ENV GIT_REMOTE $GIT_REMOTE
 RUN sh /tmp/docker_run.sh
 
 FROM alpine:latest
-RUN apk --update add ca-certificates
+RUN apk --update add ca-certificates sqlite
 COPY --from=build-env /go/src/github.com/kayac/alphawing/alphawing.tar.gz /tmp/alphawing.tar.gz
 RUN mkdir /go \
  && tar xvzf /tmp/alphawing.tar.gz -C /go
