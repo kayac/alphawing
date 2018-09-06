@@ -1,4 +1,4 @@
-FROM golang:alpine AS build-env
+FROM golang:1.6-alpine AS build-env
 MAINTAINER mix3
 
 RUN apk --update add \
