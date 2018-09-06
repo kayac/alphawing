@@ -13,6 +13,8 @@ import (
 	"google.golang.org/api/drive/v2"
 )
 
+var defaultBundlesLimit = 100
+
 // https://github.com/coopernurse/gorp#mapping-structs-to-tables
 type App struct {
 	Id          int       `db:"id"`
@@ -33,9 +35,15 @@ func (app *App) Bundles(txn gorp.SqlExecutor) ([]*Bundle, error) {
 	return bundles, nil
 }
 
-func (app *App) BundlesByPlatformType(txn gorp.SqlExecutor, platformType BundlePlatformType) ([]*Bundle, error) {
+func (app *App) BundlesByPlatformType(txn gorp.SqlExecutor, platformType BundlePlatformType, limit int) ([]*Bundle, error) {
 	var bundles []*Bundle
-	_, err := txn.Select(&bundles, "SELECT * FROM bundle WHERE app_id = ? AND platform_type = ? ORDER BY id DESC", app.Id, platformType)
+	query := "SELECT * FROM bundle WHERE app_id = ? AND platform_type = ? ORDER BY id DESC"
+	params := []interface{}{app.Id, platformType}
+	if limit > 0 {
+		query = query + " LIMIT ?"
+		params = append(params, limit)
+	}
+	_, err := txn.Select(&bundles, query, params...)
 	if err != nil {
 		return nil, err
 	}

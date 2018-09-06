@@ -74,12 +74,12 @@ func (c AppControllerWithValidation) GetApp(appId int) revel.Result {
 		panic(err)
 	}
 
-	apkBundles, err := app.BundlesByPlatformType(Dbm, models.BundlePlatformTypeAndroid)
+	apkBundles, err := app.BundlesByPlatformType(Dbm, models.BundlePlatformTypeAndroid, 100)
 	if err != nil {
 		panic(err)
 	}
 
-	ipaBundles, err := app.BundlesByPlatformType(Dbm, models.BundlePlatformTypeIOS)
+	ipaBundles, err := app.BundlesByPlatformType(Dbm, models.BundlePlatformTypeIOS, 100)
 	if err != nil {
 		panic(err)
 	}
